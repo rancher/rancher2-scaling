@@ -309,4 +309,5 @@ spec:
   selector:
     app: default-http-backend
 EOF
+kubectl apply -f /var/lib/rancher/k3s/server/manifests/ingress.yaml
 %{ endif }

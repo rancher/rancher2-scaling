@@ -52,7 +52,7 @@ data "template_cloudinit_config" "k3s_server" {
   }
 
   part {
-    filename     = "k3s-install.sh"
+    filename     = "00_k3s-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/k3s-install.sh", {
       install_k3s_version    = local.install_k3s_version,
@@ -64,12 +64,13 @@ data "template_cloudinit_config" "k3s_server" {
       k3s_datastore_cafile   = local.k3s_datastore_cafile,
       k3s_disable_agent      = local.k3s_disable_agent,
       k3s_tls_san            = local.k3s_tls_san,
-      k3s_deploy_traefik = local.k3s_deploy_traefik }
+      k3s_deploy_traefik     = local.k3s_deploy_traefik
+      }
     )
   }
 
   part {
-    filename     = "ingress-install.sh"
+    filename     = "99_ingress-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/ingress-install.sh", {
       install_nginx_ingress = local.install_nginx_ingress
@@ -78,7 +79,7 @@ data "template_cloudinit_config" "k3s_server" {
   }
 
   part {
-    filename     = "rancher-install.sh"
+    filename     = "20_rancher-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/rancher-install.sh", {
       certmanager_version   = local.certmanager_version,
@@ -93,7 +94,7 @@ data "template_cloudinit_config" "k3s_server" {
   }
 
   part {
-    filename     = "register-to-rancher.sh"
+    filename     = "30_register-to-rancher.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/register-to-rancher.sh", {
       is_k3s_server        = true,
@@ -119,7 +120,7 @@ data "template_cloudinit_config" "k3s_agent" {
   }
 
   part {
-    filename     = "k3s-install.sh"
+    filename     = "20_k3s-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/k3s-install.sh", {
       install_k3s_version    = local.install_k3s_version,

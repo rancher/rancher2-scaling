@@ -75,7 +75,7 @@ variable "server_node_count" {
 
 variable "agent_node_count" {
   type        = number
-  default     = 3
+  default     = 0
   description = "Number of agent nodes to launch"
 }
 
@@ -211,7 +211,7 @@ variable "install_rancher" {
 }
 
 variable "install_nginx_ingress" {
-  default     = false
+  default     = true
   type        = bool
   description = "Boolean that defines whether or not to install nginx-ingress"
 }
@@ -258,7 +258,7 @@ variable "k3s_tls_san" {
 }
 
 variable "k3s_deploy_traefik" {
-  default     = true
+  default     = false
   type        = bool
   description = "Configures whether to deploy traefik ingress or not"
 }

@@ -109,7 +109,7 @@ resource "aws_launch_template" "k3s_server" {
 
   network_interfaces {
     delete_on_termination = true
-    security_groups       = concat([aws_security_group.self.id, var.db_security_group], var.extra_server_security_groups)
+    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id, var.db_security_group], var.extra_server_security_groups)
   }
 
   tags = {
@@ -187,7 +187,9 @@ resource "aws_autoscaling_group" "k3s_server" {
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [
-    aws_lb_target_group.server-6443.arn
+    aws_lb_target_group.server-6443.arn,
+    aws_lb_target_group.server-80.arn,
+    aws_lb_target_group.server-443.arn
   ]
 
   launch_template {
@@ -218,6 +220,10 @@ resource "aws_autoscaling_group" "k3s_agent" {
     version = aws_launch_template.k3s_agent.latest_version
   }
 
+  depends_on = [
+    aws_autoscaling_group.k3s_server,
+  ]
+
   lifecycle {
     create_before_destroy = true
   }
@@ -232,7 +238,7 @@ resource "aws_route53_record" "rancher" {
   name    = "${local.subdomain}.${local.domain}"
   type    = "CNAME"
   ttl     = 30
-  records = [aws_lb.lb.0.dns_name]
+  records = [aws_lb.server-public-lb.dns_name]
 }
 
 resource "aws_route53_record" "k3s" {

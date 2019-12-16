@@ -68,6 +68,12 @@ locals {
   db_multi_az = false
 }
 
+resource "random_password" "rancher_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
 module "k3s" {
   source                      = "./modules/aws-k3s"
   vpc_id                      = data.aws_vpc.default.id
@@ -83,4 +89,5 @@ module "k3s" {
   k3s_storage_engine          = var.db_engine
   ssh_keys                    = var.ssh_keys
   install_rancher             = true
+  rancher_password            = random_password.rancher_password.result
 }

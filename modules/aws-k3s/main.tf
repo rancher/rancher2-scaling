@@ -65,6 +65,7 @@ resource "random_password" "k3s_cluster_secret" {
 provider "rancher2" {
   alias     = "bootstrap"
   api_url   = "https://${local.subdomain}.${local.domain}"
+  insecure  = true
   bootstrap = true
 }
 
