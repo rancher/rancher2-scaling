@@ -304,3 +304,13 @@ variable "db_port" {
 variable "user" {
   type = string
 }
+
+variable "rancher_image" {
+  type    = string
+  default = "rancher/rancher"
+}
+
+variable "rancher_image_tag" {
+  type    = string
+  default = "master-head"
+}

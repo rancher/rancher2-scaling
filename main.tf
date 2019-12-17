@@ -90,4 +90,6 @@ module "k3s" {
   ssh_keys                    = var.ssh_keys
   install_rancher             = true
   rancher_password            = random_password.rancher_password.result
+  rancher_image               = var.rancher_image
+  rancher_image_tag           = var.rancher_image_tag
 }

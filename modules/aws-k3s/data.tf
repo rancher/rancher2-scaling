@@ -89,6 +89,8 @@ data "template_cloudinit_config" "k3s_server" {
       install_rancher       = local.install_rancher,
       install_nginx_ingress = local.install_nginx_ingress,
       install_certmanager   = local.install_certmanager
+      rancher_image         = var.rancher_image
+      rancher_image_tag     = var.rancher_image_tag
       }
     )
   }

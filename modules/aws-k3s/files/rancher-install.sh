@@ -32,5 +32,10 @@ spec:
         source: letsEncrypt
     letsEncrypt:
       email: ${letsencrypt_email}
+    rancherImage: ${rancher_image}
+    rancherImageTag: ${rancher_image_tag}
+    extraEnv:
+    - name: CATTLE_PROMETHEUS_METRICS
+      value: 'true'
 EOF
 %{ endif }

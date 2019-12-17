@@ -71,3 +71,12 @@ variable "ssh_keys" {
   description = "SSH keys to inject into Rancher instances"
 }
 
+variable "rancher_image" {
+  type    = string
+  default = "rancher/rancher"
+}
+
+variable "rancher_image_tag" {
+  type    = string
+  default = "master-head"
+}

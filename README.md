@@ -15,14 +15,14 @@ Create k3s cluster with **mariadb** data store:
 ```bash
 terraform apply
 ``` 
-Creating the cluster resources takes about 10-15 minutes.
+Creating the cluster resources takes about 10-15 minutes. After successfully running apply `terraform` will output information needed to connect to the rancher server.
 
 #### destroying cluster resources
 
 ```bash
 terraform destroy
 ``` 
-destroying cluster resources takes about 10-15 minutes.
+Destroying cluster resources takes about 10-15 minutes.
 
 ## configuration:
 Configuration changes should be done in `terraform.tfvars` to override default variable settings in `variables.tf`. The format of the `terraform.tfvars` file must be in done with key/value pairs. 
