@@ -3,10 +3,8 @@ import os
 import time
 import random
 
-from state import State
 from multiprocessing import Pool, TimeoutError
 from options import Options
-from kubernetes.client.rest import ApiException
 from pandas import DataFrame
 
 
@@ -31,7 +29,6 @@ class TestBench:
         with Pool() as pool:
             first_write = True
             last_save = time.time()
-
             for i in range(options.iterations):
                 results[i] = [None for _ in range(len(label_to_index.keys()))]
                 for metric in metrics:
@@ -55,6 +52,8 @@ class TestBench:
 
 def log_dict(result):
     global results
+    if result is None:
+        return
     row_key = result.get("row_key", None)
     if row_key is None:
         return
@@ -83,11 +82,10 @@ def test_k8s_project_list(row_index):
 def test_rancher_crud(row_index):
     data = {"row_key": row_index}
     try:
-        a = client.timed_crud_rancher_cluster()
-        data.update(a)
-        data.update(client.timed_crud_rancher_cluster())
-    except ApiException as e:
-        print("ERROR", e)
+        crud_times = client.timed_crud_rancher_cluster()
+        data.update(crud_times)
+    except Exception as e:
+        print("ERROR crud", e)
     return data
 
 
@@ -109,7 +107,7 @@ metrics = [
 
 token = os.getenv("RANCHER_SCALING_TOKEN")
 url = os.getenv("RANCHER_SCALING_URL")
-a = c.Auth(token, url=url)
+a = c.Auth(token, url)
 client = c.Client(a)
 
 opts = Options()
