@@ -1,15 +1,12 @@
-import base64
 import yaml
 import urllib3
 import requests
 import time
-import sys
 
 from rancher import Client as RancherClient, ApiError
-from kubernetes.client.rest import ApiException
 from kubernetes.client import ApiClient, Configuration, CustomObjectsApi
 from kubernetes.config.kube_config import KubeConfigLoader
-from common import random_str, wait_for
+from common import random_str
 
 urllib3.disable_warnings()
 
@@ -86,36 +83,6 @@ class Client:
             delete_time = time.time() - start
         except ApiError as e:
             return {}
-
-        times = {
-            "rancher_create_time": create_time,
-            "rancher_get_time": get_time,
-            "rancher_update_time": update_time,
-            "rancher_delete_time": delete_time
-        }
-        return times
-
-    def timed_crud_rancher_kube_cluster(self):
-        feature_name = "kd-" + random_str()
-
-        create_time = self.timed_create_rancher_cluster(feature_name)
-
-        def wait_for_kd_list():
-            try:
-                return self._list_rancher("kontainerdrivers")["data"]
-            except ApiException:
-                return None
-        kds = wait_for(wait_for_kd_list)
-        kd_id = None
-        for kd in kds:
-            if kd["name"] == feature_name:
-                kd_id = kd["id"]
-        if kd_id is None:
-            return {}
-
-        get_time = self._timed_get_rancher("kontainerdrivers", kd_id)
-        update_time = self._timed_update_rancher("kontainerdrivers", kd_id, {"url": random_str()})
-        delete_time = self._timed_delete_rancher("kontainerdrivers", kd_id)
 
         times = {
             "rancher_create_time": create_time,
@@ -207,131 +174,6 @@ class Client:
     def list_proxy_secrets(self):
         return self._list_k8s_proxy("v1", "secrets")
 
-    def create_default_sa_crb(self):
-        client_configuration = type.__call__(Configuration)
-        client_configuration.host = self.Auth.k8s_proxy_url
-        client_configuration.verify_ssl = False
-        rancher_client = ApiClient(configuration=client_configuration)
-        resp = rancher_client.call_api(
-            '/apis/{group}/{version}/{plural}',
-            "POST",
-            {
-                'group': "rbac.authorization.k8s.io",
-                'version': "v1beta1",
-                'plural': "clusterrolebindings",
-            },
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            body={
-                "metadata": {
-                    "name": "crb-" + random_str()
-                },
-                "roleRef": {
-                    "apiGroup": "rbac.authorization.k8s.io",
-                    "kind": "ClusterRole",
-                    "name": "cluster-admin"
-                },
-                "subjects": [{"kind": "ServiceAccount", "name": "default", "namespace": "default"}]
-            },
-            _return_http_data_only=True,
-            response_type='object'
-        )
-        return resp
-
-    def _timed_create_rancher(self, resource, body):
-        """creates a rancher resource"""
-        start = time.time()
-        resp = self.rancher_kube_client.call_api(
-            "/" + resource,
-            "POST",
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            body=body,
-            _return_http_data_only=True,
-            _preload_content=False,
-        )
-        if resp.status == 201:
-            return time.time() - start
-        else:
-            return None
-
-    def _timed_get_rancher(self, resource, name):
-        """gets rancher resource"""
-        start = time.time()
-        resp = self.rancher_kube_client.call_api(
-            "/" + resource + "/" + name,
-            "GET",
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            _return_http_data_only=True,
-            _preload_content=False,
-        )
-        if resp.status == 200:
-            return time.time() - start
-        else:
-            return None
-
-    def _timed_update_rancher(self, resource, name, body):
-        """updates rancher resource"""
-        start = time.time()
-        resp = self.rancher_kube_client.call_api(
-            "/" + resource + "/" + name,
-            "PUT",
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            body=body,
-            _return_http_data_only=True,
-            _preload_content=False,
-        )
-        if resp.status == 200:
-            return time.time() - start
-        else:
-            return None
-
-    def _timed_delete_rancher(self, resource, name):
-        """deletes rancher resource"""
-        start = time.time()
-        resp = self.rancher_kube_client.call_api(
-            "/" + resource + "/" + name,
-            "DELETE",
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            _return_http_data_only=True,
-            _preload_content=False,
-        )
-        if resp.status == 200:
-            return time.time() - start
-        else:
-            return None
-
-    def _timed_list_rancher(self, resource):
-        start = time.time()
-        resp = self.rancher_kube_client.call_api(
-            "/" + resource,
-            "GET",
-            header_params={
-                'Accept': 'application/json',
-                'Authorization': 'Bearer ' + self.Auth.token
-            },
-            _return_http_data_only=True,
-            _preload_content=False,
-        )
-        time_elapsed = time.time() - start
-        if resp.status == 200:
-            return time_elapsed
-        else:
-            return None
-
     def rancher_api_client(self):
         return RancherClient(
             url=self.Auth.url,
@@ -358,32 +200,6 @@ def k8s_api_client(client, cluster_name, kube_path=None):
     client_configuration.api_key = {}
     client_configuration.verify_ssl = False
     k8s_client = ApiClient(configuration=client_configuration)
-    return CustomObjectsApi(api_client=k8s_client).api_client
-
-
-def real_k8s_api_client(client, cluster_name):
-    secrets = client.list_proxy_secrets()
-    for secret in secrets["items"]:
-        if secret["metadata"]["namespace"] == "default":
-            token = base64.b64decode(secret["data"]["token"]).decode("utf-8")
-    print(token)
-    client.Auth.set_k8s_token(token)
-    client.create_default_sa_crb()
-
-    rancher_client = RancherClient(
-            url=client.Auth.url,
-            token=client.Auth.token,
-            verify=False)
-    cluster = rancher_client.by_id_cluster(cluster_name)
-    kube_config = cluster.generateKubeconfig().config
-
-    loader = KubeConfigLoader(config_dict=yaml.full_load(kube_config))
-
-    client_configuration = type.__call__(Configuration)
-    client_configuration.host = client.Auth.k8s_url
-    client_configuration.verify_ssl = False
-    k8s_client = ApiClient(configuration=client_configuration)
-
     return CustomObjectsApi(api_client=k8s_client).api_client
 
 
