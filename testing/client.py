@@ -45,20 +45,20 @@ class Client:
     def timed_list_rancher_clusters(self):
         start = time.time()
         try:
-            self.rancher_api_client().list_cluster(limit=-1)
+            resp = self.rancher_api_client().list_cluster(limit=-1)
         except ApiError as e:
             print(e)
             return
-        return time.time() - start
+        return {"num_clusters": len(resp["data"]), "rancher_cluster_list_time": time.time() - start}
 
     def timed_list_rancher_projects_no_resp(self):
         start = time.time()
         try:
-            self.rancher_api_client().list_project(limit=1)
+            resp = self.rancher_api_client().list_project(limit=-1)
         except ApiError as e:
             print(e)
             return
-        return time.time() - start
+        return {"num_projects": len(resp["data"]), "rancher_project_list_time": time.time() - start}
 
     def timed_crud_rancher_cluster(self):
         try:
@@ -81,7 +81,7 @@ class Client:
             start = time.time()
             rancher_client.delete(proj)
             delete_time = time.time() - start
-        except ApiError as e:
+        except ApiError:
             return {}
 
         times = {
@@ -93,7 +93,12 @@ class Client:
         return times
 
     def timed_create_rancher_cluster(self, name):
-        return self._timed_create_rancher("kontainerdriver", body={"name": name, "url": random_str(), "type": "kontainerdriver"})
+        return self._timed_create_rancher(
+            "kontainerdriver",
+            body={
+                "name": name,
+                "url": random_str(),
+                "type": "kontainerdriver"})
 
     def _timed_list_k8s(self, resource_plural):
         start = time.time()
@@ -110,11 +115,13 @@ class Client:
                 'Authorization': 'Bearer ' + self.Auth.token
             },
             auth_settings=['BearerToken'],
-            _return_http_data_only=True,
-            _preload_content=False,
+            _preload_content=True,
+            response_type='object'
+
         )
-        if resp.status == 200:
-            return time.time() - start
+        if resp[1] == 200:
+            return {"num_k8s_" + resource_plural: len(resp[0].get("items", {})),
+                    "k8s_" + resource_plural[:-1] + "_list_time": time.time() - start}
         else:
             return None
 
