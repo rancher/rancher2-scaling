@@ -59,24 +59,33 @@ def log_dict(result):
         return
     del result["row_key"]
     for key in result.keys():
-        col_index = label_to_index[key]
-        results[row_key][col_index] = result[key]
+        col_index = label_to_index.get(key, None)
+        if col_index is not None:
+            results[row_key][col_index] = result[key]
 
 
 def test_k8s_cluster_list(row_index):
-    return {"row_key": row_index, "k8s_cluster_list_time": client.timed_list_k8s_clusters_no_resp()}
+    k8s_cluster_test_data = {"row_key": row_index}
+    k8s_cluster_test_data.update(client.timed_list_k8s_clusters_no_resp())
+    return k8s_cluster_test_data
 
 
 def test_rancher_cluster_list(row_index):
-    return {"row_key": row_index, "rancher_cluster_list_time": client.timed_list_rancher_clusters()}
+    cluster_test_data = {"row_key": row_index}
+    cluster_test_data.update(client.timed_list_rancher_clusters())
+    return cluster_test_data
 
 
 def test_rancher_project_list(row_index):
-    return {"row_key": row_index, "rancher_project_list_time": client.timed_list_rancher_projects_no_resp()}
+    project_test_data = {"row_key": row_index}
+    project_test_data.update(client.timed_list_rancher_projects_no_resp())
+    return project_test_data
 
 
 def test_k8s_project_list(row_index):
-    return {"row_key": row_index, "k8s_project_list_time": client.timed_list_k8s_projects_no_resp()}
+    k8s_project_test_data = {"row_key": row_index}
+    k8s_project_test_data.update(client.timed_list_k8s_projects_no_resp())
+    return k8s_project_test_data
 
 
 def test_rancher_crud(row_index):
@@ -97,10 +106,10 @@ def save(progress, write_columns):
 
 
 metrics = [
-    Metric(test_rancher_cluster_list, ["rancher_cluster_list_time"]),
-    Metric(test_rancher_project_list, ["rancher_project_list_time"]),
-    Metric(test_k8s_cluster_list, ["k8s_cluster_list_time"]),
-    Metric(test_k8s_project_list, ["k8s_project_list_time"]),
+    Metric(test_rancher_cluster_list, ["rancher_cluster_list_time", "num_clusters"]),
+    Metric(test_rancher_project_list, ["rancher_project_list_time", "num_projects"]),
+    Metric(test_k8s_cluster_list, ["k8s_cluster_list_time", "num_k8s_clusters"]),
+    Metric(test_k8s_project_list, ["k8s_project_list_time", "num_k8s_projects"]),
     Metric(test_rancher_crud, ["rancher_create_time", "rancher_get_time",
                                "rancher_update_time", "rancher_delete_time"])
 ]
