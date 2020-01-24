@@ -3,7 +3,6 @@ import os
 import time
 import random
 
-from multiprocessing import Pool, TimeoutError
 from options import Options
 from pandas import DataFrame
 
@@ -26,28 +25,22 @@ class TestBench:
             for label in metric.labels:
                 label_to_index[label] = len(label_to_index.keys())
 
-        with Pool() as pool:
-            first_write = True
-            last_save = time.time()
-            for i in range(options.iterations):
-                results[i] = [None for _ in range(len(label_to_index.keys()))]
-                for metric in metrics:
-                    pool.apply_async(metric.fn, args=[i], callback=log_dict)
-                time.sleep(options.pulse + random.uniform(0, options.jitter))
-                if time.time() - last_save > options.save_every:
-                    print("saving...")
-                    pool.close()
-                    pool.join()
-
-                    save(results, first_write)
-                    results = {}
-                    last_save = time.time()
-                    print("saved...")
-                    pool = Pool()
-                    first_write = False
-            pool.close()
-            pool.join()
-            save(results, first_write)
+        first_write = True
+        last_save = time.time()
+        for i in range(options.iterations):
+            results[i] = [None for _ in range(len(label_to_index.keys()))]
+            for metric in metrics:
+                result = metric.fn(i)
+                log_dict(result)
+            time.sleep(options.pulse + random.uniform(0, options.jitter))
+            if time.time() - last_save > options.save_every:
+                print("results", results)
+                print("saving...")
+                save(results, first_write)
+                results = {}
+                last_save = time.time()
+                first_write = False
+        save(results, first_write)
 
 
 def log_dict(result):
@@ -98,10 +91,10 @@ def test_rancher_crud(row_index):
     return data
 
 
-def save(progress, write_columns):
+def save(results, write_columns):
     header = write_columns
 
-    current = DataFrame.from_dict(progress, orient="index", columns=label_to_index.keys())
+    current = DataFrame.from_dict(results, orient="index", columns=label_to_index.keys())
     current.to_csv(path_or_buf="scale_test.csv", mode="a", header=header)
 
 
