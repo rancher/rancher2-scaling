@@ -92,14 +92,6 @@ class Client:
         }
         return times
 
-    def timed_create_rancher_cluster(self, name):
-        return self._timed_create_rancher(
-            "kontainerdriver",
-            body={
-                "name": name,
-                "url": random_str(),
-                "type": "kontainerdriver"})
-
     def _timed_list_k8s(self, resource_plural):
         start = time.time()
         resp = self.k8s_client.call_api(
