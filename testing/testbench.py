@@ -2,6 +2,7 @@ import client as c
 import os
 import time
 import random
+import tests
 
 from options import Options
 from pandas import DataFrame
@@ -40,7 +41,10 @@ class TestBench:
                 results = {}
                 last_save = time.time()
                 first_write = False
-        save(results, first_write)
+        current = DataFrame.from_dict(results, orient="index", columns=label_to_index.keys())
+        save(current, first_write)
+
+        tests.run_tests(current)
 
 
 def log_dict(result):
@@ -91,10 +95,9 @@ def test_rancher_crud(row_index):
     return data
 
 
-def save(results, write_columns):
+def save(current, write_columns):
     header = write_columns
 
-    current = DataFrame.from_dict(results, orient="index", columns=label_to_index.keys())
     current.to_csv(path_or_buf="scale_test.csv", mode="a", header=header)
 
 
