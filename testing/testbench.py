@@ -3,6 +3,7 @@ import os
 import time
 import random
 import tests
+import pathlib
 
 from options import Options
 from pandas import DataFrame
@@ -20,6 +21,11 @@ class Metric:
 
 class TestBench:
     def __init__(self, metrics, options):
+        token = os.getenv("RANCHER_SCALING_TOKEN")
+        url = os.getenv("RANCHER_SCALING_URL")
+        a = c.Auth(token, url)
+        client = c.Client(a)
+
         global results
         # Setup state
         for metric in metrics:
@@ -31,7 +37,7 @@ class TestBench:
         for i in range(options.iterations):
             results[i] = [None for _ in range(len(label_to_index.keys()))]
             for metric in metrics:
-                result = metric.fn(i)
+                result = metric.fn(client, i)
                 log_dict(result)
             time.sleep(options.pulse + random.uniform(0, options.jitter))
             if time.time() - last_save > options.save_every:
@@ -42,6 +48,7 @@ class TestBench:
                 last_save = time.time()
                 first_write = False
         current = DataFrame.from_dict(results, orient="index", columns=label_to_index.keys())
+        print("METRICS RESULTS:", current)
         save(current, first_write)
 
         tests.run_tests(current)
@@ -61,31 +68,31 @@ def log_dict(result):
             results[row_key][col_index] = result[key]
 
 
-def test_k8s_cluster_list(row_index):
+def test_k8s_cluster_list(client, row_index):
     k8s_cluster_test_data = {"row_key": row_index}
     k8s_cluster_test_data.update(client.timed_list_k8s_clusters_no_resp())
     return k8s_cluster_test_data
 
 
-def test_rancher_cluster_list(row_index):
+def test_rancher_cluster_list(client, row_index):
     cluster_test_data = {"row_key": row_index}
     cluster_test_data.update(client.timed_list_rancher_clusters())
     return cluster_test_data
 
 
-def test_rancher_project_list(row_index):
+def test_rancher_project_list(client, row_index):
     project_test_data = {"row_key": row_index}
     project_test_data.update(client.timed_list_rancher_projects_no_resp())
     return project_test_data
 
 
-def test_k8s_project_list(row_index):
+def test_k8s_project_list(client, row_index):
     k8s_project_test_data = {"row_key": row_index}
     k8s_project_test_data.update(client.timed_list_k8s_projects_no_resp())
     return k8s_project_test_data
 
 
-def test_rancher_crud(row_index):
+def test_rancher_crud(client, row_index):
     data = {"row_key": row_index}
     try:
         crud_times = client.timed_crud_rancher_cluster()
@@ -97,8 +104,8 @@ def test_rancher_crud(row_index):
 
 def save(current, write_columns):
     header = write_columns
-
-    current.to_csv(path_or_buf="scale_test.csv", mode="a", header=header)
+    path = str(pathlib.Path(__file__).parent.absolute()) + "/scale_test.csv"
+    current.to_csv(path_or_buf=path, mode="a", header=header)
 
 
 metrics = [
@@ -110,10 +117,7 @@ metrics = [
                                "rancher_update_time", "rancher_delete_time"])
 ]
 
-token = os.getenv("RANCHER_SCALING_TOKEN")
-url = os.getenv("RANCHER_SCALING_URL")
-a = c.Auth(token, url)
-client = c.Client(a)
 
-opts = Options()
-TestBench(metrics, opts)
+def run():
+    opts = Options()
+    TestBench(metrics, opts)

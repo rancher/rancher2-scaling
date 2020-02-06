@@ -25,7 +25,7 @@ def run_tests(df):
 
 def test_cluster_list_time(df):
     try:
-        average_less_than(df, "rancher_cluster_list_time", .005)
+        average_less_than(df, "rancher_cluster_list_time", 5)
     except AssertionError as e:
         return Result(False, err_msg="rancher cluster list time not less than 5 seconds.")
     return Result(True)
