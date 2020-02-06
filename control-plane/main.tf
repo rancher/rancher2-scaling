@@ -92,4 +92,6 @@ module "k3s" {
   rancher_password            = random_password.rancher_password.result
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
+  server_instance_type        = var.rancher_instance_type
+  server_node_count           = var.rancher_node_count
 }

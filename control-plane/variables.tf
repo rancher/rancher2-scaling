@@ -80,3 +80,8 @@ variable "rancher_image_tag" {
   type    = string
   default = "master-head"
 }
+
+variable "rancher_node_count" {
+  type    = number
+  default = 1
+}
