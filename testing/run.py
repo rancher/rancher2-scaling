@@ -1,13 +1,15 @@
 import cleanup
 import os
+import pathlib
 import testbench
+
 from setup import setup
 from stabalize import start
 from requests import ConnectionError
 
 
 def set_rancher_token_url():
-    tfstate = open("rancher.tfstate").read()
+    tfstate = open(str(pathlib.Path(__file__).parent.absolute()) + "/../control-plane/rancher.tfstate").read()
 
     token = tfstate.split("\"token\": \"")[1]
     token = token.split("\",")[0]
