@@ -48,6 +48,7 @@ resource "aws_spot_instance_request" "k3s-server" {
 
   tags = {
     Name = "${local.name}-server-${local.cluster_instance}"
+    RancherScaling = "true"
   }
 
   root_block_device {
