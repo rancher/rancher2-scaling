@@ -123,7 +123,7 @@ resource "aws_lb_target_group" "agent-80" {
 }
 
 resource "aws_lb" "server-public-lb" {
-  name               = "${local.name}-server-public"
+  name               = "${local.name}"
   internal           = false
   load_balancer_type = "network"
   subnets            = local.public_subnets
@@ -135,7 +135,7 @@ resource "aws_lb" "server-public-lb" {
 }
 
 resource "aws_lb_target_group" "server-443" {
-  name     = "${local.name}-server-443"
+  name     = "${local.name}-443"
   port     = 443
   protocol = "TCP"
   vpc_id   = data.aws_vpc.default.id
@@ -164,7 +164,7 @@ resource "aws_lb_target_group" "server-443" {
 }
 
 resource "aws_lb_target_group" "server-80" {
-  name     = "${local.name}-server-80"
+  name     = "${local.name}-80"
   port     = 80
   protocol = "TCP"
   vpc_id   = data.aws_vpc.default.id

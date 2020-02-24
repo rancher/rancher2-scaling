@@ -85,3 +85,27 @@ variable "rancher_node_count" {
   type    = number
   default = 1
 }
+
+variable "install_k3s_version" {
+  default     = "1.0.0"
+  type        = string
+  description = "Version of K3S to install"
+}
+
+variable "rancher_password" {
+  type        = string
+  default     = ""
+  description = "Password to set for admin user during bootstrap of Rancher Server, if not set random password will be generated"
+}
+
+variable "random_prefix" {
+  type        = string
+  default     = "rancher"
+  description = "Prefix to be used with random name generation"
+}
+
+variable "server_k3s_exec" {
+  default     = null
+  type        = string
+  description = "exec args to pass to k3s server"
+}

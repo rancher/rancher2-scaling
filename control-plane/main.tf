@@ -9,16 +9,15 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-west-2"
+  region  = "us-east-2"
   profile = "rancher-eng"
 }
 
 provider "aws" {
-  region  = "us-west-2"
+  region  = "us-east-2"
   profile = "rancher-eng"
   alias   = "r53"
 }
-
 
 provider "helm" {
   install_tiller  = true
@@ -59,6 +58,9 @@ data "aws_route53_zone" "selected" {
 resource "random_pet" "identifier" {
   keepers = {
   }
+  prefix = var.random_prefix
+  length = 1
+
 }
 
 locals {
@@ -89,9 +91,11 @@ module "k3s" {
   k3s_storage_engine          = var.db_engine
   ssh_keys                    = var.ssh_keys
   install_rancher             = true
-  rancher_password            = random_password.rancher_password.result
+  rancher_password            = var.rancher_password != null ? var.rancher_password : random_password.rancher_password.result
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
   server_instance_type        = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
+  install_k3s_version         = var.install_k3s_version
+  server_k3s_exec             = var.server_k3s_exec
 }

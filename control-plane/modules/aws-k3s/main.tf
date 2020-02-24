@@ -4,14 +4,6 @@ terraform {
   }
 }
 
-
-#provider "aws" {}
-
-#provider "aws" {
-#  alias = "r53"
-#}
-
-
 locals {
   name                        = var.name
   install_k3s_version         = var.install_k3s_version
