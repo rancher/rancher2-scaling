@@ -21,4 +21,6 @@ do
   echo 'Waiting for k3s startup'
   sleep 5
 done
+echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> ~/.bashrc
+echo 'source <(kubectl completion bash)' >>~/.bashrc
 %{~ endif ~}
