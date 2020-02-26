@@ -17,6 +17,13 @@ write_files:
       sleep 2
       i+=1
     done
+- path: /etc/docker/daemon.json
+  permissions: '0770'
+  content: |
+    {
+    "cluster-store": "consul://127.0.0.1:8500",
+    "cluster-advertise": "eth0:2376"
+    }
 runcmd:
 - echo "net.ipv4.ip_local_port_range = 15000 61000" >> /etc/sysctl.conf
 - echo "fs.file-max = 12000500" >> /etc/sysctl.conf
@@ -42,13 +49,24 @@ runcmd:
 - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 - apt-get update
+- wget https://releases.hashicorp.com/consul/1.7.1/consul_1.7.1_linux_amd64.zip -O /root/consul.zip
+- apt-get install -y unzip
+- unzip /root/consul.zip -d /root
+- mkdir -p /var/consul
+- apt-get install -y screen
+- screen -dmS consul /root/consul agent -server -bootstrap -data-dir=/var/consul -client=0.0.0.0 -allow-write-http-from=127.0.0.1/32 -allow-write-http-from=${vpc_cidr}
 - apt-get -y install docker-ce
+- systemctl enable docker
+- systemctl start docker
+- docker network create -d overlay k3d-k3s-cluster --label app=k3d --label cluster=k3s-cluster --subnet "${docker_overlay_cidr}"
 # - DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+#- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+- wget https://github.com/Oats87/k3d/releases/download/network1/k3d-linux-amd64 -O /usr/local/bin/k3d
+- chmod +x /usr/local/bin/k3d
 - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 - chmod +x ./kubectl
 - mv ./kubectl /usr/local/bin/kubectl
 - sleep 5
-- k3d create -n "k3s-cluster" --api-port "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):6443" --server-arg --token="${k3s_token}" --server-arg --advertise-address="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)" --image="${install_k3s_version}"
+- k3d create -n "k3s-cluster" --api-port "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):6443" --server-arg --token="${k3s_token}" --server-arg --advertise-address="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)" --image="${install_k3s_version}" --server-arg --flannel-iface=eth0 --agent-arg --flannel-iface=eth0
 - /usr/local/bin/k3svalidation.sh
 - KUBECONFIG=$(k3d get-kubeconfig --name=k3s-cluster) ${registration_commands[0]}

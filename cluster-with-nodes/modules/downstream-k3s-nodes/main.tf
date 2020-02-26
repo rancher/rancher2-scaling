@@ -13,7 +13,8 @@ resource "aws_spot_instance_request" "k3s-worker" {
       agents_per_node       = var.k3s_agents_per_node,
       k3s_endpoint          = var.k3s_endpoint,
       k3s_token             = var.k3s_token,
-      install_k3s_version   = var.install_k3s_version
+      install_k3s_version   = var.install_k3s_version,
+      consul_store          = var.consul_store
     }
   )
 

@@ -38,7 +38,9 @@ resource "aws_spot_instance_request" "k3s-server" {
     {
       k3s_token             = local.k3s_token,
       install_k3s_version   = local.install_k3s_version,
-      registration_commands = rancher2_cluster.k3s[*].cluster_registration_token[0].command
+      registration_commands = rancher2_cluster.k3s[*].cluster_registration_token[0].command,
+      vpc_cidr              = data.aws_vpc.default.cidr_block
+      docker_overlay_cidr   = var.docker_overlay_cidr
     }
   )
 
@@ -66,4 +68,5 @@ module "downstream-k3s-nodes" {
   k3s_token = local.k3s_token
   k3s_endpoint = "https://${aws_spot_instance_request.k3s-server.private_ip}:6443"
   install_k3s_version = local.install_k3s_version
+  consul_store = aws_spot_instance_request.k3s-server.private_ip
 }

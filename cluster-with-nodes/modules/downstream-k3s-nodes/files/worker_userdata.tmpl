@@ -1,6 +1,14 @@
 #cloud-config
 ssh_authorized_keys: 
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDaitXW9CBM/yxEhVaBQ9WEB8KEdwbzlMk6M2URfbr07mA9Rk3ssWf2hS3RMwF76rasRLmrjsge1Q9cc8uck722vs8qCpwz/aMnsHF8kfnifkv3JKgfYCTkVzbsW7HzNmmkbsBVPS2tlVDpG+cHQNwZMgo1MGVJqAvPnrKlLzSj/XVeBKYV8a7/GLwrJTiXegitkyE3i1L42aMwzGDwEDnKkFBYW1JXXim0j97ztWy8YaScuptqd9WJ5NfHgUGfhFSYKlEX+FP5x0oyLVgGRmoUh7NellALQ9mWW+tJgSd7oWPoeJtHLAVMoiX02w1OtBUOFq1s0IJ9nDdU/I9v+grP chriskim@Endeavor
+write_files:
+- path: /etc/docker/daemon.json
+  permissions: '0770'
+  content: |
+    {
+    "cluster-store": "consul://${consul_store}:8500",
+    "cluster-advertise": "eth0:2376"
+    }
 runcmd:
 - echo "net.ipv4.ip_local_port_range = 15000 61000" >> /etc/sysctl.conf
 - echo "fs.file-max = 12000500" >> /etc/sysctl.conf
@@ -28,6 +36,9 @@ runcmd:
 - apt-get update
 - apt-get -y install docker-ce
 # - DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+#- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+- wget https://github.com/Oats87/k3d/releases/download/network1/k3d-linux-amd64 -O /usr/local/bin/k3d
+- chmod +x /usr/local/bin/k3d
 - sleep 5
-- k3d add-node -n "k3s-cluster-i${current_instance}o" --k3s-token="${k3s_token}" --k3s "${k3s_endpoint}" --count "${agents_per_node}" --image="${install_k3s_version}"
+- while true; do curl -sk ${k3s_endpoint}/ping 2>&1 | grep -q "pong"; if [ $? != 0 ]; then echo "notreadyyet"; sleep 5; continue; fi; break; done; echo "yep";
+- k3d add-node -n "k3s-cluster-i${current_instance}" --network "k3d-k3s-cluster" --k3s-token="${k3s_token}" --k3s "${k3s_endpoint}" --count "${agents_per_node}" --image="${install_k3s_version}" --arg --flannel-iface=eth0

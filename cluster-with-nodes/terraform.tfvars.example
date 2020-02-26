@@ -1,0 +1,10 @@
+k3s_agents_per_node=20
+ec2_instances_per_cluster=1
+server_instance_type="t2.medium"
+worker_instance_type="t2.medium"
+rancher_api_url="<rancher-url>"
+rancher_token_key="<rancher-token>"
+k3s_token="<chosen-k3s-token>"
+server_instance_max_price="1.25"
+worker_instance_max_price="1.25"
+docker_overlay_cidr="10.0.0.0/8"
