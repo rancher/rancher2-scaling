@@ -17,3 +17,5 @@ variable "install_k3s_version" {}
 variable "prefix" {}
 variable "spot_price" {}
 variable "ami_id" {}
+
+variable "consul_store" {}
