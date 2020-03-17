@@ -8,8 +8,8 @@ def cleanup_ec2():
     ec2_client = boto3.client(
         'ec2',
         region_name="us-east-2",
-        aws_access_key_id=os.environ["AWS_ACCESS_KEY"],
-        aws_secret_access_key=os.environ["AWS_SECRET_KEY"])
+        aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
+        aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"])
 
     reservations = ec2_client.describe_spot_instance_requests(
         Filters=[

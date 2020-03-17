@@ -5,7 +5,6 @@ botocore==1.14.13
 cachetools==3.1.1
 certifi==2019.11.28
 chardet==3.0.4
-client-python==0.1.0
 docutils==0.15.2
 entrypoints==0.3
 filelock==3.0.12
