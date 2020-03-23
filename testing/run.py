@@ -6,6 +6,7 @@ import testbench
 from setup import setup
 from stabalize import start
 from requests import ConnectionError
+from common import wait_for
 
 
 def set_rancher_token_url():
@@ -13,11 +14,11 @@ def set_rancher_token_url():
 
     token = tfstate.split("\"token\": \"")[1]
     token = token.split("\",")[0]
-    print(token)
+    print("Token:", token)
 
     url = tfstate.split("\"url\": \"")[1]
     url = url.split("\",")[0]
-    print(url)
+    print("URL:", url)
 
     os.environ["RANCHER_SCALING_TOKEN"] = token
     os.environ["RANCHER_SCALING_URL"] = url
@@ -36,5 +37,6 @@ def run():
 for i in range(3):
     try:
         run()
+        break
     except ConnectionError as e:
         continue

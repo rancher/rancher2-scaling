@@ -49,7 +49,6 @@ class TestBench:
                 first_write = False
         current = save(results, first_write)
         print("METRICS RESULTS:", current)
-        save(current, first_write)
 
         tests.run_tests(current)
 

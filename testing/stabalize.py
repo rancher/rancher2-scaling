@@ -22,7 +22,7 @@ def stabalize(client):
     # cluster went active, or all clusters are active
 
     percent = 0
-    while active_clusters < total_clusters * minimum_viable_clusters or time.time() - start < 300:
+    while active_clusters < total_clusters * minimum_viable_clusters or (time.time() - start < 180 and active_clusters != total_clusters):
         prev_active_clusters = active_clusters
         active_clusters = num_active_clusters(client)
 
