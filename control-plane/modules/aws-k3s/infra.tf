@@ -93,10 +93,6 @@ resource "aws_launch_template" "k3s_server" {
   instance_type = local.server_instance_type
   user_data     = data.template_cloudinit_config.k3s_server.rendered
 
-  instance_market_options {
-    market_type = "spot"
-  }
-
   block_device_mappings {
     device_name = "/dev/sda1"
 
@@ -139,9 +135,6 @@ resource "aws_launch_template" "k3s_agent" {
   instance_type = local.agent_instance_type
   user_data     = data.template_cloudinit_config.k3s_agent.rendered
 
-  instance_market_options {
-    market_type = "spot"
-  }
 
   block_device_mappings {
     device_name = "/dev/sda1"
