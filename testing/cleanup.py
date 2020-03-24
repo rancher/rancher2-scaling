@@ -17,7 +17,7 @@ def cleanup_ec2():
             {
                "Name": "tag:RancherScaling",
                "Values": [
-                   "true"
+                   tag_value
                ]
             }])
 
