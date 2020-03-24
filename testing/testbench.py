@@ -47,9 +47,8 @@ class TestBench:
                 results = {}
                 last_save = time.time()
                 first_write = False
-        current = DataFrame.from_dict(results, orient="index", columns=label_to_index.keys())
+        current = save(results, first_write)
         print("METRICS RESULTS:", current)
-        save(current, first_write)
 
         tests.run_tests(current)
 
@@ -103,9 +102,11 @@ def test_rancher_crud(client, row_index):
 
 
 def save(current, write_columns):
+    df = DataFrame.from_dict(current, orient="index", columns=label_to_index.keys())
     header = write_columns
     path = str(pathlib.Path(__file__).parent.absolute()) + "/scale_test.csv"
-    current.to_csv(path_or_buf=path, mode="a", header=header)
+    df.to_csv(path_or_buf=path, mode="a", header=header)
+    return df
 
 
 metrics = [
