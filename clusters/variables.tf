@@ -1,3 +1,9 @@
+variable "cluster_name" {
+  type        = string
+  default     = "load-testing"
+  description = "Unique identifier used in resource names and tags"
+}
+
 variable "cluster_count" {
   type        = number
   description = "Number of clusters to provision"
