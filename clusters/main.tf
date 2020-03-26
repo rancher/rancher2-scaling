@@ -21,6 +21,7 @@ provider "aws" {
 provider "rancher2" {
   api_url   = var.rancher_api_url
   token_key = var.rancher_token_key
+  insecure  = var.self_signed
 }
 
 resource "rancher2_cluster" "k3s" {
@@ -42,7 +43,7 @@ resource "aws_spot_instance_request" "k3s-server" {
       k3s_cluster_secret    = local.k3s_cluster_secret,
       install_k3s_version   = local.install_k3s_version,
       k3s_server_args       = var.k3s_server_args,
-      registration_commands = rancher2_cluster.k3s[*].cluster_registration_token[0].command
+      registration_commands = var.self_signed ? rancher2_cluster.k3s[*].cluster_registration_token[0].insecure_command : rancher2_cluster.k3s[*].cluster_registration_token[0].command,
     }
   )
 

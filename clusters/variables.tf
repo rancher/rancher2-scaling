@@ -44,3 +44,9 @@ variable "rancher_token_key" {
   type        = string
   description = "rancher server API token"
 }
+
+variable "self_signed" {
+  type      = bool
+  default   = false
+  description = "whether host is using self signed certs"
+}

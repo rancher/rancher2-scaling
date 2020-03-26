@@ -4,13 +4,14 @@ import time
 import random
 import tests
 import pathlib
+import pandas
 
 from options import Options
-from pandas import DataFrame
+from collections import OrderedDict
 
 
 results = {}
-label_to_index = {}
+label_to_index = OrderedDict()
 
 
 class Metric:
@@ -47,9 +48,10 @@ class TestBench:
                 results = {}
                 last_save = time.time()
                 first_write = False
+        pandas.set_option('display.width', 200)
         current = save(results, first_write)
-        print("METRICS RESULTS:", current)
-
+        print("METRICS RESULTS:")
+        print(current)
         tests.run_tests(current)
 
 
@@ -102,7 +104,7 @@ def test_rancher_crud(client, row_index):
 
 
 def save(current, write_columns):
-    df = DataFrame.from_dict(current, orient="index", columns=label_to_index.keys())
+    df = pandas.DataFrame.from_dict(current, orient="index", columns=label_to_index.keys())
     header = write_columns
     path = str(pathlib.Path(__file__).parent.absolute()) + "/scale_test.csv"
     df.to_csv(path_or_buf=path, mode="a", header=header)
@@ -122,3 +124,7 @@ metrics = [
 def run():
     opts = Options()
     TestBench(metrics, opts)
+
+
+if __name__ == "__main__":
+    run()

@@ -91,6 +91,7 @@ data "template_cloudinit_config" "k3s_server" {
       install_certmanager   = local.install_certmanager
       rancher_image         = var.rancher_image
       rancher_image_tag     = var.rancher_image_tag
+      self_signed           = var.self_signed
       }
     )
   }

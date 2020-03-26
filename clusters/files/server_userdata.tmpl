@@ -51,5 +51,5 @@ runcmd:
 %{ for cluster_instance in range(cluster_count) ~}
 - k3d create -n "k3s-cluster-${cluster_instance}" --api-port "${cluster_instance + 30000}" --image "rancher/k3s:v1.0.0"
 - /usr/local/bin/k3svalidation.sh
-- KUBECONFIG=$(k3d get-kubeconfig --name=k3s-cluster-${cluster_instance}) ${registration_commands[cluster_instance]}
+- KUBECONFIG=$(k3d get-kubeconfig --name=k3s-cluster-${cluster_instance}) bash -c '${registration_commands[cluster_instance]}'
 %{ endfor ~}

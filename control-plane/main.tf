@@ -33,6 +33,7 @@ provider "rancher2" {
   alias     = "bootstrap"
   api_url   = "https://${local.name}.${local.domain}"
   bootstrap = true
+  insecure  = var.self_signed
 }
 
 data "aws_caller_identity" "current" {}

@@ -109,3 +109,9 @@ variable "server_k3s_exec" {
   type        = string
   description = "exec args to pass to k3s server"
 }
+
+variable "self_signed" {
+  default     = false
+  type        = bool
+  description = "whether to use self_signed certs"
+}
