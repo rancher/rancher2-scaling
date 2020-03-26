@@ -11,12 +11,13 @@ def cleanup_ec2():
         aws_access_key_id=os.environ["AWS_ACCESS_KEY_ID"],
         aws_secret_access_key=os.environ["AWS_SECRET_ACCESS_KEY"])
 
+    tag_value = os.getenv("TF_VAR_cluster_name", "load-testing")
     reservations = ec2_client.describe_spot_instance_requests(
         Filters=[
             {
                "Name": "tag:RancherScaling",
                "Values": [
-                   "true"
+                   tag_value
                ]
             }])
 

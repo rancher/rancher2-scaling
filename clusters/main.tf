@@ -5,7 +5,7 @@ terraform {
 }
 
 locals {
-  name                = "load-testing"
+  name                = var.cluster_name
   cluster_count       = var.cluster_count
   cluster_instance    = terraform.workspace
   nodes_per_cluster   = var.ec2_instances_per_cluster
@@ -48,7 +48,7 @@ resource "aws_spot_instance_request" "k3s-server" {
 
   tags = {
     Name = "${local.name}-server-${local.cluster_instance}"
-    RancherScaling = "true"
+    RancherScaling = var.cluster_name
   }
 
   root_block_device {
