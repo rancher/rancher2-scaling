@@ -15,14 +15,18 @@ def stabalize(client):
     clusters = rancher_client.list_cluster()
 
     total_clusters = len(clusters)
+    already_activate_clusters = num_active_clusters(client)
     active_clusters = 0
     start = time.time()
 
-    # keep waiting until minimum clusters have been reach and its been at least 5 mins since last
-    # cluster went active, or all clusters are active
+    # keep waiting until one of the following is true:
+    # 1. its been 5 minutes since last cluster went activate
+    # 2. minimum new activate clusters have been reached and its been at least 5 mins since last cluster went active
+    # 3. all clusters are active
 
     percent = 0
-    while active_clusters < total_clusters * minimum_viable_clusters or (time.time() - start < 180 and active_clusters != total_clusters):
+    while (active_clusters - already_activate_clusters < (total_clusters - already_activate_clusters) * minimum_viable_clusters
+           and time.time() - start < 300) or (time.time() - start < 180 and active_clusters != total_clusters):
         prev_active_clusters = active_clusters
         active_clusters = num_active_clusters(client)
 
@@ -30,6 +34,7 @@ def stabalize(client):
         if active_clusters == total_clusters:
             break
         if prev_active_clusters < active_clusters:
+            # this is used to track how long its been since last cluster went activate
             start = time.time()
         time.sleep(1)
         if active_clusters/total_clusters > percent + .15:
