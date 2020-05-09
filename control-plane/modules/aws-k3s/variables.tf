@@ -314,3 +314,9 @@ variable "rancher_image_tag" {
   type    = string
   default = "master-head"
 }
+
+variable "self_signed" {
+  type    = bool
+  default = false
+  description = "whether host is using self signed certs"
+}

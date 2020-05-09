@@ -22,6 +22,8 @@
 11. (optional) set environment variable "TF_VAR_rancher_node_count", default is 1 which is for single rancher install, set to 3 for HA
 12. (optional) set environment variable "TF_VAR_rancher_instance_type", default is m5.xlarge- for 1k+ loads m5.4xlarge is recommended
 13. (optional) set environment variable "TF_VAR_rancher_image", "TF_VAR_rancher_image_tag", default is rancher/rancher and master respectively
+14. (optional) set environment variable "TF_VAR_self_signed", whether to use rancher signed certs, Lets Encrypt will be used if it is false. Default is false
+15. (optional) set environment variable "RANCHER_SCALING_CLEANUP". Setup will not be cleaned up automatically unless set to true or True. Default is false
 
 ## For just tests
 4. set environment variable "RANCHER_SCALING_URL" to rancher url.

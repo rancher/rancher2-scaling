@@ -6,7 +6,7 @@ import testbench
 from setup import setup
 from stabalize import start
 from requests import ConnectionError
-from common import wait_for
+from time import sleep
 
 
 def set_rancher_token_url():
@@ -30,6 +30,9 @@ def run():
     setup()
     set_rancher_token_url()
     start()
+    print("Will tests in 30 seconds...")
+    sleep(30)
+    print("Running tests...")
     testbench.run()
     cleanup.run()
 

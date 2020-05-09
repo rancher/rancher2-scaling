@@ -27,11 +27,13 @@ spec:
   targetNamespace: cattle-system
   valuesContent: |-
     hostname: ${rancher_hostname}
+%{ if !self_signed ~}
     ingress:
       tls:
         source: letsEncrypt
     letsEncrypt:
       email: ${letsencrypt_email}
+%{ endif ~}
     rancherImage: ${rancher_image}
     rancherImageTag: ${rancher_image_tag}
     extraEnv:

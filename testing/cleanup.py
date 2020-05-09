@@ -50,6 +50,11 @@ def cleanup_states():
 
 
 def run():
+    cleanup = os.getenv("RANCHER_SCALING_CLEANUP", False)
+    if cleanup != "true" and cleanup != "True":
+        return
+    print("Cleaning up resource...")
     cleanup_ec2()
     cleanup_host()
     cleanup_states()
+    print("Finished cleaning up.")

@@ -2,7 +2,7 @@ import os
 
 
 class Options:
-    def __init__(self, jitter=.5, iterations=1, pulse=5, save_every=15):
+    def __init__(self, jitter=.5, iterations=5, pulse=5, save_every=999):
         """
         :param jitter: random number within this range will be added to every "pulse"
         :param iterations: number of times to run full suite of metrics

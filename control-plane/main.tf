@@ -33,6 +33,7 @@ provider "rancher2" {
   alias     = "bootstrap"
   api_url   = "https://${local.name}.${local.domain}"
   bootstrap = true
+  insecure  = var.self_signed
 }
 
 data "aws_caller_identity" "current" {}
@@ -98,4 +99,5 @@ module "k3s" {
   server_node_count           = var.rancher_node_count
   install_k3s_version         = var.install_k3s_version
   server_k3s_exec             = var.server_k3s_exec
+  self_signed                 = var.self_signed
 }

@@ -1,3 +1,6 @@
+import cleanup
+
+
 class Result:
     def __init__(self, passed, err_msg=None):
         self.err_msg = err_msg
@@ -18,6 +21,7 @@ def run_tests(df):
     if not passed:
         print(len(err_msgs), "metric tests FAILED:\n")
         errors = "\n".join(err_msgs)
+        cleanup.run()
         raise Exception(errors)
     else:
         print("All metric tests passed!")
