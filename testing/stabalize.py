@@ -7,7 +7,7 @@ import time
 # from a batch before continuing to the next
 minimum_viable_clusters = .9
 
-batch_size = 10
+batch_size = os.getenv("RANCHER_SCALING_BATCH_SIZE", 10)
 
 
 def stabalize(client):
