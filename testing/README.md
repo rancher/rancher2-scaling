@@ -19,9 +19,10 @@
 8. set environment variable "TF_VAR_cluster_count", this is the number of cluster being put on a single node, 12-15 for m5.xlarge
 9. set environment variable "TF_VAR_worker_instance_type", won't be used, so set to t2.small
 10. (optional) set environment variable "RANCHER_SCALING_GOAL" to number of desired clusters
-11. (optional) set environment variable "TF_VAR_rancher_node_count", default is 1 which is for single rancher install, set to 3 for HA
-12. (optional) set environment variable "TF_VAR_rancher_instance_type", default is m5.xlarge- for 1k+ loads m5.4xlarge is recommended
-13. (optional) set environment variable "TF_VAR_rancher_image", "TF_VAR_rancher_image_tag", default is rancher/rancher and master respectively
+11. (optional) set environment variable "RANCHER_SCALING_BATCH_SIZE" to number of nodes to create for cluster load. This multiplied by "TF_VAR_cluster_count" is the total number of clusters provisioned at once.
+12. (optional) set environment variable "TF_VAR_rancher_node_count", default is 1 which is for single rancher install, set to 3 for HA
+13. (optional) set environment variable "TF_VAR_rancher_instance_type", default is m5.xlarge- for 1k+ loads m5.4xlarge is recommended
+14. (optional) set environment variable "TF_VAR_rancher_image", "TF_VAR_rancher_image_tag", default is rancher/rancher and master respectively
 
 ## For just tests
 4. set environment variable "RANCHER_SCALING_URL" to rancher url.
