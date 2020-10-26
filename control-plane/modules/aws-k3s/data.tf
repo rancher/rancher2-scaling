@@ -45,7 +45,7 @@ data "template_cloudinit_config" "k3s_server" {
   part {
     filename     = "cloud-config-base.yaml"
     content_type = "text/cloud-config"
-    content = templatefile("${path.module}/files/cloud-config-base.yaml", {
+    content = templatefile("${path.module}/files/cloud-config-base.tmpl", {
       ssh_keys = var.ssh_keys
       }
     )
@@ -91,6 +91,7 @@ data "template_cloudinit_config" "k3s_server" {
       install_certmanager   = local.install_certmanager
       rancher_image         = var.rancher_image
       rancher_image_tag     = var.rancher_image_tag
+      monitoring_version    = var.monitoring_version
       }
     )
   }
@@ -115,7 +116,7 @@ data "template_cloudinit_config" "k3s_agent" {
   part {
     filename     = "cloud-config-base.yaml"
     content_type = "text/cloud-config"
-    content = templatefile("${path.module}/files/cloud-config-base.yaml", {
+    content = templatefile("${path.module}/files/cloud-config-base.tmpl", {
       ssh_keys = var.ssh_keys
       }
     )

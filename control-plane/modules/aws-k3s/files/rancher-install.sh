@@ -1,4 +1,9 @@
 #!/bin/bash
+node=`kubectl get nodes --sort-by=metadata.name --no-headers | awk 'NR==1{print $1}'`
+echo $node
+kubectl taint nodes $node monitoring=yes:NoSchedule
+kubectl label nodes $node monitoring=yes
+
 %{ if install_certmanager ~}
 kubectl create namespace cert-manager
 kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
@@ -39,3 +44,66 @@ spec:
       value: 'true'
 EOF
 %{ endif }
+
+cat <<EOF > /var/lib/rancher/k3s/server/manifests/monitoring.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cattle-monitoring-system
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: rancher-monitoring-crd
+  namespace: kube-system
+spec:
+  chart: https://raw.githubusercontent.com/rancher/charts/dev-v2.5/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+  targetNamespace: cattle-monitoring-system
+  valuesContent: |-
+    global:
+      cattle:
+        clusterId: local
+        clusterName: local
+        systemDefaultRegistry: ''
+      systemDefaultRegistry: ''
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: rancher-monitoring
+  namespace: kube-system
+spec:
+  chart: https://raw.githubusercontent.com/rancher/charts/dev-v2.5/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
+  targetNamespace: cattle-monitoring-system
+  valuesContent: |-
+    alertmanager:
+      enabled: false
+    grafana:
+      nodeSelector:
+        monitoring: 'yes'
+      tolerations:
+      - key: monitoring
+        operator: Exists
+        effect: NoSchedule
+    prometheus:
+      prometheusSpec:
+        evaluationInterval: 1m
+        nodeSelector:
+          monitoring: 'yes'
+        resources:
+          limits:
+            memory: 2500Mi
+        retentionSize: 50GiB
+        scrapeInterval: 1m
+        tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
+    global:
+      cattle:
+        clusterId: local
+        clusterName: local
+        systemDefaultRegistry: ''
+      systemDefaultRegistry: ''
+EOF

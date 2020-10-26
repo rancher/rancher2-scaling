@@ -1,7 +1,11 @@
 variable "rancher_version" {
-  default     = "2.3.2"
   type        = string
-  description = "rancher version to provision"
+  description = "Version of Rancher to install - Do not include the v prefix."
+}
+
+variable "monitoring_version" {
+  type        = string
+  description = "Version of Monitoring v2 to install - Do not include the v prefix."
 }
 
 variable "rancher_instance_type" {
@@ -26,7 +30,7 @@ variable "db_engine_version" {
 }
 
 variable "db_instance_class" {
-  default = "db.m5.xlarge"
+  default = "db.t3.medium"
   type    = string
 }
 
@@ -51,7 +55,7 @@ variable "db_storage_type" {
 }
 
 variable "db_iops" {
-  default = 2500
+  default = 1000
   type    = number
 }
 
@@ -77,8 +81,9 @@ variable "rancher_image" {
 }
 
 variable "rancher_image_tag" {
-  type    = string
-  default = "master-head"
+  type        = string
+  default     = "master-head"
+  description = "Rancher image tag to install, this can differ from rancher_version which is the chart being used to install Rancher"
 }
 
 variable "rancher_node_count" {

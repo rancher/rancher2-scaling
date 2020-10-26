@@ -135,7 +135,6 @@ resource "aws_launch_template" "k3s_agent" {
   instance_type = local.agent_instance_type
   user_data     = data.template_cloudinit_config.k3s_agent.rendered
 
-
   block_device_mappings {
     device_name = "/dev/sda1"
 
@@ -174,9 +173,9 @@ resource "aws_launch_template" "k3s_agent" {
 
 resource "aws_autoscaling_group" "k3s_server" {
   name_prefix         = "${local.name}"
-  desired_capacity    = local.server_node_count
-  max_size            = local.server_node_count
-  min_size            = local.server_node_count
+  desired_capacity    = local.server_node_count + 1
+  max_size            = local.server_node_count + 1
+  min_size            = local.server_node_count + 1
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [

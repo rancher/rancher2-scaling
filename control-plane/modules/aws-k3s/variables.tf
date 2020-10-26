@@ -6,8 +6,12 @@ variable "rancher_password" {
 
 variable "rancher_version" {
   type        = string
-  default     = "2.3.2"
-  description = "Version of Rancher to install"
+  description = "Version of Rancher to install - Do not include the v prefix."
+}
+
+variable "monitoring_version" {
+  type        = string
+  description = "Version of Monitoring v2 to install - Do not include the v prefix."
 }
 
 variable "agent_image_id" {
