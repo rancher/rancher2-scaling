@@ -5,8 +5,6 @@ workspace_prefix="workspace"
 
 echo "provisioning ${cluster_instances} clusters"
 
-terraform init
-
 # This will not fix a broken terraform run, if the workspace already exists it will
 # be skipped
 for cluster_instance in $(seq -f "%05g" 1 ${cluster_instances}); do

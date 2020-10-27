@@ -61,7 +61,7 @@ variable "db_iops" {
 
 variable "db_username" {
   default = "rancher"
-  type    = "string"
+  type    = string
 }
 
 variable "db_password" {

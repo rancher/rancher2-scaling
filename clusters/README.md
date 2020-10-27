@@ -1,6 +1,8 @@
 This terraform is for creating the downstream clusters to test Ranchers scaling ability
 
-First create a `terraform.tfvars` file.
+First, run `terraform init` to get plugins downloaded
+
+Then, create a `terraform.tfvars` file.
 
 This `terraform.tfvars` is the optimal config to max out the host with maximum number of clusters that be ran in it. 
 Sometimes a cluster won't provision so in a large run there may be some clusters that never provision. That is fine and expected as the hosts are packed with k3s clusters.
