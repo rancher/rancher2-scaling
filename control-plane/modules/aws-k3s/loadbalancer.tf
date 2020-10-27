@@ -86,7 +86,7 @@ resource "aws_lb_target_group" "agent-443" {
   }
 
   stickiness {
-    type    = "lb_cookie"
+    type    = "source_ip"
     enabled = false
   }
 
@@ -123,7 +123,7 @@ resource "aws_lb_target_group" "agent-80" {
 }
 
 resource "aws_lb" "server-public-lb" {
-  name               = "${local.name}"
+  name               = local.name
   internal           = false
   load_balancer_type = "network"
   subnets            = local.public_subnets
@@ -152,7 +152,7 @@ resource "aws_lb_target_group" "server-443" {
   }
 
   stickiness {
-    type    = "lb_cookie"
+    type    = "source_ip"
     enabled = false
   }
 
@@ -181,7 +181,7 @@ resource "aws_lb_target_group" "server-80" {
   }
 
   stickiness {
-    type    = "lb_cookie"
+    type    = "source_ip"
     enabled = false
   }
 

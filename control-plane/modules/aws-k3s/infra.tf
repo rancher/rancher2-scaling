@@ -88,7 +88,7 @@ resource "aws_security_group_rule" "ssh_k3s_server" {
 ### Create Nodes
 #############################
 resource "aws_launch_template" "k3s_server" {
-  name_prefix   = "${local.name}"
+  name_prefix   = local.name
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
   user_data     = data.template_cloudinit_config.k3s_server.rendered
@@ -109,7 +109,7 @@ resource "aws_launch_template" "k3s_server" {
   }
 
   tags = {
-    Name           = "${local.name}"
+    Name           = local.name
     "rancher.user" = var.user
 
   }
@@ -118,7 +118,7 @@ resource "aws_launch_template" "k3s_server" {
     resource_type = "instance"
 
     tags = {
-      Name           = "${local.name}"
+      Name           = local.name
       "rancher.user" = var.user
 
     }
@@ -172,7 +172,7 @@ resource "aws_launch_template" "k3s_agent" {
 }
 
 resource "aws_autoscaling_group" "k3s_server" {
-  name_prefix         = "${local.name}"
+  name_prefix         = local.name
   desired_capacity    = local.server_node_count + 1
   max_size            = local.server_node_count + 1
   min_size            = local.server_node_count + 1
