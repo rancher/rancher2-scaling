@@ -98,4 +98,6 @@ module "k3s" {
   server_node_count           = var.rancher_node_count
   install_k3s_version         = var.install_k3s_version
   server_k3s_exec             = var.server_k3s_exec
+  rancher_version             = var.rancher_version
+  monitoring_version          = var.monitoring_version
 }
