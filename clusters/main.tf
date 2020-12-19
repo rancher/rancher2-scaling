@@ -27,8 +27,9 @@ locals {
   cluster_count       = var.cluster_count
   cluster_instance    = terraform.workspace
   nodes_per_cluster   = var.ec2_instances_per_cluster
-  k3s_cluster_secret  = ""
-  install_k3s_version = "v1.17.2+k3s1"
+  k3s_cluster_secret  = var.k3s_cluster_secret
+  install_k3s_image   = var.install_k3s_image
+  ssh_keys            = var.ssh_keys
 }
 
 provider "aws" {
@@ -58,9 +59,10 @@ resource "aws_instance" "k3s-server" {
     {
       cluster_count         = local.cluster_count,
       k3s_cluster_secret    = local.k3s_cluster_secret,
-      install_k3s_version   = local.install_k3s_version,
+      install_k3s_image     = local.install_k3s_image,
       k3s_server_args       = var.k3s_server_args,
-      registration_commands = rancher2_cluster.k3s[*].cluster_registration_token[0].command
+      registration_commands = rancher2_cluster.k3s[*].cluster_registration_token[0].command,
+      ssh_keys              = var.ssh_keys
     }
   )
 

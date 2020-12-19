@@ -1,5 +1,11 @@
 ## Control plane usage:
-#### Creating cluster resources
+### Create AWS profile
+Create an AWS profile named `rancher-eng` and provide access keys
+```bash
+aws configure --profile rancher-eng
+```
+
+### Creating cluster resources
 Initialize terraform default workspace. This only needs to be run once to create the initial workspace environment:
 ```bash
 cd control-plane
@@ -14,7 +20,7 @@ terraform apply
 ``` 
 Creating the cluster resources takes about 10-15 minutes. After successfully running `apply` terraform will output information needed to connect to the rancher server.
 
-#### Destroying cluster resources
+### Destroying cluster resources
 
 ```bash
 terraform destroy
@@ -22,7 +28,7 @@ terraform destroy
 
 Destroying cluster resources takes about 10-15 minutes.
 
-#### Configuration:
+### Configuration:
 Configuration changes should be done in `terraform.tfvars` to override default variable settings in `variables.tf`. The format of the `terraform.tfvars` file must be in done with key/value pairs. 
 
 #### Example terraform.tfvars file:
@@ -38,4 +44,6 @@ server_k3s_exec       = " --write-kubeconfig-mode '0666'"
 rancher_image_tag     = "v2.5.1"
 rancher_version       = "2.5.1"
 monitoring_version    = "9.4.201"
+domain                = "your-route53-zone"
+letsencrypt_email     = "your@email.com"
 ```

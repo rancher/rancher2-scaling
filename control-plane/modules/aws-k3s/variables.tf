@@ -52,7 +52,7 @@ variable "letsencrypt_email" {
 
 variable "domain" {
   type    = string
-  default = "eng.rancher.space"
+  default = ""
 }
 
 variable "r53_domain" {

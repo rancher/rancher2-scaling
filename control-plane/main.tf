@@ -82,7 +82,7 @@ resource "random_pet" "identifier" {
 }
 
 locals {
-  domain      = "eng.rancher.space"
+  domain      = var.domain
   name        = random_pet.identifier.id
   identifier  = random_pet.identifier.id
   db_multi_az = false
@@ -118,4 +118,8 @@ module "k3s" {
   server_k3s_exec             = var.server_k3s_exec
   rancher_version             = var.rancher_version
   monitoring_version          = var.monitoring_version
+  domain                      = local.domain
+  r53_domain                  = var.r53_domain
+  letsencrypt_email           = var.letsencrypt_email
+  rancher_chart               = var.rancher_chart
 }
