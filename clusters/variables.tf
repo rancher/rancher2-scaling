@@ -24,11 +24,6 @@ variable "server_instance_type" {
   description = "Instance type to use for k3s server"
 }
 
-variable "worker_instance_type" {
-  type        = string
-  description = "Instance type to use for k3s workers"
-}
-
 variable "k3s_server_args" {
   type        = string
   default     = ""
@@ -43,4 +38,22 @@ variable "rancher_api_url" {
 variable "rancher_token_key" {
   type        = string
   description = "rancher server API token"
+}
+
+variable "ssh_keys" {
+  type        = list
+  default     = []
+  description = "SSH keys to inject into the EC2 instances"
+}
+
+variable "install_k3s_image" {
+  type        = string
+  default     = "v1.19.3-k3s1"
+  description = "k3s image to use during install"
+}
+
+variable "k3s_cluster_secret" {
+  type        = string
+  default     = ""
+  description = "k3s cluster secret"
 }

@@ -114,3 +114,26 @@ variable "server_k3s_exec" {
   type        = string
   description = "exec args to pass to k3s server"
 }
+
+variable "rancher_chart" {
+  type        = string
+  default     = "rancher-stable/rancher"
+  description = "Helm chart to use for Rancher install"
+}
+
+variable "letsencrypt_email" {
+  type        = string
+  default     = "none@none.com"
+  description = "LetsEncrypt email address to use"
+}
+
+variable "domain" {
+  type    = string
+  default = ""
+}
+
+variable "r53_domain" {
+  type        = string
+  default     = ""
+  description = "DNS domain for Route53 zone (defaults to domain if unset)"
+}
