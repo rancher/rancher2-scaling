@@ -9,4 +9,3 @@
 outputs/
 terraform.d/
 **/terraform.tfvars
-.terraform.lock.hcl
