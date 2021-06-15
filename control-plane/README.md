@@ -47,3 +47,11 @@ monitoring_version    = "9.4.201"
 domain                = "your-route53-zone"
 letsencrypt_email     = "your@email.com"
 ```
+
+### Accessing Monitoring
+When doing load testing, it is highly likely that the hosts Rancher is running on will die, so attempting to proxy through Rancher to view Grafana is not possible. Monitoring runs on its own node so it wont go down when Rancher or its hosts do. Using `kubectl` Grafana (and anything monitoring related) will still be accessable:
+```bash
+kubectl port-forward -n cattle-monitoring-system deployment/rancher-monitoring-grafana 8443:3000
+```
+Then go to `http://127.0.0.1:8443` in a browser to connect back to the Grafana UI.
+The port `8443` can be adjusted as need for your local system.

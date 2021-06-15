@@ -3,7 +3,7 @@
 cluster_instances=${1:-1}
 workspace_prefix="workspace"
 
-echo "provisioning ${cluster_instances} clusters"
+echo "provisioning ${cluster_instances} sets of clusters"
 
 # This will not fix a broken terraform run, if the workspace already exists it will
 # be skipped

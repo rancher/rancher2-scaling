@@ -39,6 +39,7 @@ spec:
       email: ${letsencrypt_email}
     rancherImage: ${rancher_image}
     rancherImageTag: ${rancher_image_tag}
+    replicas: 3
     extraEnv:
     - name: CATTLE_PROMETHEUS_METRICS
       value: 'true'
@@ -58,7 +59,7 @@ metadata:
   name: rancher-monitoring-crd
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/dev-v2.5/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     global:
@@ -74,7 +75,7 @@ metadata:
   name: rancher-monitoring
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/dev-v2.5/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     alertmanager:
@@ -93,7 +94,7 @@ spec:
           monitoring: 'yes'
         resources:
           limits:
-            memory: 2500Mi
+            memory: 5000Mi
         retentionSize: 50GiB
         scrapeInterval: 1m
         tolerations:
