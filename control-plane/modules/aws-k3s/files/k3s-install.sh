@@ -10,8 +10,11 @@ export K3S_DATASTORE_ENDPOINT='${k3s_datastore_endpoint}'
 export K3S_URL='https://${k3s_url}:6443'
 %{~ endif ~}
 
+sleep $(expr $RANDOM % 10)
+
 until (curl -sfL https://get.k3s.io |  sh -); do
   echo 'k3s did not install correctly'
+  k3s-uninstall.sh
   sleep 2
 done
 

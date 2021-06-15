@@ -1,72 +1,71 @@
 #cloud-config
-ssh_authorized_keys: 
-  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDaitXW9CBM/yxEhVaBQ9WEB8KEdwbzlMk6M2URfbr07mA9Rk3ssWf2hS3RMwF76rasRLmrjsge1Q9cc8uck722vs8qCpwz/aMnsHF8kfnifkv3JKgfYCTkVzbsW7HzNmmkbsBVPS2tlVDpG+cHQNwZMgo1MGVJqAvPnrKlLzSj/XVeBKYV8a7/GLwrJTiXegitkyE3i1L42aMwzGDwEDnKkFBYW1JXXim0j97ztWy8YaScuptqd9WJ5NfHgUGfhFSYKlEX+FP5x0oyLVgGRmoUh7NellALQ9mWW+tJgSd7oWPoeJtHLAVMoiX02w1OtBUOFq1s0IJ9nDdU/I9v+grP chriskim@Endeavor
+ssh_authorized_keys:
 # Add your ssh key here
 write_files:
-- path: /usr/local/bin/k3svalidation.sh
-  permissions: '0700'
-  content: |
-    #!/bin/bash
-    declare -i i; i=0
-    until k3d get-kubeconfig --name='k3s-cluster'
-    do
-      if (( i > 20 )); then
-        break
-      fi
+  - path: /usr/local/bin/k3svalidation.sh
+    permissions: "0700"
+    content: |
+      #!/bin/bash
+      declare -i i; i=0
+      until k3d get-kubeconfig --name='k3s-cluster'
+      do
+        if (( i > 20 )); then
+          break
+        fi
 
-      sleep 2
-      i+=1
-    done
-- path: /etc/docker/daemon.json
-  permissions: '0770'
-  content: |
-    {
-    "cluster-store": "consul://127.0.0.1:8500",
-    "cluster-advertise": "eth0:2376"
-    }
+        sleep 2
+        i+=1
+      done
+  - path: /etc/docker/daemon.json
+    permissions: "0770"
+    content: |
+      {
+      "cluster-store": "consul://127.0.0.1:8500",
+      "cluster-advertise": "eth0:2376"
+      }
 runcmd:
-- echo "net.ipv4.ip_local_port_range = 15000 61000" >> /etc/sysctl.conf
-- echo "fs.file-max = 12000500" >> /etc/sysctl.conf
-- echo "fs.nr_open = 20000500" >> /etc/sysctl.conf
-- echo "net.ipv4.tcp_mem = 10000000 10000000 10000000" >> /etc/sysctl.conf
-- sysctl -w net.core.rmem_max=8388608
-- sysctl -w net.core.wmem_max=8388608
-- sysctl -w net.core.rmem_default=65536
-- sysctl -w net.core.wmem_default=65536
-- sysctl -w net.ipv4.tcp_rmem='4096 87380 8388608'
-- sysctl -w net.ipv4.tcp_wmem='4096 65536 8388608'
-- sysctl -w net.ipv4.tcp_mem='8388608 8388608 8388608'
-- sysctl -w net.ipv4.route.flush=1
-- ulimit -n 20000000
-- echo "# <domain> <type> <item>  <value>" >> /etc/security/limits.d/limits.conf
-- echo "    *       soft  nofile  20000000" >> /etc/security/limits.d/limits.conf
-- echo "    *       hard  nofile  20000000" >> /etc/security/limits.d/limits.conf
-- sysctl -p
-- apt-get update
-- apt-get install -y vim software-properties-common resolvconf linux-headers-$(uname -r)
-- echo "nameserver 1.1.1.1" > /etc/resolvconf/resolv.conf.d/tail
-- systemctl start resolvconf
-- curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-- add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-- apt-get update
-- wget https://releases.hashicorp.com/consul/1.7.1/consul_1.7.1_linux_amd64.zip -O /root/consul.zip
-- apt-get install -y unzip
-- unzip /root/consul.zip -d /root
-- mkdir -p /var/consul
-- apt-get install -y screen
-- screen -dmS consul /root/consul agent -server -bootstrap -data-dir=/var/consul -client=0.0.0.0 -allow-write-http-from=127.0.0.1/32 -allow-write-http-from=${vpc_cidr}
-- apt-get -y install docker-ce
-- systemctl enable docker
-- systemctl start docker
-- docker network create -d overlay k3d-k3s-cluster --label app=k3d --label cluster=k3s-cluster --subnet "${docker_overlay_cidr}"
-# - DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-#- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
-- wget https://github.com/Oats87/k3d/releases/download/network1/k3d-linux-amd64 -O /usr/local/bin/k3d
-- chmod +x /usr/local/bin/k3d
-- curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-- chmod +x ./kubectl
-- mv ./kubectl /usr/local/bin/kubectl
-- sleep 5
-- k3d create -n "k3s-cluster" --api-port "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):6443" --server-arg --token="${k3s_token}" --server-arg --advertise-address="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)" --image="${install_k3s_version}" --server-arg --flannel-iface=eth0 --agent-arg --flannel-iface=eth0
-- /usr/local/bin/k3svalidation.sh
-- KUBECONFIG=$(k3d get-kubeconfig --name=k3s-cluster) ${registration_commands[0]}
+  - echo "net.ipv4.ip_local_port_range = 15000 61000" >> /etc/sysctl.conf
+  - echo "fs.file-max = 12000500" >> /etc/sysctl.conf
+  - echo "fs.nr_open = 20000500" >> /etc/sysctl.conf
+  - echo "net.ipv4.tcp_mem = 10000000 10000000 10000000" >> /etc/sysctl.conf
+  - sysctl -w net.core.rmem_max=8388608
+  - sysctl -w net.core.wmem_max=8388608
+  - sysctl -w net.core.rmem_default=65536
+  - sysctl -w net.core.wmem_default=65536
+  - sysctl -w net.ipv4.tcp_rmem='4096 87380 8388608'
+  - sysctl -w net.ipv4.tcp_wmem='4096 65536 8388608'
+  - sysctl -w net.ipv4.tcp_mem='8388608 8388608 8388608'
+  - sysctl -w net.ipv4.route.flush=1
+  - ulimit -n 20000000
+  - echo "# <domain> <type> <item>  <value>" >> /etc/security/limits.d/limits.conf
+  - echo "    *       soft  nofile  20000000" >> /etc/security/limits.d/limits.conf
+  - echo "    *       hard  nofile  20000000" >> /etc/security/limits.d/limits.conf
+  - sysctl -p
+  - apt-get update
+  - apt-get install -y vim software-properties-common resolvconf linux-headers-$(uname -r)
+  - echo "nameserver 1.1.1.1" > /etc/resolvconf/resolv.conf.d/tail
+  - systemctl start resolvconf
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - apt-get update
+  - wget https://releases.hashicorp.com/consul/1.7.1/consul_1.7.1_linux_amd64.zip -O /root/consul.zip
+  - apt-get install -y unzip
+  - unzip /root/consul.zip -d /root
+  - mkdir -p /var/consul
+  - apt-get install -y screen
+  - screen -dmS consul /root/consul agent -server -bootstrap -data-dir=/var/consul -client=0.0.0.0 -allow-write-http-from=127.0.0.1/32 -allow-write-http-from=${vpc_cidr}
+  - apt-get -y install docker-ce docker-ce-cli containerd.io
+  - systemctl enable docker
+  - systemctl start docker
+  - docker network create -d overlay k3d-k3s-cluster --label app=k3d --label cluster=k3s-cluster --subnet "${docker_overlay_cidr}"
+  # - DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+  #- curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
+  - wget https://github.com/Oats87/k3d/releases/download/network1/k3d-linux-amd64 -O /usr/local/bin/k3d
+  - chmod +x /usr/local/bin/k3d
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - mv ./kubectl /usr/local/bin/kubectl
+  - sleep 5
+  - k3d create -n "k3s-cluster" --api-port "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4):6443" --server-arg --token="${k3s_token}" --server-arg --advertise-address="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)" --image="${install_k3s_version}" --server-arg --flannel-iface=eth0 --agent-arg --flannel-iface=eth0
+  - /usr/local/bin/k3svalidation.sh
+  - KUBECONFIG=$(k3d get-kubeconfig --name=k3s-cluster) ${registration_commands[0]}

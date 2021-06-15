@@ -3,7 +3,7 @@ terraform {
   required_providers {
     rancher2 = {
       source  = "rancher/rancher2"
-      version = "1.10.3"
+      version = "1.13.0"
     }
     aws = {
       source  = "hashicorp/aws"
@@ -23,13 +23,13 @@ terraform {
 }
 
 locals {
-  name                = var.cluster_name
-  cluster_count       = var.cluster_count
-  cluster_instance    = terraform.workspace
-  nodes_per_cluster   = var.ec2_instances_per_cluster
-  k3s_cluster_secret  = var.k3s_cluster_secret
-  install_k3s_image   = var.install_k3s_image
-  ssh_keys            = var.ssh_keys
+  name               = var.cluster_name
+  cluster_count      = var.cluster_count
+  cluster_instance   = terraform.workspace
+  nodes_per_cluster  = var.ec2_instances_per_cluster
+  k3s_cluster_secret = var.k3s_cluster_secret
+  install_k3s_image  = var.install_k3s_image
+  ssh_keys           = var.ssh_keys
 }
 
 provider "aws" {
@@ -69,6 +69,7 @@ resource "aws_instance" "k3s-server" {
   tags = {
     Name           = "${local.name}-server-${local.cluster_instance}"
     RancherScaling = var.cluster_name
+    Owner          = var.cluster_name
   }
 
   root_block_device {

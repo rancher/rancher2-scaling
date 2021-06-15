@@ -15,12 +15,12 @@ output "db_instance_arn" {
 
 output "db_instance_availability_zone" {
   description = "The availability zone of the RDS instance"
-  value       = module.db.this_db_instance_availability_zone
+  value       = module.db.db_instance_availability_zone
 }
 
 output "db_instance_endpoint" {
   description = "The connection endpoint"
-  value       = module.db.this_db_instance_endpoint
+  value       = module.db.db_instance_endpoint
 }
 
 /*
@@ -31,7 +31,8 @@ output "db_instance_id" {
 */
 
 output "rancher_admin_password" {
-  value = module.k3s.rancher_admin_password
+  value     = module.k3s.rancher_admin_password
+  sensitive = true
 }
 
 output "rancher_url" {
@@ -48,6 +49,7 @@ output "external_lb_dns_name" {
 }
 
 output "k3s_cluster_secret" {
-  value = module.k3s.k3s_cluster_secret
+  value     = module.k3s.k3s_cluster_secret
+  sensitive = true
 }
 

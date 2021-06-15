@@ -1,21 +1,17 @@
 terraform {
-  required_version = ">= 0.13"
+  required_version = ">= 0.14"
   required_providers {
     rancher2 = {
-      source  = "rancher/rancher2"
-      version = "~> 1.10.3"
+      source = "rancher/rancher2"
     }
     aws = {
-      source  = "hashicorp/aws"
-      version = "~> 3.12.0"
+      source = "hashicorp/aws"
     }
     helm = {
-      source  = "hashicorp/helm"
-      version = "~> 1.3.2"
+      source = "hashicorp/helm"
     }
     random = {
-      source  = "hashicorp/random"
-      version = "~> 3.0.0"
+      source = "hashicorp/random"
     }
   }
 }
@@ -105,7 +101,7 @@ module "k3s" {
   db_port                     = var.db_port
   db_name                     = var.db_name
   db_security_group           = aws_security_group.database.id
-  k3s_datastore_endpoint      = module.db.this_db_instance_endpoint
+  k3s_datastore_endpoint      = module.db.db_instance_endpoint
   k3s_storage_engine          = var.db_engine
   ssh_keys                    = var.ssh_keys
   install_rancher             = true
