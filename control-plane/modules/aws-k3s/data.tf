@@ -88,10 +88,19 @@ data "template_cloudinit_config" "k3s_server" {
       rancher_hostname      = "${local.subdomain}.${local.domain}",
       install_rancher       = local.install_rancher,
       install_nginx_ingress = local.install_nginx_ingress,
-      install_certmanager   = local.install_certmanager
-      rancher_image         = var.rancher_image
-      rancher_image_tag     = var.rancher_image_tag
-      monitoring_version    = var.monitoring_version
+      install_certmanager   = local.install_certmanager,
+      install_byo_certs     = length(local.byo_certs_bucket_path) > 0 ? true : false,
+      byo_certs_bucket_path = local.byo_certs_bucket_path,
+      private_ca            = length(local.private_ca_file) > 0 ? true : false,
+      private_ca_file       = local.private_ca_file,
+      tls_cert_file         = local.tls_cert_file,
+      tls_key_file          = local.tls_key_file,
+      rancher_image         = var.rancher_image,
+      rancher_image_tag     = var.rancher_image_tag,
+      monitoring_version    = var.monitoring_version,
+      rancher_chart_tag     = var.rancher_chart_tag,
+      use_new_bootstrap     = local.use_new_bootstrap,
+      rancher_password      = local.rancher_password
       }
     )
   }

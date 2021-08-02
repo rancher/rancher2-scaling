@@ -48,7 +48,8 @@ runcmd:
 - apt-get update
 - apt-get -y install docker-ce
 # - DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
-- wget https://github.com/rancher/k3d/releases/download/v3.4.0/k3d-linux-amd64 -O /usr/local/bin/k3d
+# k3d v4.4.5 uses k3s v1.21.1+k3s1 by default to avoid https://k3d.io/faq/faq/#solved-nodes-fail-to-start-or-get-stuck-in-notready-state-with-log-nf_conntrack_max-permission-denied
+- wget https://github.com/rancher/k3d/releases/download/${k3d_version}/k3d-linux-amd64 -O /usr/local/bin/k3d
 - chmod +x /usr/local/bin/k3d
 - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 - chmod +x ./kubectl
@@ -56,6 +57,7 @@ runcmd:
 - sleep 5
 - mkdir -p /home/ubuntu/.k3d/
 %{ for cluster_instance in range(cluster_count) ~}
+# - k3d cluster create "k3s-cluster-${cluster_instance}" --api-port "${cluster_instance + 30000}"
 - k3d cluster create "k3s-cluster-${cluster_instance}" --api-port "${cluster_instance + 30000}" --image "rancher/k3s:${install_k3s_image}"
 - k3svalidation.sh k3s-cluster-${cluster_instance}
 - ${registration_commands[cluster_instance]} --kubeconfig "/home/ubuntu/.k3d/kubeconfig-k3s-cluster-${cluster_instance}.yml"

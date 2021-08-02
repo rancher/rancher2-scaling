@@ -51,7 +51,7 @@ resource "aws_lb_listener" "port_443" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.agent-443.0.arn
+    target_group_arn = aws_lb_target_group.agent-443[0].arn
   }
 }
 
@@ -63,7 +63,7 @@ resource "aws_lb_listener" "port_80" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.agent-80.0.arn
+    target_group_arn = aws_lb_target_group.agent-80[0].arn
   }
 }
 
@@ -99,7 +99,7 @@ resource "aws_lb_target_group" "agent-443" {
 
 resource "aws_lb_target_group" "agent-80" {
   count    = local.create_external_nlb
-  name     = "${local.name}-agnet-80"
+  name     = "${local.name}-agent-80"
   port     = 80
   protocol = "TCP"
   vpc_id   = data.aws_vpc.default.id

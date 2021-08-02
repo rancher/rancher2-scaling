@@ -5,15 +5,13 @@ kubectl taint nodes $node monitoring=yes:NoSchedule
 kubectl label nodes $node monitoring=yes
 
 %{ if install_certmanager ~}
-kubectl create namespace cert-manager
-kubectl label namespace cert-manager certmanager.k8s.io/disable-validation=true
-sleep 5
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v${certmanager_version}/cert-manager-no-webhook.yaml
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v${certmanager_version}/cert-manager.yaml
 
-until [ "$(kubectl get pods --namespace cert-manager |grep Running|wc -l)" = "2" ]; do
+until [ "$(kubectl get pods --namespace cert-manager | grep Running | wc -l)" = "3" ]; do
   sleep 2
 done
 %{ endif ~}
+
 %{ if install_rancher ~}
 cat <<EOF > /var/lib/rancher/k3s/server/manifests/rancher.yaml
 ---
@@ -34,17 +32,56 @@ spec:
     hostname: ${rancher_hostname}
     ingress:
       tls:
+%{ if !install_certmanager && install_byo_certs ~}
+        source: secret
+        secretName: tls-rancher-ingress
+%{ endif ~}
+%{ if install_certmanager ~}
         source: letsEncrypt
     letsEncrypt:
       email: ${letsencrypt_email}
+%{ endif ~}
+%{ if private_ca ~}
+    privateCA: ${private_ca}
+%{ endif ~}
     rancherImage: ${rancher_image}
     rancherImageTag: ${rancher_image_tag}
     replicas: 3
+%{ if use_new_bootstrap ~}
+    bootstrapPassword: ${rancher_password}
+%{ endif ~}
     extraEnv:
     - name: CATTLE_PROMETHEUS_METRICS
       value: 'true'
 EOF
 %{ endif }
+
+%{ if !install_certmanager && install_byo_certs ~}
+mkdir /certs/
+cd certs/
+apt-get update && apt-get install awscli --yes && aws --region us-west-1 s3 cp s3://"${byo_certs_bucket_path}" /certs/certs.tar.gz
+
+tar -xf certs.tar.gz --strip-components 1
+mv "/certs/${tls_cert_file}" /certs/tls.crt
+mv "/certs/${tls_key_file}" /certs/tls.key
+
+if [[ ! $(kubectl get secrets -n cattle-system | grep -q tls-rancher-ingress) ]]; then
+  kubectl -n cattle-system create secret tls tls-rancher-ingress \
+    --cert="/certs/tls.crt" \
+    --key="/certs/tls.key"
+fi
+
+%{ if private_ca ~}
+mv "/certs/${private_ca_file}" /certs/cacerts.pem
+if [[ ! $(kubectl get secrets -n cattle-system | grep -q tls-ca) ]]; then
+  kubectl -n cattle-system create secret generic tls-ca \
+    --from-file=cacerts.pem="/certs/cacerts.pem"
+fi
+%{ endif ~}
+
+find . -type f ! -name "*.key" ! -name "*.crt" ! -name "cacerts.pem" -exec rm {} \;
+
+%{ endif ~}
 
 cat <<EOF > /var/lib/rancher/k3s/server/manifests/monitoring.yaml
 ---
@@ -59,7 +96,7 @@ metadata:
   name: rancher-monitoring-crd
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     global:
@@ -75,7 +112,7 @@ metadata:
   name: rancher-monitoring
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     alertmanager:
@@ -98,6 +135,27 @@ spec:
         retentionSize: 50GiB
         scrapeInterval: 1m
         tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
+    prometheus-adapter:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
+    kube-state-metrics:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
+    prometheusOperator:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
         - key: monitoring
           operator: Exists
           effect: NoSchedule

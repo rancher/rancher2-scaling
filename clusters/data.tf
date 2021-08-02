@@ -30,3 +30,9 @@ data "aws_ami" "ubuntu" {
     values = ["x86_64"]
   }
 }
+
+data "rancher2_cluster" "my_cluster" {
+  count       = local.cluster_count
+  name        = "${local.name}-${local.cluster_instance}-${count.index}"
+  depends_on  = [rancher2_cluster.k3s]
+}

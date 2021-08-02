@@ -1,7 +1,7 @@
 variable "rancher_password" {
   type        = string
   default     = ""
-  description = "Password to set for admin user during bootstrap of Rancher Server"
+  description = "Password to set for admin user after bootstrap of Rancher Server"
 }
 
 variable "rancher_version" {
@@ -36,6 +36,12 @@ variable "rancher_chart" {
   type        = string
   default     = "rancher-stable/rancher"
   description = "Helm chart to use for Rancher install"
+}
+
+variable "rancher_chart_tag" {
+  type        = string
+  default     = "release-v2.5"
+  description = "The github tag for the desired Rancher chart version"
 }
 
 variable "name" {
@@ -103,7 +109,7 @@ variable "agent_instance_ssh_user" {
 
 variable "certmanager_version" {
   type        = string
-  default     = "0.9.1"
+  default     = "1.5.2"
   description = "Version of cert-manager to install"
 }
 
@@ -224,6 +230,36 @@ variable "install_certmanager" {
   default     = true
   type        = bool
   description = "Boolean that defines whether or not to install Cert-Manager"
+}
+
+variable "byo_certs_bucket_path" {
+  default     = ""
+  type        = string
+  description = "Optional: String that defines the path on the S3 Bucket where your certs are stored. NOTE: assumes certs are stored in a tarball within a folder below the top-level bucket e.g.: my-bucket/certificates/my_certs.tar.gz. Certs should be stored within a single folder, certs nested in sub-folders will not be handled"
+}
+
+variable "s3_instance_profile" {
+  default     = ""
+  type        = string
+  description = "Optional: String that defines the name of the IAM Instance Profile that grants S3 access to the EC2 instances. Required if 'byo_certs_bucket_path' is set"
+}
+
+variable "private_ca_file" {
+  default     = ""
+  type        = string
+  description = "Optional: String that defines the name of the private CA .pem file in the specified S3 bucket's cert tarball"
+}
+
+variable "tls_cert_file" {
+  default     = ""
+  type        = string
+  description = "Optional: String that defines the name of the TLS Certificate file in the specified S3 bucket's cert tarball. Required if 'byo_certs_bucket_path' is set"
+}
+
+variable "tls_key_file" {
+  default     = ""
+  type        = string
+  description = "Optional: String that defines the name of the TLS Key file in the specified S3 bucket's cert tarball. Required if 'byo_certs_bucket_path' is set"
 }
 
 variable "create_external_nlb" {
