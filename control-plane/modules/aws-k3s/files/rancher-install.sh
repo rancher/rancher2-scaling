@@ -99,6 +99,20 @@ spec:
         - key: monitoring
           operator: Exists
           effect: NoSchedule
+    prometheus-adapter:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
+    kube-state-metrics:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
     global:
       cattle:
         clusterId: local
