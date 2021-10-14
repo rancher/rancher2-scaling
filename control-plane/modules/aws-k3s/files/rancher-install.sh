@@ -113,6 +113,13 @@ spec:
         - key: monitoring
           operator: Exists
           effect: NoSchedule
+    prometheusOperator:
+      nodeSelector:
+          monitoring: 'yes'
+      tolerations:
+        - key: monitoring
+          operator: Exists
+          effect: NoSchedule
     global:
       cattle:
         clusterId: local
