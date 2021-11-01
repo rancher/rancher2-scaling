@@ -70,3 +70,9 @@ variable "insecure_flag" {
   default     = false
   description = "Flag used to determine if Rancher is using self-signed invalid certs (using a private CA)"
 }
+
+variable "cluster_labels" {
+  type        = map
+  default     = {}
+  description = "Labels to add to each provisioned cluster"
+}

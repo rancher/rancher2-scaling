@@ -46,7 +46,7 @@ spec:
 %{ endif ~}
     rancherImage: ${rancher_image}
     rancherImageTag: ${rancher_image_tag}
-    replicas: 3
+    replicas: ${rancher_node_count}
 %{ if use_new_bootstrap ~}
     bootstrapPassword: ${rancher_password}
 %{ endif ~}

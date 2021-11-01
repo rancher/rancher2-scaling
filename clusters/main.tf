@@ -46,6 +46,7 @@ resource "rancher2_cluster" "k3s" {
   count       = local.cluster_count
   name        = "${local.name}-${local.cluster_instance}-${count.index}"
   description = "TF imported cluster ${local.name}-${local.cluster_instance}-${count.index}"
+  labels      = var.cluster_labels
 }
 
 resource "aws_instance" "k3s-server" {

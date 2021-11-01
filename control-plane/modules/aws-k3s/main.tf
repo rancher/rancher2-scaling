@@ -46,6 +46,10 @@ locals {
   server_k3s_exec             = var.server_k3s_exec != null ? var.server_k3s_exec : ""
   agent_k3s_exec              = var.agent_k3s_exec != null ? var.agent_k3s_exec : ""
   certmanager_version         = var.certmanager_version
+  rancher_password            = var.rancher_password
+  rancher_image               = var.rancher_image
+  rancher_image_tag           = var.rancher_image_tag
+  rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
   letsencrypt_email           = var.letsencrypt_email
   byo_certs_bucket_path       = var.byo_certs_bucket_path
@@ -63,8 +67,6 @@ locals {
   install_nginx_ingress       = var.install_nginx_ingress
   create_external_nlb         = var.create_external_nlb ? 1 : 0
   registration_command        = var.registration_command
-  rancher_password            = var.rancher_password
-  rancher_chart_tag           = var.rancher_chart_tag
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
   use_new_bootstrap           = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc\\d{2,})?$", var.rancher_version)) > 0
@@ -114,7 +116,7 @@ EOF
 resource "rancher2_bootstrap" "admin" {
   count             = (local.install_rancher) ? 1 : 0
   provider          = rancher2.bootstrap
-  current_password  = local.use_new_bootstrap ? local.rancher_password : null
+  initial_password  = local.use_new_bootstrap ? local.rancher_password : null
   password          = local.rancher_password
   depends_on        = [null_resource.wait_for_rancher]
 }
