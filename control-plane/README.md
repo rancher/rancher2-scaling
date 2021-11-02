@@ -33,23 +33,27 @@ Configuration changes should be done in `terraform.tfvars` to override default v
 
 #### Example terraform.tfvars file:
 ```
-ssh_keys              = ["<Your key/s here>"]
-db_name               = "loadthing"
-rancher_node_count    = 3
-rancher_instance_type = "m5.large"
-rancher_password      = "super-secret-and-long-password"
-install_k3s_version   = "1.19.3+k3s1"
-random_prefix         = "scale-testing"
-server_k3s_exec       = " --write-kubeconfig-mode '0666'"
-rancher_image_tag     = "v2.5.1"
-rancher_version       = "2.5.1"
-monitoring_version    = "9.4.201"
-domain                = "your-route53-zone"
-letsencrypt_email     = "your@email.com"
+ssh_keys                = ["<Your key/s here>"]
+db_name                 = "loadthing"
+db_subnet_group_name    = "your-subnet-group-name"
+db_skip_final_snapshot  = true
+rancher_node_count      = 3
+rancher_instance_type   = "m5.large"
+rancher_password        = "super-secret-and-long-password"
+install_k3s_version     = "1.19.3+k3s1"
+certmanager_version     = "1.4.2"
+random_prefix           = "scale-testing"
+server_k3s_exec         = " --write-kubeconfig-mode '0666'"
+rancher_image_tag       = "v2.5.1"
+rancher_version         = "2.5.1"
+monitoring_version      = "9.4.201"
+aws_region              = "us-west-1"
+domain                  = "your-route53-zone"
+letsencrypt_email       = "your@email.com"
 ```
 
 ### Accessing Monitoring
-When doing load testing, it is highly likely that the hosts Rancher is running on will die, so attempting to proxy through Rancher to view Grafana is not possible. Monitoring runs on its own node so it wont go down when Rancher or its hosts do. Using `kubectl` Grafana (and anything monitoring related) will still be accessable:
+When doing load testing, it is highly likely that the hosts Rancher is running on will die, so attempting to proxy through Rancher to view Grafana is not possible. Monitoring runs on its own node so it wont go down when Rancher or its hosts do. Using `kubectl` Grafana (and anything monitoring related) will still be accessible:
 ```bash
 kubectl port-forward -n cattle-monitoring-system deployment/rancher-monitoring-grafana 8443:3000
 ```

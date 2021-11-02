@@ -46,8 +46,18 @@ locals {
   server_k3s_exec             = var.server_k3s_exec != null ? var.server_k3s_exec : ""
   agent_k3s_exec              = var.agent_k3s_exec != null ? var.agent_k3s_exec : ""
   certmanager_version         = var.certmanager_version
+  rancher_password            = var.rancher_password
+  rancher_image               = var.rancher_image
+  rancher_image_tag           = var.rancher_image_tag
+  rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
   letsencrypt_email           = var.letsencrypt_email
+  byo_certs_bucket_path       = var.byo_certs_bucket_path
+  s3_instance_profile         = var.s3_instance_profile
+  s3_bucket_region            = length(var.s3_bucket_region) > 0 ? var.s3_bucket_region : var.aws_region
+  private_ca_file             = var.private_ca_file
+  tls_cert_file               = var.tls_cert_file
+  tls_key_file                = var.tls_key_file
   domain                      = var.domain
   r53_domain                  = length(var.r53_domain) > 0 ? var.r53_domain : local.domain
   private_subnets_cidr_blocks = var.private_subnets_cidr_blocks
@@ -58,9 +68,9 @@ locals {
   install_nginx_ingress       = var.install_nginx_ingress
   create_external_nlb         = var.create_external_nlb ? 1 : 0
   registration_command        = var.registration_command
-  rancher_password            = var.rancher_password
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
+  use_new_bootstrap           = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc\\d{2,})?$", var.rancher_version)) > 0
 }
 
 resource "random_password" "k3s_cluster_secret" {
@@ -79,7 +89,7 @@ resource "null_resource" "wait_for_rancher" {
   count = local.install_rancher ? 1 : 0
   provisioner "local-exec" {
     command = <<EOF
-until echo "$${subject}" | grep "CN=${local.subdomain}.${local.domain}"; do
+until echo "$${subject}" | grep -q "CN=${local.subdomain}.${local.domain}" || echo "$${subject}" | grep -q "CN=\*.${local.domain}" ; do
     sleep 5
     subject=$(curl -vk -m 2 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
 done
@@ -91,7 +101,6 @@ while [ "$${resp}" != "pong" ]; do
     fi
 done
 EOF
-
 
     environment = {
       RANCHER_HOSTNAME = "${local.subdomain}.${local.domain}"
@@ -106,8 +115,9 @@ EOF
 }
 
 resource "rancher2_bootstrap" "admin" {
-  count      = local.install_rancher ? 1 : 0
-  provider   = rancher2.bootstrap
-  password   = local.rancher_password
-  depends_on = [null_resource.wait_for_rancher]
+  count             = (local.install_rancher) ? 1 : 0
+  provider          = rancher2.bootstrap
+  initial_password  = local.use_new_bootstrap ? local.rancher_password : null
+  password          = local.rancher_password
+  depends_on        = [null_resource.wait_for_rancher]
 }

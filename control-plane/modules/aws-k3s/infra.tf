@@ -87,11 +87,21 @@ resource "aws_security_group_rule" "ssh_k3s_server" {
 #############################
 ### Create Nodes
 #############################
+
+data "aws_iam_instance_profile" "rancher_s3_access" {
+  count = (length(var.byo_certs_bucket_path) > 0  && length(local.s3_instance_profile) > 0) ? 1 : 0
+  name = local.s3_instance_profile
+}
+
 resource "aws_launch_template" "k3s_server" {
   name_prefix   = local.name
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
   user_data     = data.template_cloudinit_config.k3s_server.rendered
+
+  iam_instance_profile {
+    arn = length(var.byo_certs_bucket_path) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null
+  }
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -211,8 +221,8 @@ resource "aws_autoscaling_group" "k3s_agent" {
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [
-    aws_lb_target_group.agent-80.0.arn,
-    aws_lb_target_group.agent-443.0.arn
+    aws_lb_target_group.agent-80[0].arn,
+    aws_lb_target_group.agent-443[0].arn
   ]
 
   launch_template {

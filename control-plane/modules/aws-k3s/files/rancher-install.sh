@@ -32,17 +32,56 @@ spec:
     hostname: ${rancher_hostname}
     ingress:
       tls:
+%{ if !install_certmanager && install_byo_certs ~}
+        source: secret
+        secretName: tls-rancher-ingress
+%{ endif ~}
+%{ if install_certmanager ~}
         source: letsEncrypt
     letsEncrypt:
       email: ${letsencrypt_email}
+%{ endif ~}
+%{ if private_ca ~}
+    privateCA: ${private_ca}
+%{ endif ~}
     rancherImage: ${rancher_image}
     rancherImageTag: ${rancher_image_tag}
-    replicas: 3
+    replicas: ${rancher_node_count}
+%{ if use_new_bootstrap ~}
+    bootstrapPassword: ${rancher_password}
+%{ endif ~}
     extraEnv:
     - name: CATTLE_PROMETHEUS_METRICS
       value: 'true'
 EOF
 %{ endif }
+
+%{ if !install_certmanager && install_byo_certs ~}
+mkdir /certs/
+cd certs/
+apt-get update && apt-get install awscli --yes && aws --region "${s3_bucket_region}" s3 cp s3://"${byo_certs_bucket_path}" /certs/certs.tar.gz
+
+tar -xf certs.tar.gz --strip-components 1
+mv "/certs/${tls_cert_file}" /certs/tls.crt
+mv "/certs/${tls_key_file}" /certs/tls.key
+
+if [[ ! $(kubectl get secrets -n cattle-system | grep -q tls-rancher-ingress) ]]; then
+  kubectl -n cattle-system create secret tls tls-rancher-ingress \
+    --cert="/certs/tls.crt" \
+    --key="/certs/tls.key"
+fi
+
+%{ if private_ca ~}
+mv "/certs/${private_ca_file}" /certs/cacerts.pem
+if [[ ! $(kubectl get secrets -n cattle-system | grep -q tls-ca) ]]; then
+  kubectl -n cattle-system create secret generic tls-ca \
+    --from-file=cacerts.pem="/certs/cacerts.pem"
+fi
+%{ endif ~}
+
+find . -type f ! -name "*.key" ! -name "*.crt" ! -name "cacerts.pem" -exec rm {} \;
+
+%{ endif ~}
 
 cat <<EOF > /var/lib/rancher/k3s/server/manifests/monitoring.yaml
 ---
@@ -57,7 +96,7 @@ metadata:
   name: rancher-monitoring-crd
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     global:
@@ -73,7 +112,7 @@ metadata:
   name: rancher-monitoring
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/release-v2.5/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     alertmanager:
