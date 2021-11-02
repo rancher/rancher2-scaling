@@ -11,9 +11,10 @@ Sometimes a cluster won't provision so in a large run there may be some clusters
 rancher_api_url           = "https://rancher-server.go"
 rancher_token_key         = ""
 cluster_count             = 15
-ec2_instances_per_cluster = 1
 k3s_per_node              = 3
 server_instance_type      = "m5.xlarge"
+k3d_version               = "v4.4.5"
+install_k3s_image         = "v1.21.1-k3s1"
 ```
 
 The total number of clusters will be `N` * `cluster_count` from the `terraform.tfvars` file
