@@ -39,7 +39,6 @@ module "db" {
   username = var.db_username
   password = var.db_password
   port     = var.db_port
-  
   create_db_parameter_group    = false
   create_db_subnet_group       = false
   create_db_option_group       = false
