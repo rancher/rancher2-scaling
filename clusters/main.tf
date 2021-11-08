@@ -53,7 +53,6 @@ resource "aws_instance" "k3s-server" {
   ebs_optimized = true
   instance_type = var.server_instance_type
   ami           = data.aws_ami.ubuntu.id
-
   security_groups = var.security_groups
   # spot_price           = "1.591"
   # wait_for_fulfillment = true
