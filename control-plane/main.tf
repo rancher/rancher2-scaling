@@ -23,12 +23,12 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-east-2"
+  region  = "${local.aws_region}"
   profile = "rancher-eng"
 }
 
 provider "aws" {
-  region  = "us-east-2"
+  region  = "${local.aws_region}"
   profile = "rancher-eng"
   alias   = "r53"
 }
@@ -78,9 +78,10 @@ resource "random_pet" "identifier" {
 }
 
 locals {
-  domain      = var.domain
+  aws_region  = var.aws_region
   name        = random_pet.identifier.id
   identifier  = random_pet.identifier.id
+  domain      = var.domain
   db_multi_az = false
 }
 
@@ -118,4 +119,13 @@ module "k3s" {
   r53_domain                  = var.r53_domain
   letsencrypt_email           = var.letsencrypt_email
   rancher_chart               = var.rancher_chart
+  rancher_chart_tag           = var.rancher_chart_tag
+  install_certmanager         = var.install_certmanager
+  certmanager_version         = var.certmanager_version
+  byo_certs_bucket_path       = var.byo_certs_bucket_path
+  s3_instance_profile         = var.s3_instance_profile
+  s3_bucket_region            = var.s3_bucket_region
+  private_ca_file             = var.private_ca_file
+  tls_cert_file               = var.tls_cert_file
+  tls_key_file                = var.tls_key_file
 }
