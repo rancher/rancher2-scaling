@@ -9,3 +9,8 @@
 outputs/
 terraform.d/
 **/*.tfvars
+*.log
+Results/
+kube-config.yaml
+*.zip
+*.log

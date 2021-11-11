@@ -9,14 +9,15 @@ variable "cluster_count" {
   description = "Number of clusters to provision"
 }
 
-variable "ec2_instances_per_cluster" {
-  type        = number
-  description = "Number of EC2 instances per cluster"
+variable "aws_region" {
+  type    = string
+  default = "us-west-1"
 }
 
-variable "k3s_per_node" {
-  type        = number
-  description = "The number of k3s agents on each ec2 instance"
+variable "security_groups" {
+  type        = list
+  default     = []
+  description = "A list of security group names (EC2-Classic) or IDs (default VPC) to associate with"
 }
 
 variable "server_instance_type" {
@@ -49,11 +50,29 @@ variable "ssh_keys" {
 variable "install_k3s_image" {
   type        = string
   default     = "v1.19.3-k3s1"
-  description = "k3s image to use during install"
+  description = "k3s image to use during install (container image tag with the 'v')"
+}
+
+variable "k3d_version" {
+  type        = string
+  default     = "v3.4.0"
+  description = "k3d version to use during cluster create (release tag with the 'v')"
 }
 
 variable "k3s_cluster_secret" {
   type        = string
   default     = ""
   description = "k3s cluster secret"
+}
+
+variable "insecure_flag" {
+  type        = bool
+  default     = false
+  description = "Flag used to determine if Rancher is using self-signed invalid certs (using a private CA)"
+}
+
+variable "cluster_labels" {
+  type        = map
+  default     = {}
+  description = "Labels to add to each provisioned cluster"
 }
