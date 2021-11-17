@@ -7,6 +7,10 @@ output "rancher_url" {
   value = rancher2_bootstrap.admin[0].url
 }
 
+output "rancher_token_id" {
+  value     = rancher2_bootstrap.admin[0].token_id
+}
+
 output "rancher_token" {
   value     = rancher2_bootstrap.admin[0].token
   sensitive = false

@@ -309,12 +309,6 @@ variable "k3s_deploy_traefik" {
   description = "Configures whether to deploy traefik ingress or not"
 }
 
-variable "rancher2_token_key" {
-  default     = null
-  type        = string
-  description = "Rancher2 API token for authentication"
-}
-
 variable "agent_k3s_exec" {
   default     = null
   type        = string
