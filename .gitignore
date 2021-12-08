@@ -12,5 +12,6 @@ terraform.d/
 *.log
 Results/
 kube-config.yaml
+.*tfkubeconfig
 *.zip
 *.log

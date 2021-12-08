@@ -7,8 +7,8 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
-    helm = {
-      source = "hashicorp/helm"
+    local = {
+      source = "hashicorp/local"
     }
     random = {
       source = "hashicorp/random"
@@ -23,30 +23,14 @@ terraform {
 }
 
 provider "aws" {
-  region  = "${local.aws_region}"
+  region  = local.aws_region
   profile = "rancher-eng"
 }
 
 provider "aws" {
-  region  = "${local.aws_region}"
+  region  = local.aws_region
   profile = "rancher-eng"
   alias   = "r53"
-}
-
-provider "helm" {
-  install_tiller  = true
-  namespace       = "kube-system"
-  service_account = "tiller"
-
-  kubernetes {
-    config_path = local_file.kube_cluster_yaml.filename
-  }
-}
-
-provider "rancher2" {
-  alias     = "bootstrap"
-  api_url   = "https://${local.name}.${local.domain}"
-  bootstrap = true
 }
 
 data "aws_caller_identity" "current" {}
@@ -128,4 +112,23 @@ module "k3s" {
   private_ca_file             = var.private_ca_file
   tls_cert_file               = var.tls_cert_file
   tls_key_file                = var.tls_key_file
+}
+
+provider "rancher2" {
+  alias     = "admin"
+  api_url   = module.k3s.rancher_url
+  token_key = module.k3s.rancher_token
+}
+
+data "rancher2_cluster" "local" {
+  provider = rancher2.admin
+  name     = "local"
+  depends_on = [
+    module.k3s
+  ]
+}
+
+resource "local_file" "kubeconfig" {
+  content  = data.rancher2_cluster.local.kube_config
+  filename = "${path.module}/files/.${local.identifier}-tfkubeconfig"
 }

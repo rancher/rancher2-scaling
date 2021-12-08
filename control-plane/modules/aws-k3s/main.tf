@@ -70,7 +70,7 @@ locals {
   registration_command        = var.registration_command
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
-  use_new_bootstrap           = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc\\d{2,})?$", var.rancher_version)) > 0
+  use_new_bootstrap           = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc[0-9]|\\d{2,})?$", var.rancher_version)) > 0
 }
 
 resource "random_password" "k3s_cluster_secret" {
