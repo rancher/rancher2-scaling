@@ -24,7 +24,7 @@ variable "create_node_reqs" {
 
 variable "existing_node_template" {
   type        = string
-  default     = null
+  default     = ""
   description = "(Optional) Name of an existing node template to use. Only use this if create_node_reqs is false."
 }
 
@@ -87,12 +87,6 @@ variable "rancher_api_url" {
 variable "rancher_token_key" {
   type        = string
   description = "rancher server API token"
-}
-
-variable "ssh_keys" {
-  type        = list(any)
-  default     = []
-  description = "SSH keys to inject into the EC2 instances"
 }
 
 variable "insecure_flag" {

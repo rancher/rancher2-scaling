@@ -52,7 +52,7 @@ To cleanup, there is a `destroy_clusters.sh`, this script will perform a `terraf
 
 | Name | Type |
 |------|------|
-| [null_resource.determine_nt](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [null_resource.nt_dependency](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [rancher2_cluster.rke1](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster) | resource |
 | [rancher2_node_pool.aws_np](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/node_pool) | resource |
 | [random_id.index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
@@ -84,7 +84,6 @@ To cleanup, there is a `destroy_clusters.sh`, this script will perform a `terraf
 | <a name="input_rancher_token_key"></a> [rancher\_token\_key](#input\_rancher\_token\_key) | rancher server API token | `string` | n/a | yes |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | A list of security group names (EC2-Classic) or IDs (default VPC) to associate with | `list(any)` | `[]` | no |
 | <a name="input_server_instance_type"></a> [server\_instance\_type](#input\_server\_instance\_type) | Instance type to use for rke1 server | `string` | n/a | yes |
-| <a name="input_ssh_keys"></a> [ssh\_keys](#input\_ssh\_keys) | SSH keys to inject into the EC2 instances | `list(any)` | `[]` | no |
 | <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of the storage volume to use in GB | `string` | `"32"` | no |
 | <a name="input_volume_type"></a> [volume\_type](#input\_volume\_type) | Type of storage volume to use | `string` | `"gp2"` | no |
 

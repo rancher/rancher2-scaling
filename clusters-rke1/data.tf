@@ -49,5 +49,5 @@ data "aws_iam_instance_profile" "rancher_iam_full_access" {
 
 data "rancher2_node_template" "existing_nt" {
   count = var.create_node_reqs ? 0 : 1
-  name  = var.existing_node_template
+  name  = length(var.existing_node_template) > 0 ? var.existing_node_template : local.node_template_name
 }
