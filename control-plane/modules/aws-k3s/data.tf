@@ -90,7 +90,7 @@ data "template_cloudinit_config" "k3s_server" {
       rancher_chart_tag     = local.rancher_chart_tag,
       rancher_version       = local.rancher_version,
       rancher_password      = local.rancher_password,
-      use_new_bootstrap     = local.use_new_bootstrap,
+      use_new_bootstrap     = var.use_new_bootstrap,
       rancher_node_count    = var.server_node_count,
       rancher_hostname      = "${local.subdomain}.${local.domain}",
       install_rancher       = local.install_rancher,
@@ -120,6 +120,7 @@ data "template_cloudinit_config" "k3s_server" {
 }
 
 data "template_cloudinit_config" "k3s_agent" {
+  count         = local.agent_node_count > 0 && var.create_external_nlb ? 1 : 0
   gzip          = false
   base64_encode = true
 
@@ -150,4 +151,12 @@ data "template_cloudinit_config" "k3s_agent" {
       }
     )
   }
+}
+
+data "rancher2_cluster" "local" {
+  count = local.install_rancher ? 1 : 0
+  name  = "local"
+  depends_on = [
+    rancher2_bootstrap.admin
+  ]
 }

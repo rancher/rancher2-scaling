@@ -70,19 +70,11 @@ locals {
   registration_command        = var.registration_command
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
-  use_new_bootstrap           = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc[0-9]|\\d{2,})?$", var.rancher_version)) > 0
 }
 
 resource "random_password" "k3s_cluster_secret" {
   length  = 30
   special = false
-}
-
-provider "rancher2" {
-  alias     = "bootstrap"
-  api_url   = "https://${local.subdomain}.${local.domain}"
-  insecure  = true
-  bootstrap = true
 }
 
 resource "null_resource" "wait_for_rancher" {
@@ -92,6 +84,7 @@ resource "null_resource" "wait_for_rancher" {
 until echo "$${subject}" | grep -q "CN=${local.subdomain}.${local.domain}" || echo "$${subject}" | grep -q "CN=\*.${local.domain}" ; do
     sleep 5
     subject=$(curl -vk -m 2 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
+    echo "Subject: $${subject}"
 done
 while [ "$${resp}" != "pong" ]; do
     resp=$(curl -sSk -m 2 "https://${local.subdomain}.${local.domain}/ping")
@@ -115,9 +108,8 @@ EOF
 }
 
 resource "rancher2_bootstrap" "admin" {
-  count             = (local.install_rancher) ? 1 : 0
-  provider          = rancher2.bootstrap
-  initial_password  = local.use_new_bootstrap ? local.rancher_password : null
-  password          = local.rancher_password
-  depends_on        = [null_resource.wait_for_rancher]
+  count            = (local.install_rancher) ? 1 : 0
+  initial_password = var.use_new_bootstrap ? local.rancher_password : null
+  password         = local.rancher_password
+  depends_on       = [null_resource.wait_for_rancher]
 }
