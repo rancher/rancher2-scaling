@@ -4,6 +4,12 @@ variable "rancher_password" {
   description = "Password to set for admin user after bootstrap of Rancher Server"
 }
 
+variable "use_new_bootstrap" {
+  type        = bool
+  default     = true
+  description = "Boolean that defines whether or not utilize the new bootstrap password process used in 2.6.x"
+}
+
 variable "rancher_version" {
   type        = string
   description = "Version of Rancher to install - Do not include the v prefix."
@@ -27,7 +33,7 @@ variable "server_image_id" {
 }
 
 variable "ssh_keys" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "SSH keys to inject into Rancher instances"
 }
@@ -132,13 +138,13 @@ variable "aws_profile" {
 
 variable "public_subnets" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "List of public subnet ids."
 }
 
 variable "private_subnets" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "List of private subnet ids."
 }
 
@@ -156,19 +162,19 @@ variable "k3s_cluster_secret" {
 
 variable "extra_server_security_groups" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "Additional security groups to attach to k3s server instances"
 }
 
 variable "extra_agent_security_groups" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "Additional security groups to attach to k3s agent instances"
 }
 
 variable "aws_azs" {
   default     = null
-  type        = list
+  type        = list(any)
   description = "List of AWS Availability Zones in the VPC"
 }
 
@@ -198,13 +204,13 @@ variable "db_security_group" {
 
 variable "private_subnets_cidr_blocks" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "List of cidr_blocks of private subnets"
 }
 
 variable "public_subnets_cidr_blocks" {
   default     = []
-  type        = list
+  type        = list(any)
   description = "List of cidr_blocks of public subnets"
 }
 

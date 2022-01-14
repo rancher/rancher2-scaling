@@ -1,4 +1,4 @@
-resource "aws_lb" "server-lb" {
+resource "aws_lb" "server_lb" {
   name               = "${local.name}-int"
   internal           = true
   load_balancer_type = "network"
@@ -11,8 +11,8 @@ resource "aws_lb" "server-lb" {
 
 }
 
-resource "aws_lb_listener" "server-port_6443" {
-  load_balancer_arn = aws_lb.server-lb.arn
+resource "aws_lb_listener" "server_port_6443" {
+  load_balancer_arn = aws_lb.server_lb.arn
   port              = "6443"
   protocol          = "TCP"
 
@@ -45,7 +45,7 @@ resource "aws_lb" "lb" {
 
 resource "aws_lb_listener" "port_443" {
   count             = local.create_external_nlb
-  load_balancer_arn = aws_lb.lb.0.arn
+  load_balancer_arn = aws_lb.lb[0].arn
   port              = "443"
   protocol          = "TCP"
 
@@ -57,7 +57,7 @@ resource "aws_lb_listener" "port_443" {
 
 resource "aws_lb_listener" "port_80" {
   count             = local.create_external_nlb
-  load_balancer_arn = aws_lb.lb.0.arn
+  load_balancer_arn = aws_lb.lb[0].arn
   port              = "80"
   protocol          = "TCP"
 

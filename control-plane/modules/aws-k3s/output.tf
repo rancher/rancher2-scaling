@@ -8,7 +8,7 @@ output "rancher_url" {
 }
 
 output "rancher_token_id" {
-  value     = rancher2_bootstrap.admin[0].token_id
+  value = rancher2_bootstrap.admin[0].token_id
 }
 
 output "rancher_token" {
@@ -16,8 +16,13 @@ output "rancher_token" {
   sensitive = false
 }
 
+output "kube_config" {
+  value     = data.rancher2_cluster.local[0].kube_config
+  sensitive = true
+}
+
 output "external_lb_dns_name" {
-  value = local.create_external_nlb > 0 ? aws_lb.lb.0.dns_name : null
+  value = local.create_external_nlb > 0 ? aws_lb.lb[0].dns_name : null
 }
 
 output "k3s_cluster_secret" {
@@ -26,11 +31,11 @@ output "k3s_cluster_secret" {
 }
 
 output "k3s_tls_san" {
-  value     = local.k3s_tls_san
+  value = local.k3s_tls_san
 }
 
 output "use_new_bootstrap" {
-  value     = local.use_new_bootstrap
+  value = var.use_new_bootstrap
 }
 
 output "tls_cert_file" {

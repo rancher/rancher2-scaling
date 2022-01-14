@@ -41,7 +41,8 @@ resource "null_resource" "wait_for_cert_manager" {
       sleep 5
       pods="$(kubectl get pods --namespace cert-manager | grep Running | wc -l | awk '\''{$1=$1;print}'\'')"
       echo "cert-manager pods: $${pods}"
-    done'
+    done
+    sleep 60'
     EOT
     environment = {
       KUBECONFIG = "${var.kube_config_path}"
