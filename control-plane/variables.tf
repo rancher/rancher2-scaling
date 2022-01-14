@@ -1,11 +1,41 @@
+variable "install_docker_version" {
+  type        = string
+  default     = "20.10"
+  description = "Version of Docker to install"
+}
+
+variable "install_k8s_version" {
+  type        = string
+  default     = "1.21.7-rancher1-1"
+  description = "Version of K8s to install"
+}
+
+variable "install_rancher" {
+  type        = bool
+  default     = true
+  description = "Boolean that defines whether or not to install Rancher"
+}
+
 variable "rancher_version" {
   type        = string
   description = "Version of Rancher to install - Do not include the v prefix."
 }
 
+variable "install_monitoring" {
+  type        = bool
+  default     = true
+  description = "Boolean that defines whether or not to install rancher-monitoring"
+}
+
 variable "monitoring_version" {
   type        = string
   description = "Version of Monitoring v2 to install - Do not include the v prefix."
+}
+
+variable "monitoring_chart_values_path" {
+  type        = string
+  default     = null
+  description = "Path to custom values.yaml for rancher-monitoring"
 }
 
 variable "rancher_instance_type" {
@@ -113,8 +143,8 @@ variable "db_username" {
 }
 
 variable "db_password" {
-  default = "rancher12345"
-  type    = string
+  default     = "rancher12345"
+  type        = string
   description = "Password string for database, must be >= 8 characters. Only printable ASCII characters are allowed, the following are not allowed: '/@\" ' "
 }
 
@@ -130,9 +160,15 @@ variable "db_subnet_group_name" {
 }
 
 variable "ssh_keys" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "SSH keys to inject into Rancher instances"
+}
+
+variable "ssh_key_path" {
+  default     = null
+  type        = string
+  description = "Path to the private SSH key file to be used for connecting to the node(s)"
 }
 
 variable "rancher_image" {
@@ -149,6 +185,11 @@ variable "rancher_image_tag" {
 variable "rancher_node_count" {
   type    = number
   default = 1
+}
+
+variable "k8s_distribution" {
+  type        = string
+  description = "The K8s distribution to use for setting up Rancher (k3s or rke1)"
 }
 
 variable "install_k3s_version" {
@@ -177,14 +218,20 @@ variable "server_k3s_exec" {
 
 variable "rancher_chart" {
   type        = string
-  default     = "rancher-stable/rancher"
+  default     = "stable"
   description = "Helm chart to use for Rancher install"
 }
 
-variable "rancher_chart_tag" {
+variable "rancher_charts_repo" {
   type        = string
-  default     = "release-v2.5"
-  description = "The github tag for the desired Rancher chart version"
+  default     = ""
+  description = "The URL for the desired Rancher charts"
+}
+
+variable "rancher_charts_branch" {
+  type        = string
+  default     = "release-v2.6"
+  description = "The github branch for the desired Rancher chart version"
 }
 
 variable "letsencrypt_email" {
@@ -210,7 +257,7 @@ variable "r53_domain" {
 }
 
 variable "sensitive_token" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "Boolean that determines if the module should treat the generated Rancher Admin API Token as sensitive in the output."
 }

@@ -1,0 +1,24 @@
+hostname: ${rancher_hostname}
+ingress:
+  tls:
+%{ if !install_certmanager && install_byo_certs ~}
+    source: secret
+    secretName: tls-rancher-ingress
+%{ endif ~}
+%{ if install_certmanager ~}
+    source: letsEncrypt
+letsEncrypt:
+  email: ${letsencrypt_email}
+%{ endif ~}
+%{ if private_ca ~}
+privateCA: ${private_ca}
+%{ endif ~}
+rancherImage: ${rancher_image}
+rancherImageTag: ${rancher_image_tag}
+replicas: ${rancher_node_count}
+%{ if use_new_bootstrap ~}
+bootstrapPassword: ${rancher_password}
+%{ endif ~}
+extraEnv:
+- name: CATTLE_PROMETHEUS_METRICS
+  value: 'true'
