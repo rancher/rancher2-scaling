@@ -78,7 +78,7 @@ data "template_cloudinit_config" "rke1_server" {
 
 data "aws_instances" "nodes" {
   instance_tags = {
-    Name  = local.name
+    Name  = local.instance_names
     Owner = var.user
   }
   depends_on = [

@@ -115,15 +115,15 @@ module "rke1" {
   count  = var.k8s_distribution == "rke1" ? 1 : 0
   source = "./modules/rke1"
 
-  cluster_name           = "local"
-  server_node_count      = var.rancher_node_count
-  ssh_key_path           = var.ssh_key_path
-  install_docker_version = var.install_docker_version
-  install_k8s_version    = var.install_k8s_version
-  s3_instance_profile    = var.s3_instance_profile
-  nodes_ids              = module.aws_infra[0].nodes_ids
-  nodes_public_ips       = module.aws_infra[0].nodes_public_ips
-  nodes_private_ips      = module.aws_infra[0].nodes_private_ips
+  cluster_name             = "local"
+  hostname_override_prefix = local.name
+  ssh_key_path             = var.ssh_key_path
+  install_docker_version   = var.install_docker_version
+  install_k8s_version      = var.install_k8s_version
+  s3_instance_profile      = var.s3_instance_profile
+  nodes_ids                = module.aws_infra[0].nodes_ids
+  nodes_public_ips         = module.aws_infra[0].nodes_public_ips
+  nodes_private_ips        = module.aws_infra[0].nodes_private_ips
 
   depends_on = [
     module.aws_infra
@@ -181,6 +181,12 @@ resource "rancher2_catalog_v2" "rancher_charts_custom" {
   name       = "rancher-charts-custom"
   git_repo   = length(var.rancher_charts_repo) > 0 ? var.rancher_charts_repo : "https://git.rancher.io/charts"
   git_branch = var.rancher_charts_branch
+
+  provisioner "local-exec" {
+    command = <<-EOT
+    sleep 5
+    EOT
+  }
 
   depends_on = [
     module.install_common

@@ -1,7 +1,13 @@
 variable "cluster_name" {
+  type        = string
+  default     = "local"
+  description = "Name of the cluster within Rancher2"
 }
 
-variable "server_node_count" {
+variable "hostname_override_prefix" {
+  type        = string
+  default     = ""
+  description = "String to prepend to the hostname_override field for each node. (Ignored for AWS cloud provider)"
 }
 
 variable "install_docker_version" {

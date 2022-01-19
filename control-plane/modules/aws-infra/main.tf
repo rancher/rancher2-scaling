@@ -23,6 +23,7 @@ terraform {
 
 locals {
   name                        = var.name
+  instance_names              = "${local.name}-RKE1-HA"
   server_instance_type        = var.server_instance_type
   server_image_id             = var.server_image_id != null ? var.server_image_id : data.aws_ami.ubuntu.id
   aws_azs                     = var.aws_azs
@@ -38,9 +39,7 @@ locals {
   create_external_nlb         = var.create_external_nlb ? 1 : 0
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
-  # k8s_cluster_tag             = "kubernetes.io/cluster/${var.name}"
-  k8s_cluster_tag = "kubernetes.io/cluster/${local.subdomain}"
-  # k8s_cluster_tag = "kubernetes.io/cluster/rke1-local"
+  k8s_cluster_tag             = "kubernetes.io/cluster/${local.subdomain}"
   custom_tags = [
     {
       key   = local.k8s_cluster_tag
@@ -55,7 +54,7 @@ locals {
     [
       {
         "key"   = "Name"
-        "value" = local.name
+        "value" = local.instance_names
       },
       {
         "key"   = "Owner"
