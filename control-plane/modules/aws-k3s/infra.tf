@@ -89,8 +89,8 @@ resource "aws_security_group_rule" "ssh_k3s_server" {
 #############################
 
 data "aws_iam_instance_profile" "rancher_s3_access" {
-  count = (length(var.byo_certs_bucket_path) > 0  && length(local.s3_instance_profile) > 0) ? 1 : 0
-  name = local.s3_instance_profile
+  count = (length(var.byo_certs_bucket_path) > 0 && length(local.s3_instance_profile) > 0) ? 1 : 0
+  name  = local.s3_instance_profile
 }
 
 resource "aws_launch_template" "k3s_server" {
@@ -124,10 +124,11 @@ resource "aws_launch_template" "k3s_server" {
 }
 
 resource "aws_launch_template" "k3s_agent" {
+  count         = local.agent_node_count > 0 && var.create_external_nlb ? 1 : 0
   name_prefix   = "${local.name}-agent"
   image_id      = local.agent_image_id
   instance_type = local.agent_instance_type
-  user_data     = data.template_cloudinit_config.k3s_agent.rendered
+  user_data     = data.template_cloudinit_config.k3s_agent[0].rendered
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -214,6 +215,7 @@ resource "aws_autoscaling_group" "k3s_server" {
 }
 
 resource "aws_autoscaling_group" "k3s_agent" {
+  count               = local.agent_node_count > 0 && var.create_external_nlb ? 1 : 0
   name_prefix         = "${local.name}-agent"
   desired_capacity    = local.agent_node_count
   max_size            = local.agent_node_count
@@ -226,8 +228,8 @@ resource "aws_autoscaling_group" "k3s_agent" {
   ]
 
   launch_template {
-    id      = aws_launch_template.k3s_agent.id
-    version = aws_launch_template.k3s_agent.latest_version
+    id      = aws_launch_template.k3s_agent[0].id
+    version = aws_launch_template.k3s_agent[0].latest_version
   }
 
   depends_on = [
@@ -244,7 +246,7 @@ resource "aws_autoscaling_group" "k3s_agent" {
 #############################
 resource "aws_route53_record" "rancher" {
   count   = local.use_route53
-  zone_id = data.aws_route53_zone.dns_zone.0.zone_id
+  zone_id = data.aws_route53_zone.dns_zone[0].zone_id
   name    = "${local.subdomain}.${local.domain}"
   type    = "CNAME"
   ttl     = 30
@@ -253,9 +255,9 @@ resource "aws_route53_record" "rancher" {
 
 resource "aws_route53_record" "k3s" {
   count   = local.use_route53
-  zone_id = data.aws_route53_zone.dns_zone.0.zone_id
+  zone_id = data.aws_route53_zone.dns_zone[0].zone_id
   name    = "${local.subdomain}-k3s.${local.domain}"
   type    = "CNAME"
   ttl     = 30
-  records = [aws_lb.server-lb.dns_name]
+  records = [aws_lb.server_lb.dns_name]
 }

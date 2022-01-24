@@ -5,8 +5,7 @@ resource "aws_lb" "server_lb" {
   subnets            = local.private_subnets
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 
 }
@@ -29,7 +28,6 @@ resource "aws_lb_target_group" "server-6443" {
   vpc_id   = data.aws_vpc.default.id
 }
 
-
 resource "aws_lb" "lb" {
   count              = local.create_external_nlb
   name               = "${local.name}-ext"
@@ -38,14 +36,13 @@ resource "aws_lb" "lb" {
   subnets            = local.public_subnets
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 
 resource "aws_lb_listener" "port_443" {
   count             = local.create_external_nlb
-  load_balancer_arn = aws_lb.lb[0].arn
+  load_balancer_arn = aws_lb.lb.0.arn
   port              = "443"
   protocol          = "TCP"
 
@@ -57,7 +54,7 @@ resource "aws_lb_listener" "port_443" {
 
 resource "aws_lb_listener" "port_80" {
   count             = local.create_external_nlb
-  load_balancer_arn = aws_lb.lb[0].arn
+  load_balancer_arn = aws_lb.lb.0.arn
   port              = "80"
   protocol          = "TCP"
 
@@ -91,9 +88,7 @@ resource "aws_lb_target_group" "agent-443" {
   }
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
-
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 
@@ -116,9 +111,7 @@ resource "aws_lb_target_group" "agent-80" {
   }
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
-
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 
@@ -129,8 +122,7 @@ resource "aws_lb" "server-public-lb" {
   subnets            = local.public_subnets
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 
@@ -157,9 +149,7 @@ resource "aws_lb_target_group" "server-443" {
   }
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
-
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 
@@ -186,9 +176,7 @@ resource "aws_lb_target_group" "server-80" {
   }
 
   tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
-
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
   }
 }
 

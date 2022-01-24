@@ -96,7 +96,7 @@ metadata:
   name: rancher-monitoring-crd
   namespace: kube-system
 spec:
-  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring-crd/rancher-monitoring-crd-${monitoring_version}.tgz
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     global:

@@ -15,3 +15,5 @@ kube-config.yaml
 .*tfkubeconfig
 *.zip
 *.log
+*logs.txt
+.*tf-kubeconfig
