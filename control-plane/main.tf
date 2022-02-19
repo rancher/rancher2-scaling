@@ -37,7 +37,11 @@ locals {
   domain             = var.domain
   db_multi_az        = false
   use_new_bootstrap  = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc\\d{2,})?$", var.rancher_version)) > 0
-  install_monitoring = var.install_monitoring && var.install_rancher
+  install_common     = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2") && (var.install_rancher || var.install_certmanager)
+  install_monitoring = local.install_common && var.install_monitoring && var.install_rancher
+  kubeconfig_content = var.k8s_distribution == "k3s" ? module.k3s[0].kube_config : var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
+  rancher_url        = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? module.install_common[0].rancher_url : ""
+  rancher_token      = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_token : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? module.install_common[0].rancher_token : ""
 }
 
 resource "random_password" "rancher_password" {
@@ -99,7 +103,7 @@ module "aws_infra" {
 
   vpc_id                 = data.aws_vpc.default.id
   create_external_nlb    = true
-  name                   = local.name
+  name                   = "${local.name}-${var.k8s_distribution}"
   user                   = data.aws_caller_identity.current.user_id
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
@@ -130,27 +134,44 @@ module "rke1" {
   ]
 }
 
+module "rke2" {
+  count  = var.k8s_distribution == "rke2" ? 1 : 0
+  source = "./modules/rke2"
+
+  name                   = local.name
+  internal_lb            = false
+  subdomain              = local.name
+  domain                 = var.domain
+  rke2_version           = var.install_rke2_version
+  rke2_channel           = var.install_rke2_channel
+  server_node_count      = var.rancher_node_count
+  server_instance_type   = var.rancher_instance_type
+  vpc_id                 = data.aws_vpc.default.id
+  subnets                = data.aws_subnets.all.ids
+  iam_instance_profile   = var.s3_instance_profile
+  ssh_keys               = var.ssh_keys
+  ssh_key_path           = var.ssh_key_path
+  user                   = data.aws_caller_identity.current.user_id
+  secrets_encryption     = var.enable_secrets_encryption
+  setup_monitoring_agent = local.install_monitoring
+}
+
 module "generate_kube_config" {
   source = "./modules/generate-kube-config"
 
-  kubeconfig_content = var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : module.k3s[0].kube_config
+  kubeconfig_content = local.kubeconfig_content
   kubeconfig_dir     = "${path.module}/files/kube_config"
   identifier_prefix  = local.name
 }
 
 module "install_common" {
-  count  = var.k8s_distribution == "rke1" ? 1 : 0
+  count  = local.install_common ? 1 : 0
   source = "./modules/install-common"
-
   providers = {
     rancher2 = rancher2.bootstrap
   }
 
-  kube_config_path       = module.generate_kube_config.kubeconfig_path
-  cluster_host_url       = module.rke1[0].api_server_url
-  client_certificate     = module.rke1[0].client_cert
-  client_key             = module.rke1[0].client_key
-  cluster_ca_certificate = module.rke1[0].ca_crt
+  kube_config_path = module.generate_kube_config.kubeconfig_path
 
   subdomain           = local.name
   domain              = local.domain
@@ -174,12 +195,12 @@ module "install_common" {
 }
 
 resource "rancher2_catalog_v2" "rancher_charts_custom" {
-  count    = var.k8s_distribution == "rke1" && local.install_monitoring ? 1 : 0
+  count    = local.install_monitoring ? 1 : 0
   provider = rancher2.admin
 
   cluster_id = "local"
   name       = "rancher-charts-custom"
-  git_repo   = length(var.rancher_charts_repo) > 0 ? var.rancher_charts_repo : "https://git.rancher.io/charts"
+  git_repo   = var.rancher_charts_repo
   git_branch = var.rancher_charts_branch
 
   provisioner "local-exec" {
@@ -194,7 +215,7 @@ resource "rancher2_catalog_v2" "rancher_charts_custom" {
 }
 
 resource "rancher2_app_v2" "rancher_monitoring" {
-  count    = var.k8s_distribution == "rke1" && local.install_monitoring ? 1 : 0
+  count    = local.install_monitoring ? 1 : 0
   provider = rancher2.admin
 
   cluster_id    = "local"

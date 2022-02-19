@@ -29,8 +29,8 @@ provider "helm" {
 
 provider "rancher2" {
   alias     = "admin"
-  api_url   = var.k8s_distribution == "rke1" ? module.install_common[0].rancher_url : module.k3s[0].rancher_url
-  token_key = var.k8s_distribution == "rke1" ? module.install_common[0].rancher_token : module.k3s[0].rancher_token
+  api_url   = local.rancher_url
+  token_key = local.rancher_token
   insecure  = length(var.byo_certs_bucket_path) > 0 ? true : false
   timeout   = "300s"
 }
