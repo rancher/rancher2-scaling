@@ -20,7 +20,6 @@ locals {
   tags = {
     "Owner"       = "${var.user}",
     "DoNotDelete" = "true",
-    # "Name"        = "${local.instance_names}",
     "managed-by" = "Terraform",
     "Identifier" = "${var.name}",
   }
@@ -44,7 +43,6 @@ module "aws_infra_rke2" {
   instance_type            = var.server_instance_type
   iam_instance_profile     = var.iam_instance_profile
   ssh_authorized_keys      = var.ssh_keys
-  zone_id                  = data.aws_route53_zone.dns_zone.zone_id
   rke2_version             = var.rke2_version
   rke2_channel             = var.rke2_channel
   rke2_config              = <<-EOT
@@ -52,17 +50,17 @@ module "aws_infra_rke2" {
     EOT
   post_userdata            = <<-EOT
     cat <<-EOF > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx.yaml
-      apiVersion: helm.cattle.io/v1
-      kind: HelmChartConfig
-      metadata:
-        name: rke2-ingress-nginx
-        namespace: kube-system
-      spec:
-        valuesContent: |-
-          controller:
-            kind: DaemonSet
-            daemonset:
-              useHostPort: true
+    apiVersion: helm.cattle.io/v1
+    kind: HelmChartConfig
+    metadata:
+      name: rke2-ingress-nginx
+      namespace: kube-system
+    spec:
+      valuesContent: |-
+        controller:
+          kind: DaemonSet
+          daemonset:
+            useHostPort: true
     EOF
   EOT
 }
@@ -96,5 +94,25 @@ module "rke2_monitor_pool" {
 
   depends_on = [
     module.aws_infra_rke2
+  ]
+}
+
+resource "null_resource" "wait_for_monitor_to_register" {
+  count  = var.setup_monitoring_agent ? 1 : 0
+  provisioner "local-exec" {
+    command = <<-EOT
+    timeout --preserve-status 3m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
+        sleep 5
+        nodes="$(kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) get nodes --no-headers | wc -l | awk '\''{$1=$1;print}'\'')"
+        echo "rke2 nodes: $${nodes}"
+    done'
+    EOT
+    environment = {
+      KUBECONFIG = base64encode(nonsensitive(module.aws_infra_rke2.kubeconfig_content))
+    }
+  }
+
+  depends_on = [
+    module.rke2_monitor_pool
   ]
 }

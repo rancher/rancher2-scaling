@@ -4,5 +4,6 @@ output "cluster_data" {
 }
 
 output "kube_config" {
-  value = data.aws_s3_object.kube_config.body
+  value = nonsensitive(module.aws_infra_rke2.kubeconfig_content)
+  sensitive = false
 }

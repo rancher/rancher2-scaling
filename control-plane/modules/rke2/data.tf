@@ -23,25 +23,14 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-# data "aws_instances" "nodes" {
-#   instance_tags = local.tags
+# data "aws_s3_object" "kube_config" {
+#   bucket = split("/", split("//", module.aws_infra_rke2.kubeconfig_s3_path)[1])[0]
+#   key    = split("/", split("//", module.aws_infra_rke2.kubeconfig_s3_path)[1])[1]
+
 #   depends_on = [
 #     module.aws_infra_rke2
 #   ]
 # }
-
-data "aws_s3_object" "kube_config" {
-  bucket = split("/", split("//", module.aws_infra_rke2.kubeconfig_s3_path)[1])[0]
-  key    = split("/", split("//", module.aws_infra_rke2.kubeconfig_s3_path)[1])[1]
-
-  # depends_on = [
-  #   null_resource.wait_for_bootstrap
-  # ]
-
-  depends_on = [
-    module.aws_infra_rke2
-  ]
-}
 
 data "aws_route53_zone" "dns_zone" {
   name = var.domain

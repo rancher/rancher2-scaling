@@ -36,7 +36,7 @@ locals {
   identifier         = random_pet.identifier.id
   domain             = var.domain
   db_multi_az        = false
-  use_new_bootstrap  = length(regexall("^([2-9]|\\d{3,})\\.([6-9]|\\d{3,})\\.([0-9]|\\d{3,})(-rc\\d{2,})?$", var.rancher_version)) > 0
+  use_new_bootstrap  = length(regexall("^([2-9]|\\d{2,})\\.([6-9]|\\d{2,})\\.([0-9]|\\d{2,})(-patch\\d{1,2})?(-rc\\d{1,2})?$", var.rancher_version)) > 0
   install_common     = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2") && (var.install_rancher || var.install_certmanager)
   install_monitoring = local.install_common && var.install_monitoring && var.install_rancher
   kubeconfig_content = var.k8s_distribution == "k3s" ? module.k3s[0].kube_config : var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
@@ -162,6 +162,11 @@ module "generate_kube_config" {
   kubeconfig_content = local.kubeconfig_content
   kubeconfig_dir     = "${path.module}/files/kube_config"
   identifier_prefix  = local.name
+  depends_on = [
+    module.k3s,
+    module.rke1,
+    module.rke2
+  ]
 }
 
 module "install_common" {
@@ -205,7 +210,7 @@ resource "rancher2_catalog_v2" "rancher_charts_custom" {
 
   provisioner "local-exec" {
     command = <<-EOT
-    sleep 5
+    sleep 10
     EOT
   }
 

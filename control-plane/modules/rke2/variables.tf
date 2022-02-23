@@ -17,11 +17,14 @@ variable "ssh_key_path" {
 }
 
 variable "subdomain" {
-
+  default     = null
+  type        = string
+  description = "Subdomain to host rancher on. Used to create a Route53 record"
 }
 
 variable "domain" {
-
+  type    = string
+  default = "Used to create a Route53 record"
 }
 
 variable "internal_lb" {
@@ -42,7 +45,7 @@ variable "server_instance_type" {
 variable "server_node_count" {
   type        = number
   default     = 1
-  description = "Number of server nodes to launch (one of these nodes will be the leader node)"
+  description = "Number of server nodes to launch (one of these nodes will be the leader node, should maintain and odd number of server nodes)"
 }
 
 variable "server_instance_ssh_user" {

@@ -1,8 +1,8 @@
 output "rancher_url" {
-  value = rancher2_bootstrap.admin[0].url
+  value = try(rancher2_bootstrap.admin[0].url, null)
 }
 
 output "rancher_token" {
-  value     = rancher2_bootstrap.admin[0].token
+  value     = try(rancher2_bootstrap.admin[0].token, null)
   sensitive = true
 }

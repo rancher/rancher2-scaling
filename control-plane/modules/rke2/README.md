@@ -1,5 +1,8 @@
 # rke2
 
+### **NOTE:** This module currently depends on having a valid IAM instance profile with s3 (bucket and object) create, list, and destroy permissions
+---
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
