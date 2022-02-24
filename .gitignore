@@ -17,3 +17,4 @@ kube-config.yaml
 *.log
 *logs.txt
 .*tf-kubeconfig
+*.vscode

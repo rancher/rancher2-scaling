@@ -3,9 +3,6 @@ terraform {
     rancher2 = {
       source = "rancher/rancher2"
     }
-    rke = {
-      source = "rancher/rke"
-    }
     helm = {
       source = "hashicorp/helm"
     }

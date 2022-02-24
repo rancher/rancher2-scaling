@@ -37,11 +37,11 @@ output "rancher_admin_password" {
 }
 
 output "rancher_url" {
-  value = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : module.install_common[0].rancher_url
+  value = local.rancher_url
 }
 
 output "rancher_token" {
-  value     = var.k8s_distribution == "k3s" ? var.sensitive_token ? null : nonsensitive(module.k3s[0].rancher_token) : var.sensitive_token ? null : nonsensitive(module.install_common[0].rancher_token)
+  value     = nonsensitive(local.rancher_token)
   sensitive = false
 }
 
@@ -112,7 +112,15 @@ output "use_new_bootstrap" {
   value = local.use_new_bootstrap
 }
 
-# output "rke_cluster_yaml" {
-#   value     = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : null
-#   sensitive = false
+# output "cluster_data" {
+#   description = "Map of cluster data required by agent pools for joining cluster, do not modify this"
+#   value       = var.k8s_distribution == "rke2" ? module.rke2[0].cluster_data : null
 # }
+
+# output "rke_state" {
+#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].rke_state) : null
+# }
+
+output "cluster_yaml" {
+  value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
+}
