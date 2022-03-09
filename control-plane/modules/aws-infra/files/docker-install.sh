@@ -20,7 +20,7 @@ rm -rf /var/lib/containerd
 # apt-get update
 # apt-get install -y docker-ce docker-ce-cli containerd.io
 
-curl https://releases.rancher.com/install-docker/20.10.sh | sh && usermod -aG docker ubuntu
+curl https://releases.rancher.com/install-docker/${install_docker_version}.sh | sh && usermod -aG docker ubuntu
 
 until [ "$(pgrep -f --count dockerd)" = "1" ]; do
   sleep 2

@@ -64,7 +64,7 @@ No modules.
 | [aws_instances.nodes](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/instances) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_route53_zone.dns_zone](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
-| [aws_subnet_ids.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet_ids) | data source |
+| [aws_subnets.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [template_cloudinit_config.rke1_server](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
 
@@ -77,7 +77,7 @@ No modules.
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | `""` | no |
 | <a name="input_extra_server_security_groups"></a> [extra\_server\_security\_groups](#input\_extra\_server\_security\_groups) | Additional security groups to attach to rke1 server instances | `list(any)` | `[]` | no |
 | <a name="input_install_docker_version"></a> [install\_docker\_version](#input\_install\_docker\_version) | Version of Docker to install | `string` | `"20.10"` | no |
-| <a name="input_name"></a> [name](#input\_name) | Name for deployment | `string` | `"rancher-demo"` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name used for various resources, used as a prefix for individual instance names | `string` | `"rancher-scaling"` | no |
 | <a name="input_private_subnets"></a> [private\_subnets](#input\_private\_subnets) | List of private subnet ids. | `list(any)` | `[]` | no |
 | <a name="input_private_subnets_cidr_blocks"></a> [private\_subnets\_cidr\_blocks](#input\_private\_subnets\_cidr\_blocks) | List of cidr\_blocks of private subnets | `list(any)` | `[]` | no |
 | <a name="input_public_subnets"></a> [public\_subnets](#input\_public\_subnets) | List of public subnet ids. | `list(any)` | `[]` | no |

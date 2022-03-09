@@ -1,5 +1,5 @@
 resource "aws_lb" "server_lb" {
-  name               = "${local.name}-int"
+  name               = local.internal_lb_name
   internal           = true
   load_balancer_type = "network"
   subnets            = local.private_subnets
@@ -30,7 +30,7 @@ resource "aws_lb_target_group" "server-6443" {
 
 resource "aws_lb" "lb" {
   count              = local.create_external_nlb
-  name               = "${local.name}-ext"
+  name               = local.agent_external_lb_name
   internal           = false
   load_balancer_type = "network"
   subnets            = local.public_subnets
@@ -116,7 +116,7 @@ resource "aws_lb_target_group" "agent-80" {
 }
 
 resource "aws_lb" "server-public-lb" {
-  name               = local.name
+  name               = local.external_lb_name
   internal           = false
   load_balancer_type = "network"
   subnets            = local.public_subnets

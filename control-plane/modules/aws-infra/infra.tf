@@ -251,7 +251,7 @@ resource "aws_route53_record" "rancher" {
 resource "aws_route53_record" "rke1" {
   count   = local.use_route53
   zone_id = data.aws_route53_zone.dns_zone.0.zone_id
-  name    = "${local.subdomain}-rke1.${local.domain}"
+  name    = "${local.subdomain}-int.${local.domain}"
   type    = "CNAME"
   ttl     = 30
   records = [aws_lb.server_lb.dns_name]
