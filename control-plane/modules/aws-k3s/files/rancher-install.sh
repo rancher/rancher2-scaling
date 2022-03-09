@@ -1,8 +1,8 @@
 #!/bin/bash
-node=`kubectl get nodes --sort-by=metadata.name --no-headers | awk 'NR==1{print $1}'`
-echo $node
-kubectl taint nodes $node monitoring=yes:NoSchedule
-kubectl label nodes $node monitoring=yes
+# node=`kubectl get nodes --sort-by=metadata.name --no-headers | awk 'NR==1{print $1}'`
+# echo $node
+# kubectl taint nodes $node monitoring=yes:NoSchedule
+# kubectl label nodes $node monitoring=yes
 
 %{ if install_certmanager ~}
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v${certmanager_version}/cert-manager.yaml
@@ -83,6 +83,7 @@ find . -type f ! -name "*.key" ! -name "*.crt" ! -name "cacerts.pem" -exec rm {}
 
 %{ endif ~}
 
+%{ if install_monitoring ~}
 cat <<EOF > /var/lib/rancher/k3s/server/manifests/monitoring.yaml
 ---
 apiVersion: v1
@@ -96,7 +97,11 @@ metadata:
   name: rancher-monitoring-crd
   namespace: kube-system
 spec:
+%{ if use_new_monitoring_crd_url ~}
   chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring-crd/rancher-monitoring-crd-${monitoring_version}.tgz
+%{else}
+  chart: https://raw.githubusercontent.com/rancher/charts/${rancher_chart_tag}/assets/rancher-monitoring/rancher-monitoring-crd-${monitoring_version}.tgz
+%{ endif ~}
   targetNamespace: cattle-monitoring-system
   valuesContent: |-
     global:
@@ -166,3 +171,4 @@ spec:
         systemDefaultRegistry: ''
       systemDefaultRegistry: ''
 EOF
+%{ endif ~}

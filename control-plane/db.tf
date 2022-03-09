@@ -34,14 +34,14 @@ module "db" {
   storage_type        = var.db_storage_type
   skip_final_snapshot = var.db_skip_final_snapshot
 
-  subnet_ids             = data.aws_subnets.all.ids
-  vpc_security_group_ids = [data.aws_security_group.default.id, aws_security_group.database[0].id]
-  multi_az               = local.db_multi_az
-  deletion_protection    = false
+  subnet_ids                 = data.aws_subnets.all.ids
+  vpc_security_group_ids     = [data.aws_security_group.default.id, aws_security_group.database[0].id]
+  multi_az                   = false
+  auto_minor_version_upgrade = false
+  deletion_protection        = false
 
   db_name                      = var.db_name
   username                     = var.db_username
-  password                     = var.db_password
   port                         = var.db_port
   create_db_parameter_group    = false
   create_db_subnet_group       = false

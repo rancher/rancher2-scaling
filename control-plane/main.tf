@@ -32,11 +32,10 @@ resource "random_pet" "identifier" {
 
 locals {
   aws_region         = var.aws_region
-  name               = random_pet.identifier.id
+  name               = "${random_pet.identifier.id}-${var.k8s_distribution}"
   identifier         = random_pet.identifier.id
   domain             = var.domain
-  db_multi_az        = false
-  use_new_bootstrap  = length(regexall("^([2-9]|\\d{2,})\\.([6-9]|\\d{2,})\\.([0-9]|\\d{2,})(-patch\\d{1,2})?(-rc\\d{1,2})?$", var.rancher_version)) > 0
+  use_new_bootstrap  = length(regexall("^([2-9]|\\d{2,})\\.([6-9]|\\d{2,})\\.([0-9]|\\d{2,})", var.rancher_version)) > 0
   install_common     = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2") && (var.install_rancher || var.install_certmanager)
   install_monitoring = local.install_common && var.install_monitoring && var.install_rancher
   kubeconfig_content = var.k8s_distribution == "k3s" ? module.k3s[0].kube_config : var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
@@ -63,22 +62,24 @@ module "k3s" {
   name                        = local.name
   user                        = data.aws_caller_identity.current.user_id
   db_user                     = var.db_username
-  db_pass                     = var.db_password
+  db_pass                     = module.db[0].db_instance_password
   db_port                     = var.db_port
   db_name                     = var.db_name
   db_security_group           = aws_security_group.database[0].id
   k3s_datastore_endpoint      = module.db[0].db_instance_endpoint
   k3s_storage_engine          = var.db_engine
   ssh_keys                    = var.ssh_keys
-  create_external_nlb         = false
   install_rancher             = var.install_rancher
   rancher_password            = var.rancher_password != null ? var.rancher_password : random_password.rancher_password.result
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
   server_instance_type        = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
+  server_k3s_exec             = var.enable_secrets_encryption ? "--secrets-encryption ${var.server_k3s_exec}" : var.server_k3s_exec
+  create_agent_nlb            = var.install_monitoring
+  agent_node_count            = var.install_monitoring ? 1 : 0
+  agent_k3s_exec              = var.install_monitoring ? "--node-label monitoring=yes --node-taint monitoring=yes:NoSchedule ${var.agent_k3s_exec}" : var.agent_k3s_exec
   install_k3s_version         = var.install_k3s_version
-  server_k3s_exec             = var.server_k3s_exec
   rancher_version             = var.rancher_version
   use_new_bootstrap           = local.use_new_bootstrap
   monitoring_version          = var.monitoring_version
@@ -103,7 +104,7 @@ module "aws_infra" {
 
   vpc_id                 = data.aws_vpc.default.id
   create_external_nlb    = true
-  name                   = "${local.name}-${var.k8s_distribution}"
+  name                   = local.name
   user                   = data.aws_caller_identity.current.user_id
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
@@ -122,12 +123,12 @@ module "rke1" {
   cluster_name             = "local"
   hostname_override_prefix = local.name
   ssh_key_path             = var.ssh_key_path
-  install_docker_version   = var.install_docker_version
   install_k8s_version      = var.install_k8s_version
   s3_instance_profile      = var.s3_instance_profile
   nodes_ids                = module.aws_infra[0].nodes_ids
   nodes_public_ips         = module.aws_infra[0].nodes_public_ips
   nodes_private_ips        = module.aws_infra[0].nodes_private_ips
+  secrets_encryption       = var.enable_secrets_encryption
 
   depends_on = [
     module.aws_infra

@@ -195,7 +195,7 @@ variable "rancher_node_count" {
 
 variable "k8s_distribution" {
   type        = string
-  description = "The K8s distribution to use for setting up Rancher (k3s or rke1)"
+  description = "The K8s distribution to use for setting up Rancher (k3s , rke1, or rke2)"
 }
 
 variable "install_k3s_version" {
@@ -228,9 +228,15 @@ variable "random_prefix" {
 }
 
 variable "server_k3s_exec" {
-  default     = null
+  default     = ""
   type        = string
   description = "exec args to pass to k3s server"
+}
+
+variable "agent_k3s_exec" {
+  default     = ""
+  type        = string
+  description = "exec args to pass to k3s agent"
 }
 
 variable "rancher_chart" {

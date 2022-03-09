@@ -27,8 +27,8 @@ locals {
   agent_image_id              = var.agent_image_id != null ? var.agent_image_id : data.aws_ami.ubuntu.id
   server_image_id             = var.server_image_id != null ? var.server_image_id : data.aws_ami.ubuntu.id
   aws_azs                     = var.aws_azs
-  public_subnets              = length(var.public_subnets) > 0 ? var.public_subnets : data.aws_subnet_ids.available.ids
-  private_subnets             = length(var.private_subnets) > 0 ? var.private_subnets : data.aws_subnet_ids.available.ids
+  public_subnets              = length(var.public_subnets) > 0 ? var.public_subnets : data.aws_subnets.available.ids
+  private_subnets             = length(var.private_subnets) > 0 ? var.private_subnets : data.aws_subnets.available.ids
   server_node_count           = var.server_node_count
   agent_node_count            = var.agent_node_count
   ssh_keys                    = var.ssh_keys
@@ -39,18 +39,19 @@ locals {
   db_name                     = var.db_name != null ? var.db_name : var.name
   db_node_count               = var.k3s_datastore_endpoint != "sqlite" ? var.db_node_count : 0
   k3s_datastore_cafile        = var.k3s_datastore_cafile
-  k3s_datastore_endpoint      = "mysql://${local.db_user}:${local.db_pass}@tcp(${var.k3s_datastore_endpoint})/${var.db_name}"
+  k3s_datastore_endpoint      = var.k3s_datastore_endpoint != "sqlite" ? "mysql://${local.db_user}:${local.db_pass}@tcp(${var.k3s_datastore_endpoint})/${var.db_name}" : ""
   k3s_disable_agent           = var.k3s_disable_agent ? "--disable-agent" : ""
   k3s_tls_san                 = var.k3s_tls_san != null ? var.k3s_tls_san : "--tls-san ${aws_route53_record.k3s[0].fqdn}"
-  k3s_deploy_traefik          = var.k3s_deploy_traefik ? "" : "--no-deploy traefik"
-  server_k3s_exec             = var.server_k3s_exec != null ? var.server_k3s_exec : ""
-  agent_k3s_exec              = var.agent_k3s_exec != null ? var.agent_k3s_exec : ""
+  k3s_deploy_traefik          = var.k3s_deploy_traefik ? "" : "--disable=traefik"
+  server_k3s_exec             = var.server_k3s_exec
+  agent_k3s_exec              = var.agent_k3s_exec
   certmanager_version         = var.certmanager_version
   rancher_password            = var.rancher_password
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
   rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
+  use_new_monitoring_crd_url  = length(regexall("2.6", local.rancher_chart_tag)) > 0 ? true : false
   letsencrypt_email           = var.letsencrypt_email
   byo_certs_bucket_path       = var.byo_certs_bucket_path
   s3_instance_profile         = var.s3_instance_profile
@@ -66,10 +67,15 @@ locals {
   install_certmanager         = var.install_certmanager
   install_rancher             = var.install_rancher
   install_nginx_ingress       = var.install_nginx_ingress
-  create_external_nlb         = var.create_external_nlb ? 1 : 0
+  create_agent_nlb            = var.create_agent_nlb ? 1 : 0
   registration_command        = var.registration_command
   use_route53                 = var.use_route53 ? 1 : 0
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
+  tags = {
+    "rancher.user" = var.user,
+    "Owner"        = var.user,
+    "DoNotDelete"  = "true"
+  }
 }
 
 resource "random_password" "k3s_cluster_secret" {
