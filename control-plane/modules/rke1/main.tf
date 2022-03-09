@@ -27,6 +27,7 @@ locals {
   monitoring_reserved_node_id = var.nodes_ids[0]
   monitoring_node_public_ip   = var.nodes_public_ips[0]
   monitoring_node_private_ip  = var.nodes_private_ips[0]
+  allowed_etcd_nodes          = [1, 3, 5]
 }
 
 resource "rke_cluster" "local" {
@@ -38,14 +39,12 @@ resource "rke_cluster" "local" {
   ### Nodes Reserved for Rancher ###
   dynamic "nodes" {
     for_each = toset(local.rancher_reserved_node_ids)
-    # iterator = "node_id"
     content {
       hostname_override = "${var.hostname_override_prefix}-RKE1-HA${index(local.rancher_reserved_node_ids, nodes.key)}"
       address           = local.rancher_node_public_ips[index(local.rancher_reserved_node_ids, nodes.key)]
       internal_address  = local.rancher_node_private_ips[index(local.rancher_reserved_node_ids, nodes.key)]
       user              = "ubuntu"
       role              = ["controlplane", "worker", "etcd"]
-      # ssh_key_path     = var.ssh_key_path
     }
   }
   ### Node Reserved for Monitoring ###
@@ -54,14 +53,12 @@ resource "rke_cluster" "local" {
     address           = local.monitoring_node_public_ip
     internal_address  = local.monitoring_node_private_ip
     user              = "ubuntu"
-    role              = ["controlplane", "worker", "etcd"]
-    # ssh_key_path     = var.ssh_key_path
+    # role              = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
+    role = ["controlplane", "worker", "etcd"]
     taints {
-      # taint {
       key    = "monitoring"
       value  = "yes"
       effect = "NoSchedule"
-      # }
     }
     labels = {
       monitoring = "yes"
@@ -83,6 +80,11 @@ resource "rke_cluster" "local" {
       snapshot  = true
       creation  = "6h"
       retention = "24h"
+    }
+    kube_api {
+      secrets_encryption_config {
+        enabled = var.secrets_encryption
+      }
     }
   }
 

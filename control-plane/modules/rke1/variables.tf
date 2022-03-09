@@ -10,12 +10,6 @@ variable "hostname_override_prefix" {
   description = "String to prepend to the hostname_override field for each node. (Ignored for AWS cloud provider)"
 }
 
-variable "install_docker_version" {
-  type        = string
-  default     = "20.10"
-  description = "Version of Docker to install"
-}
-
 variable "install_k8s_version" {
   type        = string
   description = "Version of K8s to install"
@@ -46,4 +40,10 @@ variable "ssh_key_path" {
   default     = null
   type        = string
   description = "Path to the ssh_key file to be used for connecting to the nodes"
+}
+
+variable "secrets_encryption" {
+  type        = bool
+  default     = false
+  description = "(Optional) Boolean that determines if secrets-encryption should be enabled for rke2"
 }

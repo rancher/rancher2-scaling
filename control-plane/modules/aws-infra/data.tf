@@ -5,8 +5,11 @@ data "aws_vpc" "default" {
   id      = var.vpc_id
 }
 
-data "aws_subnet_ids" "available" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "available" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
 }
 
 data "aws_route53_zone" "dns_zone" {
@@ -48,8 +51,7 @@ data "template_cloudinit_config" "rke1_server" {
     filename     = "00_cloud-config-base.yaml"
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/files/cloud-config-base.tmpl", {
-      ssh_keys               = var.ssh_keys,
-      install_docker_version = var.install_docker_version
+      ssh_keys = var.ssh_keys,
       }
     )
   }
@@ -71,8 +73,11 @@ data "template_cloudinit_config" "rke1_server" {
   part {
     filename     = "03_docker-install.sh"
     content_type = "text/x-shellscript"
-    content      = file("${path.module}/files/docker-install.sh")
-    merge_type   = "list(append)+dict(recurse_array)+str()"
+    content = templatefile("${path.module}/files/docker-install.sh", {
+      install_docker_version = local.install_docker_version,
+      }
+    )
+    merge_type = "list(append)+dict(recurse_array)+str()"
   }
 }
 
