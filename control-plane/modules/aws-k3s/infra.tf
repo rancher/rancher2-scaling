@@ -94,7 +94,7 @@ data "aws_iam_instance_profile" "rancher_s3_access" {
 }
 
 resource "aws_launch_template" "k3s_server" {
-  name_prefix   = local.name
+  name          = "${local.name}-server"
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
   user_data     = data.template_cloudinit_config.k3s_server.rendered
@@ -124,8 +124,8 @@ resource "aws_launch_template" "k3s_server" {
 }
 
 resource "aws_launch_template" "k3s_agent" {
-  count         = local.agent_node_count > 0 && var.create_external_nlb ? 1 : 0
-  name_prefix   = "${local.name}-agent"
+  count         = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
+  name          = "${local.name}-agent"
   image_id      = local.agent_image_id
   instance_type = local.agent_instance_type
   user_data     = data.template_cloudinit_config.k3s_agent[0].rendered
@@ -151,26 +151,16 @@ resource "aws_launch_template" "k3s_agent" {
 
   }
 
-  tag_specifications {
-    resource_type = "instance"
-
-    tags = {
-      Name           = "${local.name}-agent"
-      "rancher.user" = var.user
-
-    }
-  }
-
   lifecycle {
     create_before_destroy = true
   }
 }
 
 resource "aws_autoscaling_group" "k3s_server" {
-  name_prefix         = local.name
-  desired_capacity    = local.server_node_count + 1
-  max_size            = local.server_node_count + 1
-  min_size            = local.server_node_count + 1
+  name                = "${local.name}-server"
+  desired_capacity    = local.server_node_count
+  max_size            = local.server_node_count
+  min_size            = local.server_node_count
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [
@@ -188,35 +178,23 @@ resource "aws_autoscaling_group" "k3s_server" {
     create_before_destroy = true
   }
 
-  tags = concat(
-    [
-      {
-        "key"                 = "Name"
-        "value"               = local.name
-        "propagate_at_launch" = true
-      },
-      {
-        "key"                 = "rancher.user"
-        "value"               = var.user
-        "propagate_at_launch" = true
-      },
-      {
-        "key"                 = "Owner"
-        "value"               = var.user
-        "propagate_at_launch" = true
-      },
-      {
-        "key"                 = "DoNotDelete"
-        "value"               = "true"
-        "propagate_at_launch" = true
-      },
-    ],
-  )
+  dynamic "tag" {
+    for_each = merge({
+      "Name" = "${local.name}-server-nodepool"
+    }, local.tags)
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+
 }
 
 resource "aws_autoscaling_group" "k3s_agent" {
-  count               = local.agent_node_count > 0 && var.create_external_nlb ? 1 : 0
-  name_prefix         = "${local.name}-agent"
+  count               = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
+  name                = "${local.name}-agent"
   desired_capacity    = local.agent_node_count
   max_size            = local.agent_node_count
   min_size            = local.agent_node_count
@@ -232,13 +210,25 @@ resource "aws_autoscaling_group" "k3s_agent" {
     version = aws_launch_template.k3s_agent[0].latest_version
   }
 
-  depends_on = [
-    aws_autoscaling_group.k3s_server,
-  ]
+  dynamic "tag" {
+    for_each = merge({
+      "Name" = "${local.name}-agent-nodepool"
+    }, local.tags)
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
 
   lifecycle {
     create_before_destroy = true
   }
+
+  depends_on = [
+    aws_autoscaling_group.k3s_server
+  ]
 }
 
 #############################
@@ -256,7 +246,7 @@ resource "aws_route53_record" "rancher" {
 resource "aws_route53_record" "k3s" {
   count   = local.use_route53
   zone_id = data.aws_route53_zone.dns_zone[0].zone_id
-  name    = "${local.subdomain}-k3s.${local.domain}"
+  name    = "${local.subdomain}-int.${local.domain}"
   type    = "CNAME"
   ttl     = 30
   records = [aws_lb.server_lb.dns_name]

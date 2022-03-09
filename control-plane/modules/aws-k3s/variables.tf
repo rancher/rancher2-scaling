@@ -274,7 +274,7 @@ variable "tls_key_file" {
   description = "Optional: String that defines the name of the TLS Key file in the specified S3 bucket's cert tarball. Required if 'byo_certs_bucket_path' is set"
 }
 
-variable "create_external_nlb" {
+variable "create_agent_nlb" {
   default     = true
   type        = bool
   description = "Boolean that defines whether or not to create an external load balancer"
