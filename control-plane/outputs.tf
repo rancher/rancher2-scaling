@@ -138,5 +138,5 @@ output "secrets_encryption" {
 }
 
 output "use_new_monitoring_crd_url" {
-  value = module.k3s[0].use_new_monitoring_crd_url
+  value = var.k8s_distribution == "k3s" && var.install_monitoring ? module.k3s[0].use_new_monitoring_crd_url : null
 }
