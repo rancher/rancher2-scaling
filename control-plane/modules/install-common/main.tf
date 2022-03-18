@@ -62,16 +62,17 @@ resource "helm_release" "rancher" {
   create_namespace = true
   values = [
     templatefile("${var.helm_rancher_chart_values_path}", {
-      letsencrypt_email   = var.letsencrypt_email
-      rancher_image       = var.rancher_image
-      rancher_image_tag   = var.rancher_image_tag
-      rancher_password    = var.rancher_password
-      use_new_bootstrap   = var.use_new_bootstrap
-      rancher_node_count  = var.rancher_node_count
-      rancher_hostname    = "${var.subdomain}.${var.domain}"
-      install_certmanager = var.install_certmanager
-      install_byo_certs   = length(var.byo_certs_bucket_path) > 0 ? true : false
-      private_ca          = length(var.private_ca_file) > 0 ? true : false
+      letsencrypt_email         = var.letsencrypt_email
+      rancher_image             = var.rancher_image
+      rancher_image_tag         = var.rancher_image_tag
+      rancher_password          = var.rancher_password
+      use_new_bootstrap         = var.use_new_bootstrap
+      rancher_node_count        = var.rancher_node_count
+      rancher_hostname          = "${var.subdomain}.${var.domain}"
+      install_certmanager       = var.install_certmanager
+      install_byo_certs         = length(var.byo_certs_bucket_path) > 0 ? true : false
+      private_ca                = length(var.private_ca_file) > 0 ? true : false
+      cattle_prometheus_metrics = var.cattle_prometheus_metrics
       }
     )
   ]

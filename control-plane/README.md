@@ -111,6 +111,7 @@ The port `8443` can be adjusted as need for your local system.
 | <a name="input_agent_k3s_exec"></a> [agent\_k3s\_exec](#input\_agent\_k3s\_exec) | exec args to pass to k3s agent | `string` | `""` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `"us-west-2"` | no |
 | <a name="input_byo_certs_bucket_path"></a> [byo\_certs\_bucket\_path](#input\_byo\_certs\_bucket\_path) | Optional: String that defines the path on the S3 Bucket where your certs are stored. NOTE: assumes certs are stored in a tarball within a folder below the top-level bucket e.g.: my-bucket/certificates/my\_certs.tar.gz. Certs should be stored within a single folder, certs nested in sub-folders will not be handled | `string` | `""` | no |
+| <a name="input_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#input\_cattle\_prometheus\_metrics) | Boolean variable that defines whether or not to enable the CATTLE\_PROMETHEUS\_METRICS env var for Rancher | `bool` | `true` | no |
 | <a name="input_certmanager_version"></a> [certmanager\_version](#input\_certmanager\_version) | Version of cert-manager to install | `string` | `"1.4.2"` | no |
 | <a name="input_db_allocated_storage"></a> [db\_allocated\_storage](#input\_db\_allocated\_storage) | n/a | `number` | `100` | no |
 | <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | n/a | `string` | `"mariadb"` | no |
@@ -165,6 +166,7 @@ The port `8443` can be adjusted as need for your local system.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#output\_cattle\_prometheus\_metrics) | n/a |
 | <a name="output_certmanager_version"></a> [certmanager\_version](#output\_certmanager\_version) | n/a |
 | <a name="output_db_engine_version"></a> [db\_engine\_version](#output\_db\_engine\_version) | n/a |
 | <a name="output_db_instance_availability_zone"></a> [db\_instance\_availability\_zone](#output\_db\_instance\_availability\_zone) | The availability zone of the RDS instance |

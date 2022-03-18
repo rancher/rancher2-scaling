@@ -327,6 +327,12 @@ variable "server_k3s_exec" {
   description = "exec args to pass to k3s server"
 }
 
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
+}
+
 variable "use_route53" {
   default     = true
   type        = bool

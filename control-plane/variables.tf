@@ -21,6 +21,12 @@ variable "rancher_version" {
   description = "Version of Rancher to install - Do not include the v prefix."
 }
 
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
+}
+
 variable "install_monitoring" {
   type        = bool
   default     = true
