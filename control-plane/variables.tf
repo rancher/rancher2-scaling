@@ -221,6 +221,12 @@ variable "install_rke2_version" {
   description = "Version of RKE2 to install (defaults to latest version on the specified channel: https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script)"
 }
 
+variable "rke2_config" {
+  type        = string
+  default     = null
+  description = "(Optional) A formatted string that will be appended to the final rke2 config yaml"
+}
+
 variable "rancher_password" {
   type        = string
   default     = ""

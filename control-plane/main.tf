@@ -146,6 +146,7 @@ module "rke2" {
   domain                 = var.domain
   rke2_version           = var.install_rke2_version
   rke2_channel           = var.install_rke2_channel
+  rke2_config            = var.rke2_config
   server_node_count      = var.rancher_node_count
   server_instance_type   = var.rancher_instance_type
   vpc_id                 = data.aws_vpc.default.id
@@ -154,7 +155,6 @@ module "rke2" {
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
   user                   = data.aws_caller_identity.current.user_id
-  secrets_encryption     = var.enable_secrets_encryption
   setup_monitoring_agent = local.install_monitoring
 }
 
