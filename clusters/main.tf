@@ -2,13 +2,13 @@ terraform {
   required_version = ">= 0.13"
   required_providers {
     rancher2 = {
-      source  = "rancher/rancher2"
+      source = "rancher/rancher2"
     }
     aws = {
-      source  = "hashicorp/aws"
+      source = "hashicorp/aws"
     }
     template = {
-      source  = "hashicorp/template"
+      source = "hashicorp/template"
     }
   }
 }
@@ -20,19 +20,20 @@ terraform {
 }
 
 locals {
-  aws_region          = var.aws_region
-  name                = var.cluster_name
-  cluster_count       = var.cluster_count
-  cluster_instance    = terraform.workspace
-  k3s_cluster_secret  = var.k3s_cluster_secret
-  install_k3s_image   = var.install_k3s_image
-  k3d_version         = var.k3d_version
-  ssh_keys            = var.ssh_keys
-  insecure_flag       = var.insecure_flag
+  aws_region         = var.aws_region
+  cluster_count      = var.cluster_count
+  cluster_instance   = terraform.workspace
+  k3s_cluster_secret = var.k3s_cluster_secret
+  install_k3s_image  = var.install_k3s_image
+  k3d_version        = var.k3d_version
+  ssh_keys           = var.ssh_keys
+  insecure_flag      = var.insecure_flag
+  rancher_subdomain  = split(".", split("//", "${var.rancher_api_url}")[1])[0]
+  cluster_name       = "${local.rancher_subdomain}-${var.cluster_name}"
 }
 
 provider "aws" {
-  region  = "${local.aws_region}"
+  region  = local.aws_region
   profile = "rancher-eng"
 }
 
@@ -44,19 +45,16 @@ provider "rancher2" {
 
 resource "rancher2_cluster" "k3s" {
   count       = local.cluster_count
-  name        = "${local.name}-${local.cluster_instance}-${count.index}"
-  description = "TF imported cluster ${local.name}-${local.cluster_instance}-${count.index}"
+  name        = "${local.cluster_name}-${local.cluster_instance}-${count.index}"
+  description = "TF imported cluster ${local.cluster_name}-${local.cluster_instance}-${count.index}"
   labels      = var.cluster_labels
 }
 
 resource "aws_instance" "k3s-server" {
-  ebs_optimized = true
-  instance_type = var.server_instance_type
-  ami           = data.aws_ami.ubuntu.id
+  ebs_optimized   = true
+  instance_type   = var.server_instance_type
+  ami             = data.aws_ami.ubuntu.id
   security_groups = var.security_groups
-  # spot_price           = "1.591"
-  # wait_for_fulfillment = true
-  # spot_type            = "one-time"
   user_data = templatefile("${path.module}/files/server_userdata.tmpl",
     {
       cluster_count         = local.cluster_count,
@@ -70,9 +68,9 @@ resource "aws_instance" "k3s-server" {
   )
 
   tags = {
-    Name           = "${local.name}-server-${local.cluster_instance}"
-    RancherScaling = var.cluster_name
-    Owner          = var.cluster_name
+    Name           = "${local.cluster_name}-server-${local.cluster_instance}"
+    RancherScaling = local.cluster_name
+    Owner          = local.cluster_name
   }
 
   root_block_device {

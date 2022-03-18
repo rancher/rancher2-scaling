@@ -15,7 +15,7 @@ variable "aws_region" {
 }
 
 variable "security_groups" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "A list of security group names (EC2-Classic) or IDs (default VPC) to associate with"
 }
@@ -42,7 +42,7 @@ variable "rancher_token_key" {
 }
 
 variable "ssh_keys" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "SSH keys to inject into the EC2 instances"
 }
@@ -72,7 +72,7 @@ variable "insecure_flag" {
 }
 
 variable "cluster_labels" {
-  type        = map
+  type        = map(any)
   default     = {}
   description = "Labels to add to each provisioned cluster"
 }
