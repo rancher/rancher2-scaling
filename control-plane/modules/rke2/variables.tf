@@ -90,7 +90,7 @@ variable "user" {
 
 variable "rke2_config" {
   type        = string
-  default     = null
+  default     = ""
   description = "(Optional) A formatted string that will be appended to the final rke2 config yaml"
 }
 
