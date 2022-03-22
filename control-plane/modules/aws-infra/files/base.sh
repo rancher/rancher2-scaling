@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -x
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 echo "net.ipv4.ip_local_port_range = 15000 61000" >> /etc/sysctl.conf
 echo "fs.file-max = 12000500" >> /etc/sysctl.conf

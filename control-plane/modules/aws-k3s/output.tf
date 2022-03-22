@@ -22,7 +22,7 @@ output "kube_config" {
 }
 
 output "external_lb_dns_name" {
-  value = local.create_external_nlb > 0 ? aws_lb.lb[0].dns_name : null
+  value = local.create_agent_nlb > 0 ? aws_lb.agent_lb[0].dns_name : null
 }
 
 output "k3s_cluster_secret" {
@@ -46,4 +46,18 @@ output "tls_cert_file" {
 output "tls_key_file" {
   value     = local.tls_key_file
   sensitive = true
+}
+
+output "db_pass" {
+  value     = local.db_pass
+  sensitive = true
+}
+
+output "datastore_endpoint" {
+  value     = local.k3s_datastore_endpoint
+  sensitive = true
+}
+
+output "use_new_monitoring_crd_url" {
+  value = local.use_new_monitoring_crd_url
 }

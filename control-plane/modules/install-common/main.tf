@@ -3,9 +3,6 @@ terraform {
     rancher2 = {
       source = "rancher/rancher2"
     }
-    rke = {
-      source = "rancher/rke"
-    }
     helm = {
       source = "hashicorp/helm"
     }
@@ -41,8 +38,8 @@ resource "null_resource" "wait_for_cert_manager" {
       sleep 5
       pods="$(kubectl get pods --namespace cert-manager | grep Running | wc -l | awk '\''{$1=$1;print}'\'')"
       echo "cert-manager pods: $${pods}"
-    done
-    sleep 60'
+    done'
+    sleep 60
     EOT
     environment = {
       KUBECONFIG = "${var.kube_config_path}"

@@ -6,7 +6,7 @@ variable "install_docker_version" {
 
 variable "install_k8s_version" {
   type        = string
-  default     = "1.21.7-rancher1-1"
+  default     = null
   description = "Version of K8s to install"
 }
 
@@ -30,6 +30,12 @@ variable "install_monitoring" {
 variable "monitoring_version" {
   type        = string
   description = "Version of Monitoring v2 to install - Do not include the v prefix."
+}
+
+variable "monitoring_crd_chart_values_path" {
+  type        = string
+  default     = null
+  description = "Path to custom values.yaml for rancher-monitoring"
 }
 
 variable "monitoring_chart_values_path" {
@@ -189,13 +195,24 @@ variable "rancher_node_count" {
 
 variable "k8s_distribution" {
   type        = string
-  description = "The K8s distribution to use for setting up Rancher (k3s or rke1)"
+  description = "The K8s distribution to use for setting up Rancher (k3s , rke1, or rke2)"
 }
 
 variable "install_k3s_version" {
   default     = "1.20.10+k3s1"
   type        = string
   description = "Version of K3S to install (github release tag without the 'v')"
+}
+
+variable "install_rke2_channel" {
+  default     = "stable"
+  type        = string
+  description = "Release channel to use for fetching RKE2 download URL, defaults to stable"
+}
+variable "install_rke2_version" {
+  default     = ""
+  type        = string
+  description = "Version of RKE2 to install (defaults to latest version on the specified channel: https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script)"
 }
 
 variable "rancher_password" {
@@ -211,9 +228,15 @@ variable "random_prefix" {
 }
 
 variable "server_k3s_exec" {
-  default     = null
+  default     = ""
   type        = string
   description = "exec args to pass to k3s server"
+}
+
+variable "agent_k3s_exec" {
+  default     = ""
+  type        = string
+  description = "exec args to pass to k3s agent"
 }
 
 variable "rancher_chart" {
@@ -224,7 +247,7 @@ variable "rancher_chart" {
 
 variable "rancher_charts_repo" {
   type        = string
-  default     = ""
+  default     = "https://git.rancher.io/charts"
   description = "The URL for the desired Rancher charts"
 }
 
@@ -260,4 +283,10 @@ variable "sensitive_token" {
   type        = bool
   default     = true
   description = "Boolean that determines if the module should treat the generated Rancher Admin API Token as sensitive in the output."
+}
+
+variable "enable_secrets_encryption" {
+  type        = bool
+  default     = false
+  description = "(Optional) Boolean that determines if secrets-encryption should be enabled"
 }

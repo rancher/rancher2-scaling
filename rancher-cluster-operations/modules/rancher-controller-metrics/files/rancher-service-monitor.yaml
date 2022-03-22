@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: rancher
+    release: rancher
+  name: rancher
+  namespace: cattle-system
+spec:
+  endpoints:
+  - bearerTokenSecret:
+      key: token
+      name: ${secret_name}
+    port: http
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+      serverName: rancher
+  jobLabel: rancher
+  namespaceSelector:
+    matchNames:
+    - cattle-system
+  selector:
+    matchLabels:
+      app: rancher
+      chart: rancher-${rancher_version}
+      release: rancher

@@ -17,7 +17,11 @@ output "db_instance_availability_zone" {
 
 output "db_instance_endpoint" {
   description = "The connection endpoint"
-  value       = var.k8s_distribution == "k3s" ? module.db[0].db_instance_endpoint : null
+  value       = var.k8s_distribution == "k3s" ? nonsensitive(module.k3s[0].datastore_endpoint) : null
+}
+
+output "db_password" {
+  value = var.k8s_distribution == "k3s" ? nonsensitive(module.k3s[0].db_pass) : null
 }
 
 /*
@@ -37,11 +41,11 @@ output "rancher_admin_password" {
 }
 
 output "rancher_url" {
-  value = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : module.install_common[0].rancher_url
+  value = local.rancher_url
 }
 
 output "rancher_token" {
-  value     = var.k8s_distribution == "k3s" ? var.sensitive_token ? null : nonsensitive(module.k3s[0].rancher_token) : var.sensitive_token ? null : nonsensitive(module.install_common[0].rancher_token)
+  value     = nonsensitive(local.rancher_token)
   sensitive = false
 }
 
@@ -50,7 +54,7 @@ output "external_lb_dns_name" {
 }
 
 output "k3s_cluster_secret" {
-  value     = var.k8s_distribution == "k3s" ? module.k3s[0].k3s_cluster_secret : null
+  value     = var.k8s_distribution == "k3s" ? nonsensitive(module.k3s[0].k3s_cluster_secret) : null
   sensitive = true
 }
 
@@ -112,7 +116,27 @@ output "use_new_bootstrap" {
   value = local.use_new_bootstrap
 }
 
-# output "rke_cluster_yaml" {
-#   value     = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : null
-#   sensitive = false
+# output "cluster_data" {
+#   description = "Map of cluster data required by agent pools for joining cluster, do not modify this"
+#   value       = var.k8s_distribution == "rke2" ? module.rke2[0].cluster_data : null
 # }
+
+# output "rke_state" {
+#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].rke_state) : null
+# }
+
+output "kube_config_path" {
+  value = abspath(module.generate_kube_config.kubeconfig_path)
+}
+
+# output "cluster_yaml" {
+#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
+# }
+
+output "secrets_encryption" {
+  value = var.enable_secrets_encryption
+}
+
+output "use_new_monitoring_crd_url" {
+  value = module.k3s[0].use_new_monitoring_crd_url
+}

@@ -13,11 +13,11 @@ This module supports creating a k3s cluster with a postgres backend in AWS. It a
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.69.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.1.0 |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.21.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.1.0 |
-| <a name="provider_template"></a> [template](#provider\_template) | 2.2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
+| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -31,7 +31,7 @@ No modules.
 | [aws_autoscaling_group.k3s_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_launch_template.k3s_agent](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_launch_template.k3s_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
-| [aws_lb.lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
+| [aws_lb.agent_lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb.server-public-lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb.server_lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb_listener.port_443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
@@ -62,7 +62,7 @@ No modules.
 | [aws_ami.ubuntu](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_iam_instance_profile.rancher_s3_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_instance_profile) | data source |
 | [aws_route53_zone.dns_zone](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
-| [aws_subnet_ids.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet_ids) | data source |
+| [aws_subnets.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 | [rancher2_cluster.local](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/data-sources/cluster) | data source |
 | [template_cloudinit_config.k3s_agent](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
@@ -82,7 +82,7 @@ No modules.
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `null` | no |
 | <a name="input_byo_certs_bucket_path"></a> [byo\_certs\_bucket\_path](#input\_byo\_certs\_bucket\_path) | Optional: String that defines the path on the S3 Bucket where your certs are stored. NOTE: assumes certs are stored in a tarball within a folder below the top-level bucket e.g.: my-bucket/certificates/my\_certs.tar.gz. Certs should be stored within a single folder, certs nested in sub-folders will not be handled | `string` | `""` | no |
 | <a name="input_certmanager_version"></a> [certmanager\_version](#input\_certmanager\_version) | Version of cert-manager to install | `string` | `"1.5.2"` | no |
-| <a name="input_create_external_nlb"></a> [create\_external\_nlb](#input\_create\_external\_nlb) | Boolean that defines whether or not to create an external load balancer | `bool` | `true` | no |
+| <a name="input_create_agent_nlb"></a> [create\_agent\_nlb](#input\_create\_agent\_nlb) | Boolean that defines whether or not to create an external load balancer | `bool` | `true` | no |
 | <a name="input_db_instance_type"></a> [db\_instance\_type](#input\_db\_instance\_type) | n/a | `string` | `"db.r5.xlarge"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name of database to create in RDS | `string` | `"rancher"` | no |
 | <a name="input_db_node_count"></a> [db\_node\_count](#input\_db\_node\_count) | Number of RDS database instances to launch | `number` | `1` | no |
@@ -141,6 +141,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_datastore_endpoint"></a> [datastore\_endpoint](#output\_datastore\_endpoint) | n/a |
+| <a name="output_db_pass"></a> [db\_pass](#output\_db\_pass) | n/a |
 | <a name="output_external_lb_dns_name"></a> [external\_lb\_dns\_name](#output\_external\_lb\_dns\_name) | n/a |
 | <a name="output_k3s_cluster_secret"></a> [k3s\_cluster\_secret](#output\_k3s\_cluster\_secret) | n/a |
 | <a name="output_k3s_tls_san"></a> [k3s\_tls\_san](#output\_k3s\_tls\_san) | n/a |
@@ -152,6 +154,7 @@ No modules.
 | <a name="output_tls_cert_file"></a> [tls\_cert\_file](#output\_tls\_cert\_file) | n/a |
 | <a name="output_tls_key_file"></a> [tls\_key\_file](#output\_tls\_key\_file) | n/a |
 | <a name="output_use_new_bootstrap"></a> [use\_new\_bootstrap](#output\_use\_new\_bootstrap) | n/a |
+| <a name="output_use_new_monitoring_crd_url"></a> [use\_new\_monitoring\_crd\_url](#output\_use\_new\_monitoring\_crd\_url) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 # License

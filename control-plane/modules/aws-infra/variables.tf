@@ -18,8 +18,8 @@ variable "ssh_key_path" {
 
 variable "name" {
   type        = string
-  default     = "rancher-demo"
-  description = "Name for deployment"
+  default     = "rancher-scaling"
+  description = "Name used for various resources, used as a prefix for individual instance names"
 }
 
 variable "subdomain" {
