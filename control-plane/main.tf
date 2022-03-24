@@ -76,6 +76,7 @@ module "k3s" {
   server_instance_type        = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
   server_k3s_exec             = var.enable_secrets_encryption ? "--secrets-encryption ${var.server_k3s_exec}" : var.server_k3s_exec
+  cattle_prometheus_metrics   = var.cattle_prometheus_metrics
   create_agent_nlb            = var.install_monitoring
   agent_node_count            = var.install_monitoring ? 1 : 0
   agent_k3s_exec              = var.install_monitoring ? "--node-label monitoring=yes --node-taint monitoring=yes:NoSchedule ${var.agent_k3s_exec}" : var.agent_k3s_exec
@@ -145,6 +146,7 @@ module "rke2" {
   domain                 = var.domain
   rke2_version           = var.install_rke2_version
   rke2_channel           = var.install_rke2_channel
+  rke2_config            = var.rke2_config
   server_node_count      = var.rancher_node_count
   server_instance_type   = var.rancher_instance_type
   vpc_id                 = data.aws_vpc.default.id
@@ -153,7 +155,6 @@ module "rke2" {
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
   user                   = data.aws_caller_identity.current.user_id
-  secrets_encryption     = var.enable_secrets_encryption
   setup_monitoring_agent = local.install_monitoring
 }
 
@@ -194,6 +195,7 @@ module "install_common" {
   rancher_node_count             = var.rancher_node_count
   byo_certs_bucket_path          = var.byo_certs_bucket_path
   private_ca_file                = var.private_ca_file
+  cattle_prometheus_metrics      = var.cattle_prometheus_metrics
 
   depends_on = [
     module.generate_kube_config

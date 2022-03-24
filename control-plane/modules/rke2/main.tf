@@ -20,8 +20,8 @@ locals {
   tags = {
     "Owner"       = "${var.user}",
     "DoNotDelete" = "true",
-    "managed-by" = "Terraform",
-    "Identifier" = "${var.name}",
+    "managed-by"  = "Terraform",
+    "Identifier"  = "${var.name}",
   }
 }
 
@@ -45,9 +45,7 @@ module "aws_infra_rke2" {
   ssh_authorized_keys      = var.ssh_keys
   rke2_version             = var.rke2_version
   rke2_channel             = var.rke2_channel
-  rke2_config              = <<-EOT
-    secrets-encryption: "${var.secrets_encryption}"
-    EOT
+  rke2_config              = var.rke2_config
   post_userdata            = <<-EOT
     cat <<-EOF > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx.yaml
     apiVersion: helm.cattle.io/v1
@@ -84,7 +82,6 @@ module "rke2_monitor_pool" {
   rke2_version             = var.rke2_version # https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script
   rke2_channel             = var.rke2_channel
   rke2_config              = <<-EOT
-    secrets-encryption: "${var.secrets_encryption}"
     node-taint: monitoring=yes:NoSchedule
     node-label: monitoring=yes
     EOT
@@ -98,7 +95,7 @@ module "rke2_monitor_pool" {
 }
 
 resource "null_resource" "wait_for_monitor_to_register" {
-  count  = var.setup_monitoring_agent ? 1 : 0
+  count = var.setup_monitoring_agent ? 1 : 0
   provisioner "local-exec" {
     command = <<-EOT
     timeout --preserve-status 3m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do

@@ -27,6 +27,12 @@ variable "rancher_loglevel" {
   default     = "info"
 }
 
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
+}
+
 variable "install_monitoring" {
   type        = bool
   default     = true
@@ -219,6 +225,12 @@ variable "install_rke2_version" {
   default     = ""
   type        = string
   description = "Version of RKE2 to install (defaults to latest version on the specified channel: https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script)"
+}
+
+variable "rke2_config" {
+  type        = string
+  default     = ""
+  description = "(Optional) A formatted string that will be appended to the final rke2 config yaml"
 }
 
 variable "rancher_password" {

@@ -93,6 +93,7 @@ data "template_cloudinit_config" "k3s_server" {
       install_monitoring         = var.create_agent_nlb,
       use_new_monitoring_crd_url = local.use_new_monitoring_crd_url,
       monitoring_version         = var.monitoring_version,
+      cattle_prometheus_metrics  = var.cattle_prometheus_metrics,
       rancher_chart_tag          = local.rancher_chart_tag,
       rancher_version            = local.rancher_version,
       rancher_password           = local.rancher_password,

@@ -53,8 +53,7 @@ resource "rke_cluster" "local" {
     address           = local.monitoring_node_public_ip
     internal_address  = local.monitoring_node_private_ip
     user              = "ubuntu"
-    # role              = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
-    role = ["controlplane", "worker", "etcd"]
+    role              = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
     taints {
       key    = "monitoring"
       value  = "yes"
