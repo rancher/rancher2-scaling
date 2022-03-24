@@ -200,6 +200,24 @@ module "install_common" {
   ]
 }
 
+resource "null_resource" "set_loglevel" {
+  provisioner "local-exec" {
+    interpreter = [
+      "bash", "-c"
+    ]
+    command = <<-EOT
+    kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) -n cattle-system get pods -l app=rancher --no-headers -o custom-columns=name:.metadata.name | while read rancherpod; do kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) -n cattle-system exec $rancherpod -c rancher -- loglevel --set ${var.rancher_loglevel}; done
+    EOT
+    environment = {
+      KUBECONFIG = base64encode(file(module.generate_kube_config.kubeconfig_path))
+    }
+  }
+
+  depends_on = [
+    module.install_common
+  ]
+}
+
 resource "rancher2_catalog_v2" "rancher_charts_custom" {
   count    = local.install_monitoring ? 1 : 0
   provider = rancher2.admin
@@ -216,7 +234,7 @@ resource "rancher2_catalog_v2" "rancher_charts_custom" {
   }
 
   depends_on = [
-    module.install_common
+    null_resource.set_loglevel
   ]
 }
 
