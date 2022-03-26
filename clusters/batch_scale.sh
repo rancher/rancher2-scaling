@@ -58,7 +58,11 @@ initial_monitor=$(get_monitor_node)
 
 batch_scale
 
-clusters_reached=$((counter * BATCH_NUM_NODES))
+if [[ "${counter}" -gt $NUM_BATCHES ]]; then
+    counter=$NUM_BATCHES
+fi
+
+clusters_reached=$((counter * BATCH_NUM_NODES * 10))
 get_heap_logs "${clusters_reached}"
 
 echo "Reached: ${clusters_reached} downstream clusters"
