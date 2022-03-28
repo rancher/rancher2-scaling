@@ -110,7 +110,7 @@ module "aws_infra" {
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
   server_instance_type   = var.rancher_instance_type
-  server_node_count      = var.rancher_node_count
+  server_node_count      = local.install_monitoring ? (var.rancher_node_count + 1) : var.rancher_node_count
   install_docker_version = var.install_docker_version
   domain                 = local.domain
   r53_domain             = var.r53_domain
@@ -203,6 +203,7 @@ module "install_common" {
 }
 
 resource "null_resource" "set_loglevel" {
+  count = var.rancher_loglevel != "info" ? 1 : 0
   provisioner "local-exec" {
     interpreter = [
       "bash", "-c"
