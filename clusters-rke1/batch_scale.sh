@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 KUBE_CONFIG=${1}
-BATCH_NUM_NODES=${2:-5}
+BATCH_NUM_NODES=${2:-50}
 TARGET_NUM_DOWNSTREAMS=${3:-150}
 
 export KUBECONFIG="${KUBE_CONFIG}"
@@ -32,7 +32,7 @@ function batch_scale() {
     local NUM_BATCHES
     local BATCH_SET_LIMIT
     counter=1
-    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / (BATCH_NUM_NODES * 10)))
+    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / BATCH_NUM_NODES))
     HALF_COMPLETE=$(((NUM_BATCHES + 1)/2)) # rounded up
     while [ "${counter}" -le $NUM_BATCHES ]; do
         BATCH_SET_LIMIT=$((counter * BATCH_NUM_NODES))
@@ -58,9 +58,12 @@ initial_monitor=$(get_monitor_node)
 
 batch_scale
 
+if [[ "${counter}" -gt $NUM_BATCHES ]]; then
+    counter=$NUM_BATCHES
+fi
+
 clusters_reached=$((counter * BATCH_NUM_NODES))
 get_heap_logs "${clusters_reached}"
-
 echo "Reached: ${clusters_reached} downstream clusters"
 leader=$(get_leader_node)
 monitor=$(get_monitor_node)
