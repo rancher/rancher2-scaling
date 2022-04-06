@@ -137,6 +137,6 @@ output "secrets_encryption" {
   value = var.enable_secrets_encryption
 }
 
-output "use_new_monitoring_crd_url" {
-  value = module.k3s[0].use_new_monitoring_crd_url
+output "cattle_prometheus_metrics" {
+  value = var.cattle_prometheus_metrics
 }

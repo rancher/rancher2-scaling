@@ -88,10 +88,10 @@ variable "user" {
   type = string
 }
 
-variable "secrets_encryption" {
-  type        = bool
-  default     = false
-  description = "(Optional) Boolean that determines if secrets-encryption should be enabled"
+variable "rke2_config" {
+  type        = string
+  default     = ""
+  description = "(Optional) A formatted string that will be appended to the final rke2 config yaml"
 }
 
 variable "rke2_version" {
