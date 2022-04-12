@@ -1,18 +1,22 @@
-resource "aws_lb" "server_lb" {
-  name               = "${local.name}-server-int"
-  internal           = true
-  load_balancer_type = "network"
-  subnets            = local.private_subnets
+### used in order to keep the k3s.yaml (kubeconfig) secured behind 
+### this private NLB so that it is only accessible from within the cluster itself
+# resource "aws_lb" "server_lb" {
+#   name               = "${local.name}-server-int"
+#   internal           = true
+#   load_balancer_type = "network"
+#   subnets            = local.private_subnets
 
-  tags = {
-    "kubernetes.io/cluster/${local.name}" = ""
-    "rancher.user"                        = var.user
-  }
+#   tags = {
+#     "kubernetes.io/cluster/${local.name}" = ""
+#     "rancher.user"                        = var.user
+#   }
 
-}
+# }
 
+### previously set to private NLB in order to secure access to the k8s api 
+### so that it was only accessible from within the cluster itself
 resource "aws_lb_listener" "server_port_6443" {
-  load_balancer_arn = aws_lb.server_lb.arn
+  load_balancer_arn = aws_lb.server-public-lb.arn
   port              = "6443"
   protocol          = "TCP"
 
