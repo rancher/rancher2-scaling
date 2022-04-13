@@ -121,15 +121,16 @@ module "rke1" {
   count  = var.k8s_distribution == "rke1" ? 1 : 0
   source = "./modules/rke1"
 
-  cluster_name             = "local"
-  hostname_override_prefix = local.name
-  ssh_key_path             = var.ssh_key_path
-  install_k8s_version      = var.install_k8s_version
-  s3_instance_profile      = var.s3_instance_profile
-  nodes_ids                = module.aws_infra[0].nodes_ids
-  nodes_public_ips         = module.aws_infra[0].nodes_public_ips
-  nodes_private_ips        = module.aws_infra[0].nodes_private_ips
-  secrets_encryption       = var.enable_secrets_encryption
+  cluster_name              = "local"
+  hostname_override_prefix  = local.name
+  ssh_key_path              = var.ssh_key_path
+  install_k8s_version       = var.install_k8s_version
+  s3_instance_profile       = var.s3_instance_profile
+  dedicated_monitoring_node = var.install_monitoring ? true : false
+  nodes_ids                 = module.aws_infra[0].nodes_ids
+  nodes_public_ips          = module.aws_infra[0].nodes_public_ips
+  nodes_private_ips         = module.aws_infra[0].nodes_private_ips
+  secrets_encryption        = var.enable_secrets_encryption
 
   depends_on = [
     module.aws_infra
