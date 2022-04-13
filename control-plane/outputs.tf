@@ -140,7 +140,3 @@ output "secrets_encryption" {
 output "cattle_prometheus_metrics" {
   value = var.cattle_prometheus_metrics
 }
-
-output "use_new_monitoring_crd_url" {
-  value = var.k8s_distribution == "k3s" && var.install_monitoring ? module.k3s[0].use_new_monitoring_crd_url : null
-}
