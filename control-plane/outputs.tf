@@ -129,9 +129,9 @@ output "kube_config_path" {
   value = abspath(module.generate_kube_config.kubeconfig_path)
 }
 
-# output "cluster_yaml" {
-#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
-# }
+output "cluster_yaml" {
+  value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : null
+}
 
 output "secrets_encryption" {
   value = var.enable_secrets_encryption

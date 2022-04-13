@@ -73,6 +73,7 @@ The port `8443` can be adjusted as need for your local system.
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 4.2.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.1.0 |
 | <a name="provider_rancher2.admin"></a> [rancher2.admin](#provider\_rancher2.admin) | 1.22.2 |
 | <a name="provider_random"></a> [random](#provider\_random) | 3.1.0 |
 
@@ -94,6 +95,7 @@ The port `8443` can be adjusted as need for your local system.
 |------|------|
 | [aws_security_group.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group_rule.database_self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
+| [null_resource.set_loglevel](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [rancher2_app_v2.rancher_monitoring](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/app_v2) | resource |
 | [rancher2_catalog_v2.rancher_charts_custom](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/catalog_v2) | resource |
 | [random_password.rancher_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
@@ -131,7 +133,7 @@ The port `8443` can be adjusted as need for your local system.
 | <a name="input_install_certmanager"></a> [install\_certmanager](#input\_install\_certmanager) | Boolean that defines whether or not to install Cert-Manager | `bool` | `true` | no |
 | <a name="input_install_docker_version"></a> [install\_docker\_version](#input\_install\_docker\_version) | Version of Docker to install | `string` | `"20.10"` | no |
 | <a name="input_install_k3s_version"></a> [install\_k3s\_version](#input\_install\_k3s\_version) | Version of K3S to install (github release tag without the 'v') | `string` | `"1.20.10+k3s1"` | no |
-| <a name="input_install_k8s_version"></a> [install\_k8s\_version](#input\_install\_k8s\_version) | Version of K8s to install | `string` | `null` | no |
+| <a name="input_install_k8s_version"></a> [install\_k8s\_version](#input\_install\_k8s\_version) | Version of K8s to install | `string` | `""` | no |
 | <a name="input_install_monitoring"></a> [install\_monitoring](#input\_install\_monitoring) | Boolean that defines whether or not to install rancher-monitoring | `bool` | `true` | no |
 | <a name="input_install_rancher"></a> [install\_rancher](#input\_install\_rancher) | Boolean that defines whether or not to install Rancher | `bool` | `true` | no |
 | <a name="input_install_rke2_channel"></a> [install\_rke2\_channel](#input\_install\_rke2\_channel) | Release channel to use for fetching RKE2 download URL, defaults to stable | `string` | `"stable"` | no |
@@ -149,10 +151,12 @@ The port `8443` can be adjusted as need for your local system.
 | <a name="input_rancher_image"></a> [rancher\_image](#input\_rancher\_image) | n/a | `string` | `"rancher/rancher"` | no |
 | <a name="input_rancher_image_tag"></a> [rancher\_image\_tag](#input\_rancher\_image\_tag) | Rancher image tag to install, this can differ from rancher\_version which is the chart being used to install Rancher | `string` | `"master-head"` | no |
 | <a name="input_rancher_instance_type"></a> [rancher\_instance\_type](#input\_rancher\_instance\_type) | instance type used for the rancher servers | `string` | `"m5.xlarge"` | no |
+| <a name="input_rancher_loglevel"></a> [rancher\_loglevel](#input\_rancher\_loglevel) | A string specifying the loglevel to set on the rancher pods. One of: info, debug or trace. https://rancher.com/docs/rancher/v2.x/en/troubleshooting/logging/ | `string` | `"info"` | no |
 | <a name="input_rancher_node_count"></a> [rancher\_node\_count](#input\_rancher\_node\_count) | n/a | `number` | `1` | no |
 | <a name="input_rancher_password"></a> [rancher\_password](#input\_rancher\_password) | Password to set for admin user during bootstrap of Rancher Server, if not set random password will be generated | `string` | `""` | no |
 | <a name="input_rancher_version"></a> [rancher\_version](#input\_rancher\_version) | Version of Rancher to install - Do not include the v prefix. | `string` | n/a | yes |
 | <a name="input_random_prefix"></a> [random\_prefix](#input\_random\_prefix) | Prefix to be used with random name generation | `string` | `"rancher"` | no |
+| <a name="input_rke2_config"></a> [rke2\_config](#input\_rke2\_config) | (Optional) A formatted string that will be appended to the final rke2 config yaml | `string` | `""` | no |
 | <a name="input_s3_bucket_region"></a> [s3\_bucket\_region](#input\_s3\_bucket\_region) | Optional: String that defines the AWS region of the S3 Bucket that stores the desired certs. Required if 'byo\_certs\_bucket\_path' is set. Defaults to the aws\_region if not set | `string` | `""` | no |
 | <a name="input_s3_instance_profile"></a> [s3\_instance\_profile](#input\_s3\_instance\_profile) | Optional: String that defines the name of the IAM Instance Profile that grants S3 access to the EC2 instances. Required if 'byo\_certs\_bucket\_path' is set | `string` | `""` | no |
 | <a name="input_sensitive_token"></a> [sensitive\_token](#input\_sensitive\_token) | Boolean that determines if the module should treat the generated Rancher Admin API Token as sensitive in the output. | `bool` | `true` | no |
@@ -168,6 +172,7 @@ The port `8443` can be adjusted as need for your local system.
 |------|-------------|
 | <a name="output_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#output\_cattle\_prometheus\_metrics) | n/a |
 | <a name="output_certmanager_version"></a> [certmanager\_version](#output\_certmanager\_version) | n/a |
+| <a name="output_cluster_yaml"></a> [cluster\_yaml](#output\_cluster\_yaml) | n/a |
 | <a name="output_db_engine_version"></a> [db\_engine\_version](#output\_db\_engine\_version) | n/a |
 | <a name="output_db_instance_availability_zone"></a> [db\_instance\_availability\_zone](#output\_db\_instance\_availability\_zone) | The availability zone of the RDS instance |
 | <a name="output_db_instance_endpoint"></a> [db\_instance\_endpoint](#output\_db\_instance\_endpoint) | The connection endpoint |
@@ -192,5 +197,4 @@ The port `8443` can be adjusted as need for your local system.
 | <a name="output_tls_cert_file"></a> [tls\_cert\_file](#output\_tls\_cert\_file) | n/a |
 | <a name="output_tls_key_file"></a> [tls\_key\_file](#output\_tls\_key\_file) | n/a |
 | <a name="output_use_new_bootstrap"></a> [use\_new\_bootstrap](#output\_use\_new\_bootstrap) | n/a |
-| <a name="output_use_new_monitoring_crd_url"></a> [use\_new\_monitoring\_crd\_url](#output\_use\_new\_monitoring\_crd\_url) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

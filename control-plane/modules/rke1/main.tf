@@ -9,24 +9,22 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
-    }
   }
 }
 
 locals {
-  s3_instance_profile         = var.s3_instance_profile
-  node_ids                    = var.nodes_ids
-  node_public_ips             = var.nodes_public_ips
-  node_private_ips            = var.nodes_private_ips
-  server_node_count           = length(local.node_ids)
-  rancher_reserved_node_ids   = slice(local.node_ids, 1, local.server_node_count)
-  rancher_node_public_ips     = slice(local.node_public_ips, 1, local.server_node_count)
-  rancher_node_private_ips    = slice(local.node_private_ips, 1, local.server_node_count)
-  monitoring_reserved_node_id = var.nodes_ids[0]
-  monitoring_node_public_ip   = var.nodes_public_ips[0]
-  monitoring_node_private_ip  = var.nodes_private_ips[0]
+  s3_instance_profile = var.s3_instance_profile
+  node_ids            = var.nodes_ids
+  node_public_ips     = var.nodes_public_ips
+  node_private_ips    = var.nodes_private_ips
+  # if using a dedicated monitoring node then assign the last node in the list as the dedicated node
+  server_node_count           = var.dedicated_monitoring_node ? length(local.node_ids) - 1 : length(local.node_ids)
+  rancher_reserved_node_ids   = slice(local.node_ids, 0, local.server_node_count)
+  rancher_node_public_ips     = slice(local.node_public_ips, 0, local.server_node_count)
+  rancher_node_private_ips    = slice(local.node_private_ips, 0, local.server_node_count)
+  monitoring_reserved_node_id = var.nodes_ids[local.server_node_count]
+  monitoring_node_public_ip   = var.nodes_public_ips[local.server_node_count]
+  monitoring_node_private_ip  = var.nodes_private_ips[local.server_node_count]
   allowed_etcd_nodes          = [1, 3, 5]
 }
 
@@ -48,22 +46,25 @@ resource "rke_cluster" "local" {
     }
   }
   ### Node Reserved for Monitoring ###
-  nodes {
-    hostname_override = "${var.hostname_override_prefix}-RKE1-Monitoring"
-    address           = local.monitoring_node_public_ip
-    internal_address  = local.monitoring_node_private_ip
-    user              = "ubuntu"
-    role              = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
-    taints {
-      key    = "monitoring"
-      value  = "yes"
-      effect = "NoSchedule"
-    }
-    labels = {
-      monitoring = "yes"
+  dynamic "nodes" {
+    for_each = var.dedicated_monitoring_node ? toset([1]) : toset([]) # used to enable dynamic creation for dedicated monitoring node
+    content {
+      hostname_override = "${var.hostname_override_prefix}-RKE1-Monitoring"
+      address           = local.monitoring_node_public_ip
+      internal_address  = local.monitoring_node_private_ip
+      user              = "ubuntu"
+      # if we have an invalid # of etcd nodes then add the etcd role to the dedicated monitoring node
+      role = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
+      taints {
+        key    = "monitoring"
+        value  = "yes"
+        effect = "NoSchedule"
+      }
+      labels = {
+        monitoring = "yes"
+      }
     }
   }
-  #  SSH key to access all hosts in your cluster
   ssh_key_path          = var.ssh_key_path
   ignore_docker_version = false
   # Set kubernetes version to install: https://rancher.com/docs/rke/latest/en/upgrades/#listing-supported-kubernetes-versions
@@ -88,7 +89,7 @@ resource "rke_cluster" "local" {
   }
 
   # Configure  network plug-ins
-  # KE provides the following network plug-ins that are deployed as add-ons: flannel, calico, weave, and canal
+  # RKE provides the following network plug-ins that are deployed as add-ons: flannel, calico, weave, and canal
   # After you launch the cluster, you cannot change your network provider.
   # Setting the network plug-in
   # network {
