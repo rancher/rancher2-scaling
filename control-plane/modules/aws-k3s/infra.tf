@@ -99,7 +99,7 @@ resource "aws_launch_template" "k3s_server" {
   name          = count.index == 0 ? "${local.name}-leader" : "${local.name}-server"
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
-  user_data     = count.index == 0 ? data.template_cloudinit_config.k3s_server[0].rendered : data.template_cloudinit_config.k3s_server[1].rendered
+  user_data     = count.index == 0 ? data.cloudinit_config.k3s_server[0].rendered : data.cloudinit_config.k3s_server[1].rendered
 
   iam_instance_profile {
     arn = length(var.byo_certs_bucket_path) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null
@@ -130,7 +130,7 @@ resource "aws_launch_template" "k3s_agent" {
   name          = "${local.name}-agent"
   image_id      = local.agent_image_id
   instance_type = local.agent_instance_type
-  user_data     = data.template_cloudinit_config.k3s_agent[0].rendered
+  user_data     = data.cloudinit_config.k3s_agent[0].rendered
 
   block_device_mappings {
     device_name = "/dev/sda1"

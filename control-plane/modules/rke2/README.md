@@ -49,7 +49,7 @@ No requirements.
 | <a name="input_internal_lb"></a> [internal\_lb](#input\_internal\_lb) | n/a | `bool` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name used for the cluster and various resources, used as a prefix for individual instance names | `string` | `"rancher-scaling"` | no |
 | <a name="input_rke2_channel"></a> [rke2\_channel](#input\_rke2\_channel) | Release channel to use for fetching RKE2 download URL, defaults to stable | `string` | `"stable"` | no |
-| <a name="input_rke2_config"></a> [rke2\_config](#input\_rke2\_config) | (Optional) A formatted string that will be appended to the final rke2 config yaml | `string` | `null` | no |
+| <a name="input_rke2_config"></a> [rke2\_config](#input\_rke2\_config) | (Optional) A formatted string that will be appended to the final rke2 config yaml | `string` | `""` | no |
 | <a name="input_rke2_version"></a> [rke2\_version](#input\_rke2\_version) | Version to use for RKE2 server nodes, defaults to latest on the specified release channel | `string` | `""` | no |
 | <a name="input_server_instance_ssh_user"></a> [server\_instance\_ssh\_user](#input\_server\_instance\_ssh\_user) | Username for sshing into instances | `string` | `"ubuntu"` | no |
 | <a name="input_server_instance_type"></a> [server\_instance\_type](#input\_server\_instance\_type) | n/a | `string` | `"m5.large"` | no |

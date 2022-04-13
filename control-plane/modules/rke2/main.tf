@@ -9,8 +9,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
+    cloudinit = {
+      source = "hashicorp/cloudinit"
     }
   }
 }
@@ -98,7 +98,7 @@ resource "null_resource" "wait_for_monitor_to_register" {
   count = var.setup_monitoring_agent ? 1 : 0
   provisioner "local-exec" {
     command = <<-EOT
-    timeout --preserve-status 3m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
+    timeout --preserve-status 5m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
         sleep 5
         nodes="$(kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) get nodes --no-headers | wc -l | awk '\''{$1=$1;print}'\'')"
         echo "rke2 nodes: $${nodes}"

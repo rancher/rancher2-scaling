@@ -11,6 +11,11 @@ Initialize terraform default workspace. This only needs to be run once to create
 cd control-plane
 terraform init
 ```
+Update modules mentioned in root module from their respective source:
+```
+terraform get --update
+```
+
 AWS credentials are required so they can either be set in the env or on the command line before running the below commands
 
 Create k3s cluster with **mariadb** data store:
