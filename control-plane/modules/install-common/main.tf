@@ -9,9 +9,6 @@ terraform {
     null = {
       source = "hashicorp/null"
     }
-    template = {
-      source = "hashicorp/template"
-    }
   }
 }
 
@@ -23,7 +20,7 @@ resource "helm_release" "cert_manager" {
   version          = var.certmanager_version
   namespace        = "cert-manager"
   create_namespace = true
-
+  wait_for_jobs    = true
   set {
     name  = "installCRDs"
     value = "true"
@@ -60,6 +57,7 @@ resource "helm_release" "rancher" {
   devel            = true
   namespace        = "cattle-system"
   create_namespace = true
+  wait_for_jobs    = true
   values = [
     templatefile("${var.helm_rancher_chart_values_path}", {
       letsencrypt_email         = var.letsencrypt_email

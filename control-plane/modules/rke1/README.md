@@ -26,8 +26,9 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster within Rancher2 | `string` | `"local"` | no |
+| <a name="input_dedicated_monitoring_node"></a> [dedicated\_monitoring\_node](#input\_dedicated\_monitoring\_node) | Boolean that determines whether or not one of the given nodes will be taintend and labelled as a dedicated monitoring node. | `bool` | `false` | no |
 | <a name="input_hostname_override_prefix"></a> [hostname\_override\_prefix](#input\_hostname\_override\_prefix) | String to prepend to the hostname\_override field for each node. (Ignored for AWS cloud provider) | `string` | `""` | no |
-| <a name="input_install_k8s_version"></a> [install\_k8s\_version](#input\_install\_k8s\_version) | Version of K8s to install | `string` | n/a | yes |
+| <a name="input_install_k8s_version"></a> [install\_k8s\_version](#input\_install\_k8s\_version) | Version of K8s to install | `string` | `""` | no |
 | <a name="input_nodes_ids"></a> [nodes\_ids](#input\_nodes\_ids) | Node IDs of the desired nodes for the RKE HA setup | `list(string)` | n/a | yes |
 | <a name="input_nodes_private_ips"></a> [nodes\_private\_ips](#input\_nodes\_private\_ips) | Private IP addresses of the desired nodes for the RKE HA setup | `list(string)` | n/a | yes |
 | <a name="input_nodes_public_ips"></a> [nodes\_public\_ips](#input\_nodes\_public\_ips) | Public IP addresses of the desired nodes for the RKE HA setup | `list(string)` | n/a | yes |
