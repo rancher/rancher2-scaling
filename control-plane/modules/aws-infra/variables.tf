@@ -4,6 +4,12 @@ variable "server_image_id" {
   description = "AMI to use for rke1 server instances"
 }
 
+variable "volume_size" {
+  type        = string
+  default     = "50"
+  description = "Size of shared EBS volume allocated for the nodes"
+}
+
 variable "ssh_keys" {
   type        = list(any)
   default     = []

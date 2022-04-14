@@ -19,8 +19,8 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | refactor-nodepool-setup |
-| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | refactor-nodepool-setup |
+| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | replace-template-provider |
+| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | replace-template-provider |
 
 ## Resources
 
@@ -49,7 +49,7 @@ No requirements.
 | <a name="input_internal_lb"></a> [internal\_lb](#input\_internal\_lb) | n/a | `bool` | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Name used for the cluster and various resources, used as a prefix for individual instance names | `string` | `"rancher-scaling"` | no |
 | <a name="input_rke2_channel"></a> [rke2\_channel](#input\_rke2\_channel) | Release channel to use for fetching RKE2 download URL, defaults to stable | `string` | `"stable"` | no |
-| <a name="input_rke2_config"></a> [rke2\_config](#input\_rke2\_config) | (Optional) A formatted string that will be appended to the final rke2 config yaml | `string` | `null` | no |
+| <a name="input_rke2_config"></a> [rke2\_config](#input\_rke2\_config) | (Optional) A formatted string that will be appended to the final rke2 config yaml | `string` | `""` | no |
 | <a name="input_rke2_version"></a> [rke2\_version](#input\_rke2\_version) | Version to use for RKE2 server nodes, defaults to latest on the specified release channel | `string` | `""` | no |
 | <a name="input_server_instance_ssh_user"></a> [server\_instance\_ssh\_user](#input\_server\_instance\_ssh\_user) | Username for sshing into instances | `string` | `"ubuntu"` | no |
 | <a name="input_server_instance_type"></a> [server\_instance\_type](#input\_server\_instance\_type) | n/a | `string` | `"m5.large"` | no |
@@ -68,4 +68,5 @@ No requirements.
 |------|-------------|
 | <a name="output_cluster_data"></a> [cluster\_data](#output\_cluster\_data) | Map of cluster data required by agent pools for joining cluster, do not modify this |
 | <a name="output_kube_config"></a> [kube\_config](#output\_kube\_config) | n/a |
+| <a name="output_templatefile_strings"></a> [templatefile\_strings](#output\_templatefile\_strings) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

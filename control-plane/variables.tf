@@ -6,7 +6,7 @@ variable "install_docker_version" {
 
 variable "install_k8s_version" {
   type        = string
-  default     = null
+  default     = ""
   description = "Version of K8s to install"
 }
 
@@ -19,6 +19,12 @@ variable "install_rancher" {
 variable "rancher_version" {
   type        = string
   description = "Version of Rancher to install - Do not include the v prefix."
+}
+
+variable "rancher_loglevel" {
+  type        = string
+  description = "A string specifying the loglevel to set on the rancher pods. One of: info, debug or trace. https://rancher.com/docs/rancher/v2.x/en/troubleshooting/logging/"
+  default     = "info"
 }
 
 variable "cattle_prometheus_metrics" {

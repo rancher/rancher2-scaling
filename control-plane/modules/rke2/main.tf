@@ -9,8 +9,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
+    cloudinit = {
+      source = "hashicorp/cloudinit"
     }
   }
 }
@@ -27,7 +27,7 @@ locals {
 
 ## Provision LB, and Auto Scaling Groups of server nodes
 module "aws_infra_rke2" {
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=replace-template-provider"
 
   cluster_name             = var.name
   fqdn                     = aws_route53_record.public.fqdn
@@ -66,7 +66,7 @@ module "aws_infra_rke2" {
 ## Provision Auto Scaling Group of agent to auto-join cluster with taints and labels for monitoring only
 module "rke2_monitor_pool" {
   count  = var.setup_monitoring_agent ? 1 : 0
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=replace-template-provider"
 
   name                     = "monitoring"
   vpc_id                   = var.vpc_id
@@ -98,7 +98,7 @@ resource "null_resource" "wait_for_monitor_to_register" {
   count = var.setup_monitoring_agent ? 1 : 0
   provisioner "local-exec" {
     command = <<-EOT
-    timeout --preserve-status 3m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
+    timeout --preserve-status 5m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
         sleep 5
         nodes="$(kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) get nodes --no-headers | wc -l | awk '\''{$1=$1;print}'\'')"
         echo "rke2 nodes: $${nodes}"

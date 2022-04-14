@@ -18,3 +18,5 @@ kube-config.yaml
 *logs.txt
 .*tf-kubeconfig
 *.vscode
+*infracost*
+*pre-commit*

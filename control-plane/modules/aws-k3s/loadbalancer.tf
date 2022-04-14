@@ -5,7 +5,6 @@
 #   internal           = true
 #   load_balancer_type = "network"
 #   subnets            = local.private_subnets
-
 #   tags = {
 #     "kubernetes.io/cluster/${local.name}" = ""
 #     "rancher.user"                        = var.user

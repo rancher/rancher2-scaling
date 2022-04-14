@@ -29,8 +29,6 @@ function get_monitor_node() {
 }
 
 function batch_scale() {
-    local NUM_BATCHES
-    local BATCH_SET_LIMIT
     counter=1
     NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / BATCH_NUM_NODES))
     HALF_COMPLETE=$(((NUM_BATCHES + 1)/2)) # rounded up
