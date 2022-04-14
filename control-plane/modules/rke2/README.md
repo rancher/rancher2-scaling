@@ -12,15 +12,15 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.15.1 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | replace-template-provider |
-| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | replace-template-provider |
+| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | add-userdata-logfile-on-init |
+| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | add-userdata-logfile-on-init |
 
 ## Resources
 

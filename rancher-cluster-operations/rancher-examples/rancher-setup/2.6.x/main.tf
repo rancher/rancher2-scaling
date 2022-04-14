@@ -33,7 +33,7 @@ data "rancher2_cluster" "local" {
 }
 
 ### Create custom Rancher Catalog and install rancher-monitoring for Rancher 2.6.x
-### Note: Version 100.1.2+up19.0.3 and above will automatically have the controllers metrics enabled 
+### Note: Version 100.1.2+up19.0.3 and above will automatically have the controllers metrics enabled
 ### along with a newly created dashboard for them
 module "rancher_monitoring" {
   source = "../../../charts/rancher-monitoring"

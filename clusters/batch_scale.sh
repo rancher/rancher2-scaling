@@ -10,10 +10,19 @@ export KUBECONFIG="${KUBE_CONFIG}"
 
 function get_heap_logs() {
     for pod in $(kubectl -n cattle-system get pods --no-headers -l status.phase=Running -l app=rancher | grep Running | cut -d ' ' -f1); do
-        echo getting profile for "${pod}"
-        kubectl -n cattle-system exec "${pod}" -- curl -s http://localhost:6060/debug/pprof/heap -o profile.log
-        kubectl -n cattle-system cp "${pod}:profile.log" "${pod}-${1}_clusters-heap.log"
-        echo saved profile "${pod}-${1}_clusters-heap.log"
+        echo "getting mem profile for \"${pod}\""
+        kubectl -n cattle-system exec "${pod}" -- curl -s http://localhost:6060/debug/pprof/heap -o mem-profile.log
+        kubectl -n cattle-system cp "${pod}:mem-profile.log" "${pod}-${1}_clusters-heap.log"
+        echo "saved memory profile \"${pod}-${1}_clusters-heap.log\""
+    done
+}
+
+function get_profile_logs() {
+    for pod in $(kubectl -n cattle-system get pods --no-headers -l status.phase=Running -l app=rancher | grep Running | cut -d ' ' -f1); do
+        echo "getting cpu profile for \"${pod}\""
+        kubectl -n cattle-system exec "${pod}" -- curl -s http://localhost:6060/debug/pprof/profile -o cpu-profile.log
+        kubectl -n cattle-system cp "${pod}:cpu-profile.log" "${pod}-${1}_clusters-profile.log"
+        echo "saved cpu profile \"${pod}-${1}_clusters-profile.log\""
     done
 }
 
@@ -42,9 +51,10 @@ function batch_scale() {
         if [[ $retVal -eq 1 ]]; then
             echo "Errored, skipping sleep"
         else
-            sleep 540
+            sleep 720
             if [[ "${counter}" -eq $HALF_COMPLETE ]]; then
                 get_heap_logs "$(((TARGET_NUM_DOWNSTREAMS + 1)/2))" # rounded up
+                get_profile_logs "$(((TARGET_NUM_DOWNSTREAMS + 1)/2))" # rounded up
             fi
         fi
         counter=$((counter + 1))
@@ -58,6 +68,7 @@ batch_scale
 
 clusters_reached=$(kubectl get clusters -A --no-headers | wc -l | xargs)
 get_heap_logs "${clusters_reached}"
+get_profile_logs "${clusters_reached}"
 
 echo "Reached: ${clusters_reached} downstream clusters"
 leader=$(get_leader_node)

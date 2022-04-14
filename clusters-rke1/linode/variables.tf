@@ -1,31 +1,58 @@
 variable "name_suffix" {
   type        = string
-  default     = null
-  description = "(Optional) suffix to append to your cloud credential, node template and node pool names"
+  default     = ""
+  description = "(Optional) suffix to append to your cloud credential, node template and node pool names. This must be unique per-workspace in order to not conflict with any resources"
 }
 
 variable "cluster_name" {
   type        = string
-  default     = "load-testing"
-  description = "Unique cluster identifier appended to the Rancher url subdomain"
+  default     = ""
+  description = "(Optional) Desired cluster name, if not set then one will be generated"
 }
 
 variable "cluster_labels" {
   type        = map(any)
   default     = {}
-  description = "Labels to add to each provisioned cluster"
+  description = "(Optional) Labels to add to each provisioned cluster"
 }
 
-variable "node_pool_count" {
-  type        = number
-  default     = 3
-  description = "Number of node pools to create"
+variable "roles_per_pool" {
+  type        = list(map(string))
+  description = <<EOF
+  A list of maps where each element contains keys that define the roles and quantity for a given node pool.
+  Example: [
+    {
+      "quantity" = 3
+      "etd" = true
+      "control-plane" = true
+      "worker" = true
+    }
+  ]
+  EOF
+  validation {
+    condition     = contains([1, 3, 5], sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["etcd"] == "true", false)]))
+    error_message = "The number of etcd nodes per cluster must be one of [1, 3, 5]."
+  }
+  validation {
+    condition     = sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["control-plane"] == "true", false)]) >= 1
+    error_message = "The number of control-plane nodes per cluster must be >= 1."
+  }
+  validation {
+    condition     = sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["worker"] == "true", false)]) >= 1
+    error_message = "The number of worker nodes per cluster must be >= 1."
+  }
 }
 
-variable "nodes_per_pool" {
-  type        = number
-  default     = 1
-  description = "Number of nodes to create per node pool"
+variable "cloud_cred_name" {
+  type        = string
+  default     = ""
+  description = "(Optional) Name to use for the cloud credential."
+}
+
+variable "node_template_name" {
+  type        = string
+  default     = ""
+  description = "(Optional) Name to use for the node template."
 }
 
 variable "create_node_reqs" {
@@ -46,15 +73,16 @@ variable "linode_token" {
   sensitive = true
 }
 
+variable "authorized_users" {
+  type        = string
+  default     = null
+  description = "(Optional) Linode user accounts (seperated by commas) whose Linode SSH keys will be permitted root access to the created node."
+}
+
 variable "image" {
   type        = string
   default     = "linode/ubuntu18.04"
   description = "Linode-specific image name string"
-}
-
-variable "iam_instance_profile" {
-  type    = string
-  default = null
 }
 
 variable "install_docker_version" {

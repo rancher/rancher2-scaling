@@ -3,9 +3,5 @@ output "subnet_id" {
 }
 
 output "cloud_cred" {
-  value = data.rancher2_cloud_credential.existing_cred.id
-}
-
-output "roles_map" {
-  value = local.roles_map
+  value = data.rancher2_cloud_credential.this.id
 }

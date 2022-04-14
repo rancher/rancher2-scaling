@@ -33,8 +33,8 @@ To cleanup, there is a `destroy_clusters.sh` however this will also delete all t
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.64.2 |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.21.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.22.0 |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.24.0 |
 
 ## Modules
 
@@ -47,7 +47,6 @@ No modules.
 | [aws_instance.k3s-server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
 | [rancher2_cluster.k3s](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster) | resource |
 | [aws_ami.ubuntu](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
-| [aws_subnet_ids.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet_ids) | data source |
 | [aws_vpc.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs

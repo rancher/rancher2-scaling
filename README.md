@@ -1,6 +1,6 @@
 # rancher2-scaling
 
-Terraform for running control plane and downstream clusters  
+Terraform for running control plane and downstream clusters
 Python for scaling tests
 
 

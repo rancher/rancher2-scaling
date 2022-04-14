@@ -1,6 +1,6 @@
 This terraform is for creating the downstream RKE clusters to test Ranchers scaling ability. It contains two root modules, one for AWS clusters and one for Linode clusters.
 
-### How to apply this module:
+### How to apply the Linode module:
 1. Navigate into the desired cloud provider folder `cd linode`
 2. Run `terraform init` to get providers/plugins downloaded
 3. Create a `terraform.tfvars` file.
@@ -34,9 +34,9 @@ This terraform is for creating the downstream RKE clusters to test Ranchers scal
 
 ### To cleanup:
   1. Navigate into cloud provider folder where clusters were created `cd linode`
-  2. Call `../destroy_clusters.sh`  
+  2. Call `../destroy_clusters.sh`
 
-  Notes:  
-  * This script will perform a `terraform destroy` operation in reverse-order on each workspace created by the provisioning script. However this will also delete all the clusters from Rancher and with the cluster GC being slow this can take a long time (hours) on a large setup. The faster way, assuming the control-plane is coming down as well, is to just delete the hosts from the cloud provider and tear down the control-plane.  
+  Notes:
+  * This script will perform a `terraform destroy` operation in reverse-order on each workspace created by the provisioning script. However this will also delete all the clusters from Rancher and with the cluster GC being slow this can take a long time (hours) on a large setup. The faster way, assuming the control-plane is coming down as well, is to just delete the hosts from the cloud provider and tear down the control-plane.
 
   * Alternatively, manually deleting the clusters via the UI is somewhat faster. You may need to verify the nodes were deleted properly as it is possible for nodes to become de-synced and replaced by Rancher without actually being terminated in the cloud provider.
