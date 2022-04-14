@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+script_dir=$(dirname "$0")
 
 KUBE_CONFIG=${1}
 BATCH_NUM_NODES=${2:-5}
@@ -37,7 +38,7 @@ function batch_scale() {
     while [ "${counter}" -le $NUM_BATCHES ]; do
         BATCH_SET_LIMIT=$((counter * BATCH_NUM_NODES))
         echo "Provisioning Cluster Sets: ${BATCH_SET_LIMIT}"
-        ./provision_clusters.sh ${BATCH_SET_LIMIT}
+        "${script_dir}/provision_clusters.sh" ${BATCH_SET_LIMIT}
         retVal=$?
         if [[ $retVal -eq 1 ]]; then
             echo "Errored, skipping sleep"

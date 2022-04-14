@@ -46,7 +46,7 @@ module "rancher_monitoring" {
   charts_branch = "release-v2.5"
   chart_version = "16.6.1+up16.6.0"
   values        = "../../../charts/files/rancher_monitoring_chart_values.yaml"
-  cluster_id    = "local"
+  cluster_id    = data.rancher2_cluster.local.id
   project_id    = data.rancher2_cluster.local.default_project_id
 }
 
