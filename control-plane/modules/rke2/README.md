@@ -19,8 +19,8 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | refactor-nodepool-setup |
-| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | refactor-nodepool-setup |
+| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | replace-template-provider |
+| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | replace-template-provider |
 
 ## Resources
 
@@ -68,4 +68,5 @@ No requirements.
 |------|-------------|
 | <a name="output_cluster_data"></a> [cluster\_data](#output\_cluster\_data) | Map of cluster data required by agent pools for joining cluster, do not modify this |
 | <a name="output_kube_config"></a> [kube\_config](#output\_kube\_config) | n/a |
+| <a name="output_templatefile_strings"></a> [templatefile\_strings](#output\_templatefile\_strings) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

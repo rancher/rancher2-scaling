@@ -140,3 +140,7 @@ output "secrets_encryption" {
 output "cattle_prometheus_metrics" {
   value = var.cattle_prometheus_metrics
 }
+
+# output "templatefile_strings" {
+#   value = module.rke2[0].templatefile_string
+# }

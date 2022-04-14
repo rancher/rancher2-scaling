@@ -27,7 +27,7 @@ locals {
 
 ## Provision LB, and Auto Scaling Groups of server nodes
 module "aws_infra_rke2" {
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=replace-template-provider"
 
   cluster_name             = var.name
   fqdn                     = aws_route53_record.public.fqdn
@@ -66,7 +66,7 @@ module "aws_infra_rke2" {
 ## Provision Auto Scaling Group of agent to auto-join cluster with taints and labels for monitoring only
 module "rke2_monitor_pool" {
   count  = var.setup_monitoring_agent ? 1 : 0
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=replace-template-provider"
 
   name                     = "monitoring"
   vpc_id                   = var.vpc_id
