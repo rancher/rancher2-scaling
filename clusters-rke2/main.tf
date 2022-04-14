@@ -46,7 +46,7 @@ locals {
   az_zone_ids_random_index = random_id.index.dec % length(local.az_zone_ids_list)
   instance_az_zone_id      = local.az_zone_ids_list[local.az_zone_ids_random_index]
   selected_az_suffix       = data.aws_availability_zone.selected_az.name_suffix
-  subnet_ids_list          = tolist(data.aws_subnet_ids.available.ids)
+  subnet_ids_list          = tolist(data.aws_subnets.available.ids)
   subnet_ids_random_index  = random_id.index.dec % length(local.subnet_ids_list)
   instance_subnet_id       = local.subnet_ids_list[local.subnet_ids_random_index]
   rancher_subdomain        = split(".", split("//", "${var.rancher_api_url}")[1])[0]

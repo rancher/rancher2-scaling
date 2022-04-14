@@ -15,8 +15,11 @@ data "aws_security_group" "selected" {
   name     = each.key
 }
 
-data "aws_subnet_ids" "available" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "available" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
   filter {
     name   = "availability-zone-id"
     values = ["${data.aws_availability_zone.selected_az.zone_id}"]
