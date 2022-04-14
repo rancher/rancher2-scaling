@@ -12,8 +12,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
+    cloudinit = {
+      source = "hashicorp/cloudinit"
     }
   }
 }

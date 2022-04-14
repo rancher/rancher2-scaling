@@ -11,6 +11,12 @@ Initialize terraform default workspace. This only needs to be run once to create
 cd control-plane
 terraform init
 ```
+Update modules mentioned in root module from their respective source:
+```
+terraform get --update
+terraform init
+```
+
 AWS credentials are required so they can either be set in the env or on the command line before running the below commands
 
 Create k3s cluster with **mariadb** data store:
@@ -72,10 +78,10 @@ The port `8443` can be adjusted as need for your local system.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.2.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.1.0 |
-| <a name="provider_rancher2.admin"></a> [rancher2.admin](#provider\_rancher2.admin) | 1.22.2 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.1.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.15.1 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
+| <a name="provider_rancher2.admin"></a> [rancher2.admin](#provider\_rancher2.admin) | 1.23.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.2.0 |
 
 ## Modules
 

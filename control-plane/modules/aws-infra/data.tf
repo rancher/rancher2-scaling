@@ -42,7 +42,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-data "template_cloudinit_config" "rke1_server" {
+data "cloudinit_config" "rke1_server" {
   gzip          = false
   base64_encode = true
 

@@ -40,7 +40,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-data "template_cloudinit_config" "k3s_server" {
+data "cloudinit_config" "k3s_server" {
   count         = local.server_node_count > 1 ? 2 : 1
   gzip          = false
   base64_encode = true
@@ -129,7 +129,7 @@ data "template_cloudinit_config" "k3s_server" {
   }
 }
 
-data "template_cloudinit_config" "k3s_agent" {
+data "cloudinit_config" "k3s_agent" {
   count         = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
   gzip          = false
   base64_encode = true

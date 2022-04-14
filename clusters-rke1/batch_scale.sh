@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
+script_dir=$(dirname "$0")
 
 KUBE_CONFIG=${1}
-BATCH_NUM_NODES=${2:-50}
+BATCH_NUM_NODES=${2:-5}
 TARGET_NUM_DOWNSTREAMS=${3:-150}
+
+echo "BATCH_NUM_NODES: ${BATCH_NUM_NODES} TARGET_NUM_DOWNSTREAMS: ${TARGET_NUM_DOWNSTREAMS}"
 
 export KUBECONFIG="${KUBE_CONFIG}"
 
 function get_heap_logs() {
-    for pod in $(kubectl -n cattle-system get pods --no-headers -l app=rancher | cut -d ' ' -f1); do
+    for pod in $(kubectl -n cattle-system get pods --no-headers -l status.phase=Running -l app=rancher | grep Running | cut -d ' ' -f1); do
         echo getting profile for "${pod}"
         kubectl -n cattle-system exec "${pod}" -- curl -s http://localhost:6060/debug/pprof/heap -o profile.log
         kubectl -n cattle-system cp "${pod}:profile.log" "${pod}-${1}_clusters-heap.log"
@@ -29,15 +32,13 @@ function get_monitor_node() {
 }
 
 function batch_scale() {
-    local NUM_BATCHES
-    local BATCH_SET_LIMIT
     counter=1
-    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / BATCH_NUM_NODES))
+    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / (BATCH_NUM_NODES)))
     HALF_COMPLETE=$(((NUM_BATCHES + 1)/2)) # rounded up
     while [ "${counter}" -le $NUM_BATCHES ]; do
         BATCH_SET_LIMIT=$((counter * BATCH_NUM_NODES))
         echo "Provisioning Cluster Sets: ${BATCH_SET_LIMIT}"
-        ./provision_clusters.sh ${BATCH_SET_LIMIT}
+        "${script_dir}/provision_clusters.sh" ${BATCH_SET_LIMIT}
         retVal=$?
         if [[ $retVal -eq 1 ]]; then
             echo "Errored, skipping sleep"
@@ -51,19 +52,14 @@ function batch_scale() {
     done
 }
 
-echo "BATCH_NUM_NODES: ${BATCH_NUM_NODES} TARGET_NUM_DOWNSTREAMS: ${TARGET_NUM_DOWNSTREAMS}"
-
 initial_leader=$(get_leader_node)
 initial_monitor=$(get_monitor_node)
 
 batch_scale
 
-if [[ "${counter}" -gt $NUM_BATCHES ]]; then
-    counter=$NUM_BATCHES
-fi
-
-clusters_reached=$((counter * BATCH_NUM_NODES))
+clusters_reached=$(kubectl get clusters -A --no-headers | wc -l | xargs)
 get_heap_logs "${clusters_reached}"
+
 echo "Reached: ${clusters_reached} downstream clusters"
 leader=$(get_leader_node)
 monitor=$(get_monitor_node)
@@ -71,17 +67,17 @@ monitor=$(get_monitor_node)
 if [[ ${initial_leader} == "${leader}" ]]; then
     echo "Leader node has not changed"
 else
-    echo "Leader node has changed"
+    echo "Leader node (${initial_leader}) has changed"
 fi
 
 if [[ ${initial_monitor} == "${monitor}" ]]; then
     echo "Monitor node has not changed"
 else
-    echo "Monitor node has changed"
+    echo "Monitor node (${initial_monitor}) has changed"
 fi
 
 echo "leader: $(get_leader_node)"
 echo "monitor: $(get_monitor_node)"
 
 # Get essentially as many rancher logs as will likely exist
-kubectl -n cattle-system logs -l app=rancher -c rancher --timestamps --tail=99999999 > rancher_logs.txt
+kubectl -n cattle-system logs -l status.phase=Running -l app=rancher -c rancher --timestamps --tail=99999999 > "rancher_logs-${clusters_reached}_clusters.txt"

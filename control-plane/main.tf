@@ -74,6 +74,7 @@ module "k3s" {
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
   server_instance_type        = var.rancher_instance_type
+  agent_instance_type         = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
   server_k3s_exec             = var.enable_secrets_encryption ? "--secrets-encryption ${var.server_k3s_exec}" : var.server_k3s_exec
   cattle_prometheus_metrics   = var.cattle_prometheus_metrics

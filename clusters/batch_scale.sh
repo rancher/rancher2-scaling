@@ -9,7 +9,7 @@ echo "BATCH_NUM_NODES: ${BATCH_NUM_NODES} TARGET_NUM_DOWNSTREAMS: ${TARGET_NUM_D
 export KUBECONFIG="${KUBE_CONFIG}"
 
 function get_heap_logs() {
-    for pod in $(kubectl -n cattle-system get pods --no-headers -l app=rancher | cut -d ' ' -f1); do
+    for pod in $(kubectl -n cattle-system get pods --no-headers -l status.phase=Running -l app=rancher | grep Running | cut -d ' ' -f1); do
         echo getting profile for "${pod}"
         kubectl -n cattle-system exec "${pod}" -- curl -s http://localhost:6060/debug/pprof/heap -o profile.log
         kubectl -n cattle-system cp "${pod}:profile.log" "${pod}-${1}_clusters-heap.log"
@@ -31,8 +31,6 @@ function get_monitor_node() {
 }
 
 function batch_scale() {
-    local NUM_BATCHES
-    local BATCH_SET_LIMIT
     counter=1
     NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / (BATCH_NUM_NODES * 10)))
     HALF_COMPLETE=$(((NUM_BATCHES + 1)/2)) # rounded up
@@ -58,11 +56,7 @@ initial_monitor=$(get_monitor_node)
 
 batch_scale
 
-if [[ "${counter}" -gt $NUM_BATCHES ]]; then
-    counter=$NUM_BATCHES
-fi
-
-clusters_reached=$((counter * BATCH_NUM_NODES * 10))
+clusters_reached=$(kubectl get clusters -A --no-headers | wc -l | xargs)
 get_heap_logs "${clusters_reached}"
 
 echo "Reached: ${clusters_reached} downstream clusters"
@@ -72,17 +66,17 @@ monitor=$(get_monitor_node)
 if [[ ${initial_leader} == "${leader}" ]]; then
     echo "Leader node has not changed"
 else
-    echo "Leader node has changed"
+    echo "Leader node (${initial_leader}) has changed"
 fi
 
 if [[ ${initial_monitor} == "${monitor}" ]]; then
     echo "Monitor node has not changed"
 else
-    echo "Monitor node has changed"
+    echo "Monitor node (${initial_monitor}) has changed"
 fi
 
 echo "leader: $(get_leader_node)"
 echo "monitor: $(get_monitor_node)"
 
 # Get essentially as many rancher logs as will likely exist
-kubectl -n cattle-system logs -l app=rancher -c rancher --timestamps --tail=99999999 > rancher_logs.txt
+kubectl -n cattle-system logs -l status.phase=Running -l app=rancher -c rancher --timestamps --tail=99999999 > "rancher_logs-${clusters_reached}_clusters.txt"
