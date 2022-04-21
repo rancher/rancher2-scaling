@@ -232,7 +232,7 @@ variable "install_nginx_ingress" {
   description = "Boolean that defines whether or not to install nginx-ingress"
 }
 
-varvariable "ingress_nginx_version" {
+variable "ingress_nginx_version" {
   default     = "v4.0.19"
   type        = string
   description = "Version string of ingress-nginx K8s chart to deploy"
