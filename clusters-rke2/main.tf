@@ -2,13 +2,11 @@ terraform {
   required_version = ">= 0.13"
   required_providers {
     rancher2 = {
-      source = "rancher/rancher2"
+      source  = "rancher/rancher2"
+      version = "1.21.0"
     }
     aws = {
       source = "hashicorp/aws"
-    }
-    template = {
-      source = "hashicorp/template"
     }
     random = {
       source = "hashicorp/random"
@@ -50,7 +48,7 @@ locals {
   subnet_ids_random_index  = random_id.index.dec % length(local.subnet_ids_list)
   instance_subnet_id       = local.subnet_ids_list[local.subnet_ids_random_index]
   rancher_subdomain        = split(".", split("//", "${var.rancher_api_url}")[1])[0]
-  cloud_cred_name          = "${local.rancher_subdomain}-aws-cloud-cred"
+  cloud_cred_name          = length(var.existing_cloud_cred) > 0 ? var.existing_cloud_cred : "${local.rancher_subdomain}-aws-cloud-cred"
   roles_map = { for idx, pool in var.roles_per_pool : "node-pool-${idx}" => {
     "control_plane_role" = contains(split(",", pool), "control-plane")
     "worker_role"        = contains(split(",", pool), "worker")
