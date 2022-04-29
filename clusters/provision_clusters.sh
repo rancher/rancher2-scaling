@@ -8,7 +8,7 @@ echo "checking if workspaces exist"
 # be skipped
 for cluster_instance in $(seq -f "%05g" 1 ${cluster_instances}); do
   workspace=${workspace_prefix}-${cluster_instance}
-  if [ ! -d "$PWD/terraform.tfstate.d/${workspace}" ]; 
+  if [ ! -d "$PWD/terraform.tfstate.d/${workspace}" ];
   then
     # Workspace doesn't exist yet
     echo "provisioning ${cluster_instances} sets of clusters"

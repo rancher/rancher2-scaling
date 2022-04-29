@@ -15,8 +15,10 @@ export K3S_DATASTORE_ENDPOINT='${k3s_datastore_endpoint}'
 export K3S_URL='https://${k3s_url}:6443'
 %{~ endif ~}
 
-sleep_time=$((RANDOM % 10))
+%{ if sleep_at_startup }
+sleep_time=$(((RANDOM % 10) + 5))
 sleep $sleep_time
+%{ endif ~}
 
 until (curl -sfL https://get.k3s.io |  sh -); do
   echo 'k3s did not install correctly'

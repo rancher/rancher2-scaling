@@ -15,9 +15,6 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
-    }
   }
 }
 
@@ -73,7 +70,7 @@ locals {
 }
 
 resource "null_resource" "wait_for_bootstrap" {
-  count = var.server_node_count + 1
+  count = var.server_node_count
 
   connection {
     type        = "ssh"

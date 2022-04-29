@@ -32,6 +32,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_byo_certs_bucket_path"></a> [byo\_certs\_bucket\_path](#input\_byo\_certs\_bucket\_path) | Optional: String that defines the path on the S3 Bucket where your certs are stored. NOTE: assumes certs are stored in a tarball within a folder below the top-level bucket e.g.: my-bucket/certificates/my\_certs.tar.gz. Certs should be stored within a single folder, certs nested in sub-folders will not be handled | `string` | `""` | no |
+| <a name="input_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#input\_cattle\_prometheus\_metrics) | Boolean variable that defines whether or not to enable the CATTLE\_PROMETHEUS\_METRICS env var for Rancher | `bool` | `true` | no |
 | <a name="input_certmanager_version"></a> [certmanager\_version](#input\_certmanager\_version) | Version of cert-manager to install | `string` | `"1.5.3"` | no |
 | <a name="input_client_certificate"></a> [client\_certificate](#input\_client\_certificate) | K8s cluster client certificate | `string` | `null` | no |
 | <a name="input_client_key"></a> [client\_key](#input\_client\_key) | K8s cluster client key | `string` | `null` | no |

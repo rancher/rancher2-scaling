@@ -138,3 +138,9 @@ variable "tls_key_file" {
   type        = string
   description = "Optional: String that defines the name of the TLS Key file in the specified S3 bucket's cert tarball. Required if 'byo_certs_bucket_path' is set"
 }
+
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
+}

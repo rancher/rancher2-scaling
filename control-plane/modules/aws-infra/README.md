@@ -13,7 +13,7 @@
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 3.71.0 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.1.0 |
-| <a name="provider_template"></a> [template](#provider\_template) | 2.2.0 |
+| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -92,6 +92,7 @@ No modules.
 | <a name="input_subdomain"></a> [subdomain](#input\_subdomain) | subdomain to host rancher on, instead of using `var.name` | `string` | `null` | no |
 | <a name="input_use_route53"></a> [use\_route53](#input\_use\_route53) | Configures whether to use route\_53 DNS or not | `bool` | `true` | no |
 | <a name="input_user"></a> [user](#input\_user) | n/a | `string` | n/a | yes |
+| <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of shared EBS volume allocated for the nodes | `string` | `"50"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The vpc id that Rancher should use | `string` | `null` | no |
 
 ## Outputs

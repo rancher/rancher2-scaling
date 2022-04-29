@@ -76,6 +76,7 @@ module "k3s" {
   server_instance_type        = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
   server_k3s_exec             = var.enable_secrets_encryption ? "--secrets-encryption ${var.server_k3s_exec}" : var.server_k3s_exec
+  cattle_prometheus_metrics   = var.cattle_prometheus_metrics
   create_agent_nlb            = var.install_monitoring
   agent_node_count            = var.install_monitoring ? 1 : 0
   agent_k3s_exec              = var.install_monitoring ? "--node-label monitoring=yes --node-taint monitoring=yes:NoSchedule ${var.agent_k3s_exec}" : var.agent_k3s_exec
@@ -109,7 +110,7 @@ module "aws_infra" {
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
   server_instance_type   = var.rancher_instance_type
-  server_node_count      = var.rancher_node_count
+  server_node_count      = local.install_monitoring ? (var.rancher_node_count + 1) : var.rancher_node_count
   install_docker_version = var.install_docker_version
   domain                 = local.domain
   r53_domain             = var.r53_domain
@@ -120,15 +121,16 @@ module "rke1" {
   count  = var.k8s_distribution == "rke1" ? 1 : 0
   source = "./modules/rke1"
 
-  cluster_name             = "local"
-  hostname_override_prefix = local.name
-  ssh_key_path             = var.ssh_key_path
-  install_k8s_version      = var.install_k8s_version
-  s3_instance_profile      = var.s3_instance_profile
-  nodes_ids                = module.aws_infra[0].nodes_ids
-  nodes_public_ips         = module.aws_infra[0].nodes_public_ips
-  nodes_private_ips        = module.aws_infra[0].nodes_private_ips
-  secrets_encryption       = var.enable_secrets_encryption
+  cluster_name              = "local"
+  hostname_override_prefix  = local.name
+  ssh_key_path              = var.ssh_key_path
+  install_k8s_version       = var.install_k8s_version
+  s3_instance_profile       = var.s3_instance_profile
+  dedicated_monitoring_node = var.install_monitoring ? true : false
+  nodes_ids                 = module.aws_infra[0].nodes_ids
+  nodes_public_ips          = module.aws_infra[0].nodes_public_ips
+  nodes_private_ips         = module.aws_infra[0].nodes_private_ips
+  secrets_encryption        = var.enable_secrets_encryption
 
   depends_on = [
     module.aws_infra
@@ -145,6 +147,7 @@ module "rke2" {
   domain                 = var.domain
   rke2_version           = var.install_rke2_version
   rke2_channel           = var.install_rke2_channel
+  rke2_config            = var.rke2_config
   server_node_count      = var.rancher_node_count
   server_instance_type   = var.rancher_instance_type
   vpc_id                 = data.aws_vpc.default.id
@@ -153,7 +156,6 @@ module "rke2" {
   ssh_keys               = var.ssh_keys
   ssh_key_path           = var.ssh_key_path
   user                   = data.aws_caller_identity.current.user_id
-  secrets_encryption     = var.enable_secrets_encryption
   setup_monitoring_agent = local.install_monitoring
 }
 
@@ -194,9 +196,29 @@ module "install_common" {
   rancher_node_count             = var.rancher_node_count
   byo_certs_bucket_path          = var.byo_certs_bucket_path
   private_ca_file                = var.private_ca_file
+  cattle_prometheus_metrics      = var.cattle_prometheus_metrics
 
   depends_on = [
     module.generate_kube_config
+  ]
+}
+
+resource "null_resource" "set_loglevel" {
+  count = var.rancher_loglevel != "info" ? 1 : 0
+  provisioner "local-exec" {
+    interpreter = [
+      "bash", "-c"
+    ]
+    command = <<-EOT
+    kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) -n cattle-system get pods -l app=rancher --no-headers -o custom-columns=name:.metadata.name | while read rancherpod; do kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) -n cattle-system exec $rancherpod -c rancher -- loglevel --set ${var.rancher_loglevel}; done
+    EOT
+    environment = {
+      KUBECONFIG = base64encode(file(module.generate_kube_config.kubeconfig_path))
+    }
+  }
+
+  depends_on = [
+    module.install_common
   ]
 }
 
@@ -216,7 +238,7 @@ resource "rancher2_catalog_v2" "rancher_charts_custom" {
   }
 
   depends_on = [
-    module.install_common
+    null_resource.set_loglevel
   ]
 }
 

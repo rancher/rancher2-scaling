@@ -4,6 +4,6 @@ output "cluster_data" {
 }
 
 output "kube_config" {
-  value = nonsensitive(module.aws_infra_rke2.kubeconfig_content)
+  value     = nonsensitive(module.aws_infra_rke2.kubeconfig_content)
   sensitive = false
 }

@@ -53,6 +53,7 @@ locals {
   cloud_cred_name          = "${local.rancher_subdomain}-aws-cloud-cred"
   node_template_name       = "${local.rancher_subdomain}-aws-nt"
   nt_depends_on            = var.create_node_reqs ? module.shared_node_template[0] : data.rancher2_node_template.existing_nt[0]
+  cluster_name             = "${local.rancher_subdomain}-${var.cluster_name}-${terraform.workspace}"
 }
 
 module "shared_node_template" {
@@ -61,9 +62,9 @@ module "shared_node_template" {
 
   create_node_reqs       = var.create_node_reqs
   cloud_cred_name        = local.cloud_cred_name
+  node_template_name     = local.node_template_name
   aws_access_key         = var.aws_access_key
   aws_secret_key         = var.aws_secret_key
-  node_template_name     = local.node_template_name
   install_docker_version = var.install_docker_version
   aws_ami                = data.aws_ami.ubuntu.id
   instance_type          = var.server_instance_type
@@ -83,11 +84,11 @@ resource "null_resource" "nt_dependency" {
   ]
 }
 
-resource "rancher2_node_pool" "aws_np" {
+resource "rancher2_node_pool" "np" {
   count            = var.node_pool_count
   cluster_id       = rancher2_cluster.rke1.id
-  name             = "${local.rancher_subdomain}-${terraform.workspace}-aws-np${count.index}"
-  hostname_prefix  = "${local.rancher_subdomain}-${terraform.workspace}-pool${count.index}-node"
+  name             = "${local.cluster_name}-np${count.index}"
+  hostname_prefix  = "${local.cluster_name}-pool${count.index}-node"
   node_template_id = local.nt_depends_on.id
   quantity         = var.nodes_per_pool
   control_plane    = true
@@ -96,8 +97,8 @@ resource "rancher2_node_pool" "aws_np" {
 }
 
 resource "rancher2_cluster" "rke1" {
-  name        = "${local.rancher_subdomain}-${var.cluster_name}-${terraform.workspace}"
-  description = "TF AWS nodedriver cluster ${local.rancher_subdomain}-${terraform.workspace}"
+  name        = local.cluster_name
+  description = "TF AWS nodedriver cluster ${local.cluster_name}"
   labels      = var.cluster_labels
 
   rke_config {

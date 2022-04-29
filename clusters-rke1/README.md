@@ -54,7 +54,7 @@ To cleanup, there is a `destroy_clusters.sh`, this script will perform a `terraf
 |------|------|
 | [null_resource.nt_dependency](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [rancher2_cluster.rke1](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster) | resource |
-| [rancher2_node_pool.aws_np](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/node_pool) | resource |
+| [rancher2_node_pool.np](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/node_pool) | resource |
 | [random_id.index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [aws_ami.ubuntu](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_availability_zone.selected_az](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zone) | data source |
@@ -74,7 +74,7 @@ To cleanup, there is a `destroy_clusters.sh`, this script will perform a `terraf
 | <a name="input_cluster_labels"></a> [cluster\_labels](#input\_cluster\_labels) | Labels to add to each provisioned cluster | `map(any)` | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Unique identifier appended to the Rancher url subdomain | `string` | `"load-testing"` | no |
 | <a name="input_create_node_reqs"></a> [create\_node\_reqs](#input\_create\_node\_reqs) | Flag defining if a cloud credential & node template should be created on tf apply. Useful for scripting purposes | `bool` | `true` | no |
-| <a name="input_existing_node_template"></a> [existing\_node\_template](#input\_existing\_node\_template) | (Optional) Name of an existing node template to use. Only use this if create\_node\_reqs is false. | `string` | `null` | no |
+| <a name="input_existing_node_template"></a> [existing\_node\_template](#input\_existing\_node\_template) | (Optional) Name of an existing node template to use. Only use this if create\_node\_reqs is false. | `string` | `""` | no |
 | <a name="input_iam_instance_profile"></a> [iam\_instance\_profile](#input\_iam\_instance\_profile) | n/a | `string` | `null` | no |
 | <a name="input_insecure_flag"></a> [insecure\_flag](#input\_insecure\_flag) | Flag used to determine if Rancher is using self-signed invalid certs (using a private CA) | `bool` | `false` | no |
 | <a name="input_install_docker_version"></a> [install\_docker\_version](#input\_install\_docker\_version) | The version of docker to install. Available docker versions can be found at: https://github.com/rancher/install-docker | `string` | `"20.10"` | no |
