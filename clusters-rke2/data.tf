@@ -56,5 +56,5 @@ data "aws_iam_instance_profile" "rancher_iam_full_access" {
 }
 
 data "rancher2_cloud_credential" "existing_cred" {
-  name = var.create_credential ? rancher2_cloud_credential.shared_cred[0].name : var.existing_cloud_cred
+  name = var.create_credential ? rancher2_cloud_credential.shared_cred[0].name : local.cloud_cred_name
 }

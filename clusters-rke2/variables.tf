@@ -58,7 +58,7 @@ variable "security_groups" {
 
 variable "server_instance_type" {
   type        = string
-  description = "Instance type to use for rke1 server"
+  description = "Instance type to use for rke2 server"
 }
 
 variable "volume_size" {
