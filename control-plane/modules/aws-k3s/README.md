@@ -14,10 +14,10 @@ This module supports creating a k3s cluster with a postgres backend in AWS. It a
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
+| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
 | <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
-| <a name="provider_template"></a> [template](#provider\_template) | n/a |
 
 ## Modules
 
@@ -65,9 +65,9 @@ No modules.
 | [aws_route53_zone.dns_zone](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
 | [aws_subnets.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
+| [cloudinit_config.k3s_agent](https://registry.terraform.io/providers/hashicorp/cloudinit/latest/docs/data-sources/config) | data source |
+| [cloudinit_config.k3s_server](https://registry.terraform.io/providers/hashicorp/cloudinit/latest/docs/data-sources/config) | data source |
 | [rancher2_cluster.local](https://registry.terraform.io/providers/rancher/rancher2/latest/docs/data-sources/cluster) | data source |
-| [template_cloudinit_config.k3s_agent](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
-| [template_cloudinit_config.k3s_server](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
 
 ## Inputs
 
@@ -95,6 +95,7 @@ No modules.
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | `""` | no |
 | <a name="input_extra_agent_security_groups"></a> [extra\_agent\_security\_groups](#input\_extra\_agent\_security\_groups) | Additional security groups to attach to k3s agent instances | `list(any)` | `[]` | no |
 | <a name="input_extra_server_security_groups"></a> [extra\_server\_security\_groups](#input\_extra\_server\_security\_groups) | Additional security groups to attach to k3s server instances | `list(any)` | `[]` | no |
+| <a name="input_ingress_nginx_version"></a> [ingress\_nginx\_version](#input\_ingress\_nginx\_version) | Version string of ingress-nginx K8s chart to deploy | `string` | `"v4.0.19"` | no |
 | <a name="input_install_certmanager"></a> [install\_certmanager](#input\_install\_certmanager) | Boolean that defines whether or not to install Cert-Manager | `bool` | `true` | no |
 | <a name="input_install_k3s_version"></a> [install\_k3s\_version](#input\_install\_k3s\_version) | Version of K3S to install | `string` | `"1.0.0"` | no |
 | <a name="input_install_nginx_ingress"></a> [install\_nginx\_ingress](#input\_install\_nginx\_ingress) | Boolean that defines whether or not to install nginx-ingress | `bool` | `true` | no |

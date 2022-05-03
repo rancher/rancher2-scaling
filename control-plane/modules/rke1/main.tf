@@ -22,9 +22,9 @@ locals {
   rancher_reserved_node_ids   = slice(local.node_ids, 0, local.server_node_count)
   rancher_node_public_ips     = slice(local.node_public_ips, 0, local.server_node_count)
   rancher_node_private_ips    = slice(local.node_private_ips, 0, local.server_node_count)
-  monitoring_reserved_node_id = var.nodes_ids[local.server_node_count]
-  monitoring_node_public_ip   = var.nodes_public_ips[local.server_node_count]
-  monitoring_node_private_ip  = var.nodes_private_ips[local.server_node_count]
+  monitoring_reserved_node_id = var.dedicated_monitoring_node ? var.nodes_ids[local.server_node_count] : null
+  monitoring_node_public_ip   = var.dedicated_monitoring_node ? var.nodes_public_ips[local.server_node_count] : null
+  monitoring_node_private_ip  = var.dedicated_monitoring_node ? var.nodes_private_ips[local.server_node_count] : null
   allowed_etcd_nodes          = [1, 3, 5]
 }
 

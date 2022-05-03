@@ -178,7 +178,7 @@ resource "aws_launch_template" "rke1_server" {
   name_prefix   = local.name
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
-  user_data     = data.template_cloudinit_config.rke1_server.rendered
+  user_data     = data.cloudinit_config.rke1_server.rendered
 
   iam_instance_profile {
     arn = length(local.s3_instance_profile) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null

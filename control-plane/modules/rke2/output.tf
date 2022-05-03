@@ -7,3 +7,7 @@ output "kube_config" {
   value     = nonsensitive(module.aws_infra_rke2.kubeconfig_content)
   sensitive = false
 }
+
+output "templatefile_strings" {
+  value = module.aws_infra_rke2.templatefile_string
+}

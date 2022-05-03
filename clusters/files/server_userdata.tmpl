@@ -58,6 +58,9 @@ runcmd:
 - mkdir -p /home/ubuntu/.k3d/
 %{ for cluster_instance in range(cluster_count) ~}
 - k3d cluster create "k3s-cluster-${cluster_instance}" --api-port "${cluster_instance + 30000}" --image "rancher/k3s:${install_k3s_image}"
+# TODO: Create a conditional switch based on k3s version to use this workaround in the case that k3s version <= 1.20.6
+# uncomment the following line if using k3s <= 1.20.6:
+# - k3d cluster create --k3s-arg "--kube-proxy-arg=conntrack-max-per-core=0@server:*" --k3s-arg "--kube-proxy-arg=conntrack-max-per-core=0@agent:*" "k3s-cluster-${cluster_instance}" --api-port "${cluster_instance + 30000}" --image "rancher/k3s:${install_k3s_image}"
 - k3svalidation.sh k3s-cluster-${cluster_instance}
 - ${registration_commands[cluster_instance]} --kubeconfig "/home/ubuntu/.k3d/kubeconfig-k3s-cluster-${cluster_instance}.yml"
 %{ endfor ~}
