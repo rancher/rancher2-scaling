@@ -94,10 +94,11 @@ data "aws_iam_instance_profile" "rancher_s3_access" {
 }
 
 resource "aws_launch_template" "k3s_server" {
-  name          = "${local.name}-server"
+  count         = local.server_node_count > 1 ? 2 : 1
+  name          = count.index == 0 ? "${local.name}-leader" : "${local.name}-server"
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
-  user_data     = data.template_cloudinit_config.k3s_server.rendered
+  user_data     = count.index == 0 ? data.cloudinit_config.k3s_server[0].rendered : data.cloudinit_config.k3s_server[1].rendered
 
   iam_instance_profile {
     arn = length(var.byo_certs_bucket_path) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null
@@ -115,7 +116,7 @@ resource "aws_launch_template" "k3s_server" {
 
   network_interfaces {
     delete_on_termination = true
-    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id, var.db_security_group], var.extra_server_security_groups)
+    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id, var.db_security_group], local.rancher_sg, var.extra_server_security_groups)
   }
 
   lifecycle {
@@ -128,7 +129,7 @@ resource "aws_launch_template" "k3s_agent" {
   name          = "${local.name}-agent"
   image_id      = local.agent_image_id
   instance_type = local.agent_instance_type
-  user_data     = data.template_cloudinit_config.k3s_agent[0].rendered
+  user_data     = data.cloudinit_config.k3s_agent[0].rendered
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -142,7 +143,7 @@ resource "aws_launch_template" "k3s_agent" {
 
   network_interfaces {
     delete_on_termination = true
-    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id], var.extra_agent_security_groups)
+    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id], local.rancher_sg, var.extra_server_security_groups)
   }
 
   tags = {
@@ -156,11 +157,11 @@ resource "aws_launch_template" "k3s_agent" {
   }
 }
 
-resource "aws_autoscaling_group" "k3s_server" {
-  name                = "${local.name}-server"
-  desired_capacity    = local.server_node_count
-  max_size            = local.server_node_count
-  min_size            = local.server_node_count
+resource "aws_autoscaling_group" "k3s_leader" {
+  name                = "${local.name}-leader"
+  desired_capacity    = 1
+  max_size            = 1
+  min_size            = 1
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [
@@ -170,8 +171,43 @@ resource "aws_autoscaling_group" "k3s_server" {
   ]
 
   launch_template {
-    id      = aws_launch_template.k3s_server.id
-    version = aws_launch_template.k3s_server.latest_version
+    id      = aws_launch_template.k3s_server[0].id
+    version = aws_launch_template.k3s_server[0].latest_version
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  dynamic "tag" {
+    for_each = merge({
+      "Name" = "${local.name}-leader-nodepool"
+    }, local.tags)
+
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
+  }
+}
+
+resource "aws_autoscaling_group" "k3s_server" {
+  name                = "${local.name}-server"
+  desired_capacity    = local.server_node_count - 1
+  max_size            = local.server_node_count - 1
+  min_size            = local.server_node_count - 1
+  vpc_zone_identifier = local.private_subnets
+
+  target_group_arns = [
+    aws_lb_target_group.server-6443.arn,
+    aws_lb_target_group.server-80.arn,
+    aws_lb_target_group.server-443.arn
+  ]
+
+  launch_template {
+    id      = aws_launch_template.k3s_server[1].id
+    version = aws_launch_template.k3s_server[1].latest_version
   }
 
   lifecycle {
@@ -190,6 +226,9 @@ resource "aws_autoscaling_group" "k3s_server" {
     }
   }
 
+  depends_on = [
+    aws_autoscaling_group.k3s_leader
+  ]
 }
 
 resource "aws_autoscaling_group" "k3s_agent" {
@@ -243,11 +282,13 @@ resource "aws_route53_record" "rancher" {
   records = [aws_lb.server-public-lb.dns_name]
 }
 
-resource "aws_route53_record" "k3s" {
-  count   = local.use_route53
-  zone_id = data.aws_route53_zone.dns_zone[0].zone_id
-  name    = "${local.subdomain}-int.${local.domain}"
-  type    = "CNAME"
-  ttl     = 30
-  records = [aws_lb.server_lb.dns_name]
-}
+### commenting this out since we currently have no practical need to rely on multiple
+### private + public LBs for cluster access
+# resource "aws_route53_record" "k3s" {
+#   count   = local.use_route53
+#   zone_id = data.aws_route53_zone.dns_zone[0].zone_id
+#   name    = "${local.subdomain}-int.${local.domain}"
+#   type    = "CNAME"
+#   ttl     = 30
+#   records = [aws_lb.server_lb.dns_name]
+# }

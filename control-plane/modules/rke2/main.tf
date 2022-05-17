@@ -9,8 +9,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
+    cloudinit = {
+      source = "hashicorp/cloudinit"
     }
   }
 }
@@ -20,14 +20,14 @@ locals {
   tags = {
     "Owner"       = "${var.user}",
     "DoNotDelete" = "true",
-    "managed-by" = "Terraform",
-    "Identifier" = "${var.name}",
+    "managed-by"  = "Terraform",
+    "Identifier"  = "${var.name}",
   }
 }
 
 ## Provision LB, and Auto Scaling Groups of server nodes
 module "aws_infra_rke2" {
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//?ref=replace-template-provider"
 
   cluster_name             = var.name
   fqdn                     = aws_route53_record.public.fqdn
@@ -45,9 +45,7 @@ module "aws_infra_rke2" {
   ssh_authorized_keys      = var.ssh_keys
   rke2_version             = var.rke2_version
   rke2_channel             = var.rke2_channel
-  rke2_config              = <<-EOT
-    secrets-encryption: "${var.secrets_encryption}"
-    EOT
+  rke2_config              = var.rke2_config
   post_userdata            = <<-EOT
     cat <<-EOF > /var/lib/rancher/rke2/server/manifests/rke2-ingress-nginx.yaml
     apiVersion: helm.cattle.io/v1
@@ -68,7 +66,7 @@ module "aws_infra_rke2" {
 ## Provision Auto Scaling Group of agent to auto-join cluster with taints and labels for monitoring only
 module "rke2_monitor_pool" {
   count  = var.setup_monitoring_agent ? 1 : 0
-  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=refactor-nodepool-setup"
+  source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=replace-template-provider"
 
   name                     = "monitoring"
   vpc_id                   = var.vpc_id
@@ -84,7 +82,6 @@ module "rke2_monitor_pool" {
   rke2_version             = var.rke2_version # https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script
   rke2_channel             = var.rke2_channel
   rke2_config              = <<-EOT
-    secrets-encryption: "${var.secrets_encryption}"
     node-taint: monitoring=yes:NoSchedule
     node-label: monitoring=yes
     EOT
@@ -98,10 +95,10 @@ module "rke2_monitor_pool" {
 }
 
 resource "null_resource" "wait_for_monitor_to_register" {
-  count  = var.setup_monitoring_agent ? 1 : 0
+  count = var.setup_monitoring_agent ? 1 : 0
   provisioner "local-exec" {
     command = <<-EOT
-    timeout --preserve-status 3m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
+    timeout --preserve-status 5m bash -c -- 'until [ "$${nodes}" = "${var.server_node_count + 1}" ]; do
         sleep 5
         nodes="$(kubectl --kubeconfig <(echo $KUBECONFIG | base64 --decode) get nodes --no-headers | wc -l | awk '\''{$1=$1;print}'\'')"
         echo "rke2 nodes: $${nodes}"

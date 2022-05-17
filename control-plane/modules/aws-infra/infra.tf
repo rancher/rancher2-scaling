@@ -178,7 +178,7 @@ resource "aws_launch_template" "rke1_server" {
   name_prefix   = local.name
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
-  user_data     = data.template_cloudinit_config.rke1_server.rendered
+  user_data     = data.cloudinit_config.rke1_server.rendered
 
   iam_instance_profile {
     arn = length(local.s3_instance_profile) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null
@@ -190,7 +190,7 @@ resource "aws_launch_template" "rke1_server" {
     ebs {
       encrypted   = true
       volume_type = "gp2"
-      volume_size = "50"
+      volume_size = var.volume_size
     }
   }
 
@@ -206,9 +206,9 @@ resource "aws_launch_template" "rke1_server" {
 
 resource "aws_autoscaling_group" "rke1_server" {
   name_prefix         = local.name
-  desired_capacity    = local.server_node_count + 1
-  max_size            = local.server_node_count + 1
-  min_size            = local.server_node_count + 1
+  desired_capacity    = local.server_node_count
+  max_size            = local.server_node_count
+  min_size            = local.server_node_count
   vpc_zone_identifier = local.private_subnets
 
   target_group_arns = [

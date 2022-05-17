@@ -52,7 +52,7 @@ spec:
 %{ endif ~}
     extraEnv:
     - name: CATTLE_PROMETHEUS_METRICS
-      value: 'true'
+      value: '${cattle_prometheus_metrics}'
 EOF
 %{ endif }
 

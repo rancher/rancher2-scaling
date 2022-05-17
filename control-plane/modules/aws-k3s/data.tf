@@ -40,7 +40,8 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-data "template_cloudinit_config" "k3s_server" {
+data "cloudinit_config" "k3s_server" {
+  count         = local.server_node_count > 1 ? 2 : 1
   gzip          = false
   base64_encode = true
 
@@ -58,11 +59,12 @@ data "template_cloudinit_config" "k3s_server" {
     filename     = "00_k3s-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/k3s-install.sh", {
+      sleep_at_startup       = count.index == 0 ? false : true # when count = 0 this config will be used as the leader node's userdata so we should not sleep
       install_k3s_version    = local.install_k3s_version,
       k3s_exec               = local.server_k3s_exec,
       k3s_cluster_secret     = local.k3s_cluster_secret,
       is_k3s_server          = true,
-      k3s_url                = aws_route53_record.k3s[0].fqdn,
+      k3s_url                = aws_route53_record.rancher[0].fqdn,
       use_custom_datastore   = (length(local.k3s_datastore_endpoint) > 0 && length(local.k3s_datastore_cafile) > 0) ? true : false,
       k3s_datastore_endpoint = local.k3s_datastore_endpoint,
       k3s_datastore_cafile   = local.k3s_datastore_cafile,
@@ -77,7 +79,8 @@ data "template_cloudinit_config" "k3s_server" {
     filename     = "99_ingress-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/ingress-install.sh", {
-      install_nginx_ingress = local.install_nginx_ingress
+      install_nginx_ingress = local.install_nginx_ingress,
+      ingress_nginx_version = var.ingress_nginx_version
       }
     )
   }
@@ -93,6 +96,7 @@ data "template_cloudinit_config" "k3s_server" {
       install_monitoring         = var.create_agent_nlb,
       use_new_monitoring_crd_url = local.use_new_monitoring_crd_url,
       monitoring_version         = var.monitoring_version,
+      cattle_prometheus_metrics  = var.cattle_prometheus_metrics,
       rancher_chart_tag          = local.rancher_chart_tag,
       rancher_version            = local.rancher_version,
       rancher_password           = local.rancher_password,
@@ -125,7 +129,7 @@ data "template_cloudinit_config" "k3s_server" {
   }
 }
 
-data "template_cloudinit_config" "k3s_agent" {
+data "cloudinit_config" "k3s_agent" {
   count         = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
   gzip          = false
   base64_encode = true
@@ -144,11 +148,12 @@ data "template_cloudinit_config" "k3s_agent" {
     filename     = "20_k3s-install.sh"
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/files/k3s-install.sh", {
+      sleep_at_startup       = true
       install_k3s_version    = local.install_k3s_version,
       k3s_exec               = local.agent_k3s_exec,
       k3s_cluster_secret     = local.k3s_cluster_secret,
       is_k3s_server          = false,
-      k3s_url                = aws_route53_record.k3s[0].fqdn,
+      k3s_url                = aws_route53_record.rancher[0].fqdn,
       use_custom_datastore   = (length(local.k3s_datastore_endpoint) > 0 && length(local.k3s_datastore_cafile) > 0) ? true : false,
       k3s_datastore_endpoint = local.k3s_datastore_endpoint,
       k3s_datastore_cafile   = local.k3s_datastore_cafile,

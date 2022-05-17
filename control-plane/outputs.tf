@@ -129,14 +129,22 @@ output "kube_config_path" {
   value = abspath(module.generate_kube_config.kubeconfig_path)
 }
 
-# output "cluster_yaml" {
-#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
-# }
+output "cluster_yaml" {
+  value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].cluster_yaml) : null
+}
 
 output "secrets_encryption" {
   value = var.enable_secrets_encryption
 }
 
-output "use_new_monitoring_crd_url" {
-  value = var.k8s_distribution == "k3s" && var.install_monitoring ? module.k3s[0].use_new_monitoring_crd_url : null
+output "cattle_prometheus_metrics" {
+  value = var.cattle_prometheus_metrics
 }
+=======
+output "cattle_prometheus_metrics" {
+  value = var.cattle_prometheus_metrics
+}
+
+# output "templatefile_strings" {
+#   value = module.rke2[0].templatefile_string
+# }

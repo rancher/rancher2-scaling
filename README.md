@@ -7,3 +7,7 @@ Python for scaling tests
 Control-plane for getting Rancher running
 Clusters for scaling Rancher with many clusters
 Cluster-with-nodes for scaling Rancher with many nodes per cluster
+
+## Prerequisites
+- [Terraform](https://www.terraform.io/)
+- [Kubectl](https://www.terraform.io/)

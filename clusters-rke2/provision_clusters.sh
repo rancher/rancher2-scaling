@@ -13,7 +13,13 @@ for cluster_instance in $(seq -f "%05g" 1 ${cluster_instances}); do
     # Workspace doesn't exist yet
     echo "provisioning ${cluster_instances} sets of clusters"
     terraform workspace new "${workspace}" || terraform workspace select "${workspace}"
-    terraform apply -auto-approve
+    # only create cloud credential and node_template if they have not already been created (if first tf apply is successful then skip creation)
+    if [ ! ${cluster_instance} = "00001" ] && terraform workspace list | grep -q "${workspace_prefix}-00001";
+    then
+      terraform apply -auto-approve -var "create_credential=false"
+    else
+      terraform apply -auto-approve
+    fi
   elif [ "${cluster_instance}" -eq "${cluster_instances}" ]
   then
     echo "${workspace} already exists!"

@@ -12,8 +12,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
-    template = {
-      source = "hashicorp/template"
+    cloudinit = {
+      source = "hashicorp/cloudinit"
     }
   }
 }
@@ -41,7 +41,7 @@ locals {
   k3s_datastore_cafile        = var.k3s_datastore_cafile
   k3s_datastore_endpoint      = var.k3s_datastore_endpoint != "sqlite" ? "mysql://${local.db_user}:${local.db_pass}@tcp(${var.k3s_datastore_endpoint})/${var.db_name}" : ""
   k3s_disable_agent           = var.k3s_disable_agent ? "--disable-agent" : ""
-  k3s_tls_san                 = var.k3s_tls_san != null ? var.k3s_tls_san : "--tls-san ${aws_route53_record.k3s[0].fqdn}"
+  k3s_tls_san                 = var.k3s_tls_san != null ? var.k3s_tls_san : "--tls-san ${aws_route53_record.rancher[0].fqdn}"
   k3s_deploy_traefik          = var.k3s_deploy_traefik ? "" : "--disable=traefik"
   server_k3s_exec             = var.server_k3s_exec
   agent_k3s_exec              = var.agent_k3s_exec
@@ -51,6 +51,7 @@ locals {
   rancher_image_tag           = var.rancher_image_tag
   rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
+  rancher_sg                  = var.install_rancher ? [aws_security_group.ingress_egress[0].id, aws_security_group.rancher[0].id] : []
   use_new_monitoring_crd_url  = length(regexall("2.6", local.rancher_chart_tag)) > 0 ? true : false
   letsencrypt_email           = var.letsencrypt_email
   byo_certs_bucket_path       = var.byo_certs_bucket_path

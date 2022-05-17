@@ -232,6 +232,12 @@ variable "install_nginx_ingress" {
   description = "Boolean that defines whether or not to install nginx-ingress"
 }
 
+variable "ingress_nginx_version" {
+  default     = "v4.0.19"
+  type        = string
+  description = "Version string of ingress-nginx K8s chart to deploy"
+}
+
 variable "install_certmanager" {
   default     = true
   type        = bool
@@ -325,6 +331,12 @@ variable "server_k3s_exec" {
   default     = null
   type        = string
   description = "exec args to pass to k3s server"
+}
+
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
 }
 
 variable "use_route53" {

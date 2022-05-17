@@ -6,7 +6,7 @@ variable "install_docker_version" {
 
 variable "install_k8s_version" {
   type        = string
-  default     = null
+  default     = ""
   description = "Version of K8s to install"
 }
 
@@ -19,6 +19,18 @@ variable "install_rancher" {
 variable "rancher_version" {
   type        = string
   description = "Version of Rancher to install - Do not include the v prefix."
+}
+
+variable "rancher_loglevel" {
+  type        = string
+  description = "A string specifying the loglevel to set on the rancher pods. One of: info, debug or trace. https://rancher.com/docs/rancher/v2.x/en/troubleshooting/logging/"
+  default     = "info"
+}
+
+variable "cattle_prometheus_metrics" {
+  default     = true
+  type        = bool
+  description = "Boolean variable that defines whether or not to enable the CATTLE_PROMETHEUS_METRICS env var for Rancher"
 }
 
 variable "install_monitoring" {
@@ -213,6 +225,12 @@ variable "install_rke2_version" {
   default     = ""
   type        = string
   description = "Version of RKE2 to install (defaults to latest version on the specified channel: https://docs.rke2.io/install/install_options/install_options/#configuring-the-linux-installation-script)"
+}
+
+variable "rke2_config" {
+  type        = string
+  default     = ""
+  description = "(Optional) A formatted string that will be appended to the final rke2 config yaml"
 }
 
 variable "rancher_password" {
