@@ -1,15 +1,3 @@
-/*
-output "db_instance_address" {
-  description = "The address of the RDS instance"
-  value       = var.k8s_distribution == "k3s" ? module.db[0].this_db_instance_address : null
-}
-
-output "db_instance_arn" {
-  description = "The ARN of the RDS instance"
-  value       = var.k8s_distribution == "k3s" ? module.db[0].this_db_instance_arn : null
-}
-*/
-
 output "db_instance_availability_zone" {
   description = "The availability zone of the RDS instance"
   value       = var.k8s_distribution == "k3s" ? module.db[0].db_instance_availability_zone : null
@@ -23,13 +11,6 @@ output "db_instance_endpoint" {
 output "db_password" {
   value = var.k8s_distribution == "k3s" ? nonsensitive(module.k3s[0].db_pass) : null
 }
-
-/*
-output "db_instance_id" {
-  description = "The RDS instance ID"
-  value       = var.k8s_distribution == "k3s" ? module.db[0].this_db_instance_id : null
-}
-*/
 
 output "k8s_distribtion" {
   value = var.k8s_distribution
@@ -116,15 +97,6 @@ output "use_new_bootstrap" {
   value = local.use_new_bootstrap
 }
 
-# output "cluster_data" {
-#   description = "Map of cluster data required by agent pools for joining cluster, do not modify this"
-#   value       = var.k8s_distribution == "rke2" ? module.rke2[0].cluster_data : null
-# }
-
-# output "rke_state" {
-#   value = var.k8s_distribution == "rke1" ? nonsensitive(module.rke1[0].rke_state) : null
-# }
-
 output "kube_config_path" {
   value = abspath(module.generate_kube_config.kubeconfig_path)
 }
@@ -140,11 +112,3 @@ output "secrets_encryption" {
 output "cattle_prometheus_metrics" {
   value = var.cattle_prometheus_metrics
 }
-=======
-output "cattle_prometheus_metrics" {
-  value = var.cattle_prometheus_metrics
-}
-
-# output "templatefile_strings" {
-#   value = module.rke2[0].templatefile_string
-# }
