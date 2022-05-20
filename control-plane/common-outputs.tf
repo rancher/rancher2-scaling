@@ -62,8 +62,6 @@ output "kube_config_path" {
   value = abspath(module.generate_kube_config.kubeconfig_path)
 }
 
-
-
 output "secrets_encryption" {
   value = var.enable_secrets_encryption
 }

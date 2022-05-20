@@ -41,7 +41,6 @@ provider "registry.terraform.io/rancher/rancher2" {
   version = "1.21.0"
   hashes = [
     "h1:8VYSDYxLlXm2Do3sPVwlk6NCErwbmsH0FykHDh4Uji8=",
-    "h1:UXiklYAaOCVS4GdN+jYcejSbLEJNEymoTxVICqnVVt0=",
     "zh:16585b284e9d4c77f7ddad5564e318f2f66e43c8dd740d707b038d1377c3e27d",
     "zh:222792b01bdccd1fc269b6c935557b0d6855fa73afbe622187fdd55e0ca287f0",
     "zh:437f84836aa2aaf023f6615c526582963ebdfcfe8e1e9076eec6bca73b0d26ee",
