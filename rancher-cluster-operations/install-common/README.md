@@ -1,5 +1,7 @@
 # install-common
 
+This component module can be used to install cert-manager and/or Rancher.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
@@ -9,9 +11,9 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.5.1 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.23.0 |
 
 ## Modules
 
@@ -63,4 +65,5 @@ No modules.
 |------|-------------|
 | <a name="output_rancher_token"></a> [rancher\_token](#output\_rancher\_token) | n/a |
 | <a name="output_rancher_url"></a> [rancher\_url](#output\_rancher\_url) | n/a |
+| <a name="output_use_new_bootstrap"></a> [use\_new\_bootstrap](#output\_use\_new\_bootstrap) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

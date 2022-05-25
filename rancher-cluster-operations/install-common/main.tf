@@ -21,6 +21,7 @@ resource "helm_release" "cert_manager" {
   namespace        = "cert-manager"
   create_namespace = true
   wait_for_jobs    = true
+  timeout          = 600
   set {
     name  = "installCRDs"
     value = "true"
@@ -70,6 +71,7 @@ resource "helm_release" "rancher" {
       install_certmanager       = var.install_certmanager
       install_byo_certs         = length(var.byo_certs_bucket_path) > 0 ? true : false
       private_ca                = length(var.private_ca_file) > 0 ? true : false
+      private_ca_file           = var.private_ca_file
       cattle_prometheus_metrics = var.cattle_prometheus_metrics
       }
     )
