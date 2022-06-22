@@ -16,7 +16,7 @@ jmespath==0.9.4
 kubernetes==10.0.1
 mccabe==0.6.1
 more-itertools==8.0.2
-numpy==1.17.4
+numpy==1.22.0
 oauthlib==3.1.0
 packaging==19.2
 pandas==0.25.3
