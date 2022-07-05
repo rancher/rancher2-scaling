@@ -175,7 +175,7 @@ module "generate_kube_config" {
 
 module "install_common" {
   count  = local.install_common ? 1 : 0
-  source = "./modules/install-common"
+  source = "../rancher-cluster-operations/install-common"
   providers = {
     rancher2 = rancher2.bootstrap
   }
@@ -186,12 +186,13 @@ module "install_common" {
   domain              = local.domain
   install_certmanager = var.install_certmanager
   install_rancher     = var.install_rancher
+  rancher_version     = var.rancher_version
+  certmanager_version = var.certmanager_version
 
   helm_rancher_chart_values_path = "${path.module}/files/values/rancher_chart_values.tftpl"
   letsencrypt_email              = var.letsencrypt_email
   rancher_image                  = var.rancher_image
   rancher_image_tag              = var.rancher_image_tag
-  rancher_version                = var.rancher_version
   rancher_password               = var.rancher_password
   use_new_bootstrap              = local.use_new_bootstrap
   rancher_node_count             = var.rancher_node_count
@@ -205,7 +206,7 @@ module "install_common" {
 }
 
 resource "null_resource" "set_loglevel" {
-  count = var.rancher_loglevel != "info" ? 1 : 0
+  count = var.install_rancher && var.rancher_loglevel != "info" ? 1 : 0
   provisioner "local-exec" {
     interpreter = [
       "bash", "-c"

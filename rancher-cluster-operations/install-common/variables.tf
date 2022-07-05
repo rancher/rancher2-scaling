@@ -10,24 +10,6 @@ variable "cluster_host_url" {
   description = "K8s cluster api server url"
 }
 
-variable "client_certificate" {
-  default     = null
-  type        = string
-  description = "K8s cluster client certificate"
-}
-
-variable "client_key" {
-  default     = null
-  type        = string
-  description = "K8s cluster client key"
-}
-
-variable "cluster_ca_certificate" {
-  default     = null
-  type        = string
-  description = "K8s cluster CA certificate"
-}
-
 variable "install_certmanager" {
   default     = true
   type        = bool
@@ -41,38 +23,38 @@ variable "install_rancher" {
 }
 
 variable "helm_rancher_repo" {
-  type        = string
   default     = "https://releases.rancher.com/server-charts/latest"
+  type        = string
   description = "The repo URL to use for Rancher Server charts"
 }
 
 variable "helm_rancher_chart_values_path" {
-  type        = string
   default     = null
+  type        = string
   description = "Local path to the templated values.yaml to be used for the Rancher Server Helm install"
 
 }
 
 variable "letsencrypt_email" {
+  default     = null
   type        = string
-  default     = "none@none.com"
   description = "LetsEncrypt email address to use"
 }
 
 variable "rancher_image" {
-  type    = string
   default = "rancher/rancher"
+  type    = string
 }
 
 variable "rancher_image_tag" {
+  default     = null
   type        = string
-  default     = "release/v2.6"
   description = "Rancher image tag to install, this can differ from rancher_version which is the chart being used to install Rancher"
 }
 
 variable "rancher_node_count" {
-  type    = number
   default = 1
+  type    = number
 }
 
 variable "subdomain" {
@@ -82,19 +64,19 @@ variable "subdomain" {
 }
 
 variable "domain" {
-  type    = string
   default = null
+  type    = string
 }
 
 variable "rancher_password" {
-  type        = string
   default     = ""
+  type        = string
   description = "Password to set for admin user during bootstrap of Rancher Server, if not set random password will be generated"
 }
 
 variable "use_new_bootstrap" {
-  type        = bool
   default     = true
+  type        = bool
   description = "Boolean that defines whether or not utilize the new bootstrap password process used in 2.6.x"
 }
 
@@ -104,8 +86,8 @@ variable "rancher_version" {
 }
 
 variable "certmanager_version" {
+  default     = "1.8.1"
   type        = string
-  default     = "1.5.3"
   description = "Version of cert-manager to install"
 }
 
