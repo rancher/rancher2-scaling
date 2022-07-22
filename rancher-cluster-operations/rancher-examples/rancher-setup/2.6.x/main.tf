@@ -23,7 +23,7 @@ module "install_common" {
   cattle_prometheus_metrics      = true
 }
 
-data "rancher2_cluster_v2" "local" {
+data "rancher2_cluster" "local" {
   provider = rancher2.admin
 
   name = "local"
@@ -47,7 +47,7 @@ module "rancher_monitoring" {
   charts_branch = "release-v2.6"
   chart_version = "100.1.3+up19.0.3"
   values        = "../../../charts/files/rancher_monitoring_chart_values.yaml"
-  cluster_id    = data.rancher2_cluster_v2.local.cluster_v1_id
+  cluster_id    = data.rancher2_cluster.local.id
   project_id    = null
 }
 
@@ -63,7 +63,7 @@ module "secret_v2" {
   type        = "Opaque"
   annotations = { example = "annotation" }
   labels      = { example = "label" }
-  cluster_id  = data.rancher2_cluster_v2.local.cluster_v1_id
+  cluster_id  = data.rancher2_cluster.local.id
   name        = "tf-example-secretv2"
   namespace   = "default"
   data        = { example = "my data value" }

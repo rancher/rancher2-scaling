@@ -10,8 +10,11 @@ data "aws_vpc" "default" {
   default = true
 }
 
-data "aws_subnet_ids" "available" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "available" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
   filter {
     name   = "availability-zone-id"
     values = ["${data.aws_availability_zone.selected_az.zone_id}"]
@@ -24,7 +27,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu-minimal/images/*/ubuntu-bionic-18.04-*"]
+    values = ["${var.image}"]
   }
 
   filter {
@@ -41,13 +44,4 @@ data "aws_ami" "ubuntu" {
     name   = "architecture"
     values = ["x86_64"]
   }
-}
-
-data "aws_iam_instance_profile" "rancher_iam_full_access" {
-  name = var.iam_instance_profile
-}
-
-data "rancher2_node_template" "existing_nt" {
-  count = var.create_node_reqs ? 0 : 1
-  name  = length(var.existing_node_template) > 0 ? var.existing_node_template : local.node_template_name
 }

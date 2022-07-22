@@ -1,7 +1,19 @@
+variable "name_suffix" {
+  type        = string
+  default     = null
+  description = "(Optional) suffix to append to your cloud credential, node template and node pool names"
+}
+
 variable "cluster_name" {
   type        = string
   default     = "load-testing"
-  description = "Unique identifier appended to the Rancher url subdomain"
+  description = "Unique cluster identifier appended to the Rancher url subdomain"
+}
+
+variable "cluster_labels" {
+  type        = map(any)
+  default     = {}
+  description = "Labels to add to each provisioned cluster"
 }
 
 variable "node_pool_count" {
@@ -22,27 +34,22 @@ variable "create_node_reqs" {
   description = "Flag defining if a cloud credential & node template should be created on tf apply. Useful for scripting purposes"
 }
 
-variable "existing_node_template" {
+variable "region" {
   type        = string
-  default     = ""
-  description = "(Optional) Name of an existing node template to use. Only use this if create_node_reqs is false."
+  default     = "us-west-1"
+  description = "Cloud provider-specific region string. Defaults to an AWS-specific region"
 }
 
-variable "aws_region" {
-  type    = string
-  default = "us-west-1"
-}
-
-variable "aws_access_key" {
+variable "linode_token" {
   type      = string
   default   = null
   sensitive = true
 }
 
-variable "aws_secret_key" {
-  type      = string
-  default   = null
-  sensitive = true
+variable "image" {
+  type        = string
+  default     = "linode/ubuntu18.04"
+  description = "Linode-specific image name string"
 }
 
 variable "iam_instance_profile" {
@@ -56,15 +63,9 @@ variable "install_docker_version" {
   description = "The version of docker to install. Available docker versions can be found at: https://github.com/rancher/install-docker"
 }
 
-variable "security_groups" {
-  type        = list(any)
-  default     = []
-  description = "A list of security group names (EC2-Classic) or IDs (default VPC) to associate with"
-}
-
 variable "server_instance_type" {
   type        = string
-  description = "Instance type to use for rke1 server"
+  description = "Cloud provider-specific instance type string to use for rke1 server"
 }
 
 variable "volume_size" {
@@ -95,8 +96,8 @@ variable "insecure_flag" {
   description = "Flag used to determine if Rancher is using self-signed invalid certs (using a private CA)"
 }
 
-variable "cluster_labels" {
-  type        = map(any)
-  default     = {}
-  description = "Labels to add to each provisioned cluster"
+variable "k8s_version" {
+  type        = string
+  default     = "v1.22.9-rancher1-1"
+  description = "Version of k8s to use for downstream cluster (RKE1 version string)"
 }
