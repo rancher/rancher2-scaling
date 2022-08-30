@@ -5,6 +5,9 @@
 resource "aws_security_group" "ingress" {
   name   = "${local.name}-ingress"
   vpc_id = data.aws_vpc.default.id
+  tags = {
+    for tag in [{ key = local.k8s_cluster_tag, value = "shared" }] : "${tag.key}" => "${tag.value}"
+  }
 }
 
 resource "aws_security_group_rule" "ingress_http" {
@@ -46,6 +49,9 @@ resource "aws_security_group_rule" "ingress_egress_all" {
 resource "aws_security_group" "self" {
   name   = "${local.name}-self"
   vpc_id = data.aws_vpc.default.id
+  tags = {
+    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
+  }
 }
 
 # resource "aws_security_group_rule" "self_self" {

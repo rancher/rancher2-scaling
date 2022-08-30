@@ -90,11 +90,11 @@ resource "null_resource" "wait_for_rancher" {
     command = <<EOF
 until echo "$${subject}" | grep -q "CN=${local.subdomain}.${local.domain}" || echo "$${subject}" | grep -q "CN=\*.${local.domain}" ; do
     sleep 5
-    subject=$(curl -vk -m 2 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
+    subject=$(curl -vk -m 20 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
     echo "Subject: $${subject}"
 done
 while [ "$${resp}" != "pong" ]; do
-    resp=$(curl -sSk -m 2 "https://${local.subdomain}.${local.domain}/ping")
+    resp=$(curl -sSk -m 20 "https://${local.subdomain}.${local.domain}/ping")
     echo "Rancher Response: $${resp}"
     if [ "$${resp}" != "pong" ]; then
       sleep 10

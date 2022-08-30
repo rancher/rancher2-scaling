@@ -78,10 +78,10 @@ The port `8443` can be adjusted as need for your local system.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.15.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.23.0 |
 | <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
-| <a name="provider_rancher2.admin"></a> [rancher2.admin](#provider\_rancher2.admin) | 1.23.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.2.0 |
+| <a name="provider_rancher2.admin"></a> [rancher2.admin](#provider\_rancher2.admin) | 1.24.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.3.2 |
 
 ## Modules
 
@@ -90,7 +90,7 @@ The port `8443` can be adjusted as need for your local system.
 | <a name="module_aws_infra"></a> [aws\_infra](#module\_aws\_infra) | ./modules/aws-infra | n/a |
 | <a name="module_db"></a> [db](#module\_db) | terraform-aws-modules/rds/aws | >= 3.2 |
 | <a name="module_generate_kube_config"></a> [generate\_kube\_config](#module\_generate\_kube\_config) | ./modules/generate-kube-config | n/a |
-| <a name="module_install_common"></a> [install\_common](#module\_install\_common) | ./modules/install-common | n/a |
+| <a name="module_install_common"></a> [install\_common](#module\_install\_common) | ../rancher-cluster-operations/install-common | n/a |
 | <a name="module_k3s"></a> [k3s](#module\_k3s) | ./modules/aws-k3s | n/a |
 | <a name="module_rke1"></a> [rke1](#module\_rke1) | ./modules/rke1 | n/a |
 | <a name="module_rke2"></a> [rke2](#module\_rke2) | ./modules/rke2 | n/a |

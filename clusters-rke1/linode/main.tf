@@ -23,16 +23,17 @@ provider "rancher2" {
 }
 
 locals {
+  name_max_length    = 60
   rancher_subdomain  = split(".", split("//", "${var.rancher_api_url}")[1])[0]
-  name_suffix        = try("-${var.name_suffix}", "")
-  cloud_cred_name    = "${local.rancher_subdomain}-linode-cloud-cred${local.name_suffix}"
-  node_template_name = "${local.rancher_subdomain}-linode-nt${local.name_suffix}"
-  node_pool_name     = "${local.cluster_name}-np${local.name_suffix}"
-  cluster_name       = "${local.rancher_subdomain}-linode-${var.cluster_name}-${terraform.workspace}"
-
+  name_suffix        = length(var.name_suffix) > 0 ? var.name_suffix : "${terraform.workspace}"
+  cloud_cred_name    = length(var.cloud_cred_name) > 0 ? var.cloud_cred_name : "${local.rancher_subdomain}-cloud-cred-${local.name_suffix}"
+  node_template_name = length(var.node_template_name) > 0 ? var.node_template_name : "${local.rancher_subdomain}-nt-${local.name_suffix}"
+  node_pool_name     = substr("${local.rancher_subdomain}-nt${local.name_suffix}", 0, local.name_max_length)
+  cluster_name       = length(var.cluster_name) > 0 ? var.cluster_name : "${substr("${local.rancher_subdomain}-${local.name_suffix}", 0, local.name_max_length)}"
+  node_pool_count    = length(var.roles_per_pool)
   network_config = {
     plugin = "canal"
-    mut    = null
+    mtu    = null
   }
   upgrade_strategy = {
     drain = false
@@ -57,22 +58,23 @@ module "node_template" {
   install_docker_version = var.install_docker_version
   cloud_provider         = "linode"
   node_config = {
-    image         = var.image
-    instance_type = var.server_instance_type
-    region        = var.region
+    image            = var.image
+    instance_type    = var.server_instance_type
+    region           = var.region
+    authorized_users = var.authorized_users
   }
 }
 
 resource "rancher2_node_pool" "np" {
-  count            = var.node_pool_count
+  count            = local.node_pool_count
   cluster_id       = module.cluster_v1.id
   name             = "${local.node_pool_name}-${count.index}"
   hostname_prefix  = "${local.node_pool_name}-pool${count.index}-node"
   node_template_id = module.node_template.id
-  quantity         = var.nodes_per_pool
-  control_plane    = true
-  etcd             = true
-  worker           = true
+  quantity         = try(tonumber(var.roles_per_pool[count.index]["quantity"]), false)
+  control_plane    = try(tobool(var.roles_per_pool[count.index]["control-plane"]), false)
+  etcd             = try(tobool(var.roles_per_pool[count.index]["etcd"]), false)
+  worker           = try(tobool(var.roles_per_pool[count.index]["worker"]), false)
 }
 
 module "cluster_v1" {
@@ -90,6 +92,11 @@ module "cluster_v1" {
   ]
 }
 
+resource "local_file" "kube_config" {
+  content  = nonsensitive(module.cluster_v1.kube_config)
+  filename = "${path.module}/files/kube_config/${terraform.workspace}_kube_config"
+}
+
 output "create_node_reqs" {
   value = var.create_node_reqs
 }
@@ -101,3 +108,11 @@ output "cred_name" {
 output "nt_name" {
   value = module.node_template.name
 }
+
+output "cluster_name" {
+  value = local.cluster_name
+}
+
+# output "kube_config" {
+#   value = nonsensitive(module.cluster_v1.kube_config)
+# }

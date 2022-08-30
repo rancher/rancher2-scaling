@@ -60,7 +60,7 @@ resource "helm_release" "rancher" {
   create_namespace = true
   wait_for_jobs    = true
   values = [
-    templatefile("${var.helm_rancher_chart_values_path}", {
+    templatefile(try(length(var.helm_rancher_chart_values_path) > 0 ? "${var.helm_rancher_chart_values_path}" : null, abspath("${path.module}/files/rancher_chart_values.tftpl")), {
       letsencrypt_email         = var.letsencrypt_email
       rancher_image             = var.rancher_image
       rancher_image_tag         = var.rancher_image_tag
@@ -88,11 +88,11 @@ resource "null_resource" "wait_for_rancher" {
     kubectl -n cattle-system rollout status deploy/rancher
     timeout --preserve-status 7m sh -c -- 'until echo "$${subject}" | grep -q "CN=${var.subdomain}.${var.domain}" || echo "$${subject}" | grep -q "CN=\*.${var.domain}" ; do
         sleep 5
-        subject=$(curl -vk -m 2 "https://${var.subdomain}.${var.domain}/ping" 2>&1 | grep "subject:")
+        subject=$(curl -vk -m 20 "https://${var.subdomain}.${var.domain}/ping" 2>&1 | grep "subject:")
         echo "Subject: $${subject}"
     done'
     timeout --preserve-status 2m sh -c -- 'while [ "$${resp}" != "pong" ]; do
-        resp=$(curl -sSk -m 2 "https://${var.subdomain}.${var.domain}/ping")
+        resp=$(curl -sSk -m 20 "https://${var.subdomain}.${var.domain}/ping")
         echo "Rancher Response: $${resp}"
         if [ "$${resp}" != "pong" ]; then
           sleep 10

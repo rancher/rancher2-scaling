@@ -13,6 +13,8 @@ terraform {
 }
 
 locals {
+  use_provider        = try(length(var.cloud_provider_name) > 0, false)
+  use_known_provider  = try(contains(["aws", "azure", "openstack", "vsphere"], var.cloud_provider_name), false)
   s3_instance_profile = var.s3_instance_profile
   node_ids            = var.nodes_ids
   node_public_ips     = var.nodes_public_ips
@@ -30,29 +32,60 @@ locals {
 
 resource "rke_cluster" "local" {
   cluster_name = var.cluster_name
-  cloud_provider {
-    name = "aws"
-    aws_cloud_provider {}
+  dynamic "cloud_provider" {
+    for_each = local.use_provider == true ? [1] : []
+    content {
+      name = var.cloud_provider_name
+      dynamic "aws_cloud_provider" {
+        for_each = try(local.use_known_provider == true && var.cloud_provider_config != null, false) ? [1] : []
+        content {
+          global {
+            disable_security_group_ingress = try(var.cloud_provider_config.global.disable_security_group_ingress, null)
+            disable_strict_zone_check      = try(var.cloud_provider_config.global.disable_strict_zone_check, null)
+            elb_security_group             = try(var.cloud_provider_config.global.elb_security_group, null)
+            kubernetes_cluster_id          = try(var.cloud_provider_config.global.kubernetes_cluster_id, null)
+            kubernetes_cluster_tag         = try(var.cloud_provider_config.global.kubernetes_cluster_tag, null)
+            role_arn                       = try(var.cloud_provider_config.global.role_arn, null)
+            route_table_id                 = try(var.cloud_provider_config.global.route_table_id, null)
+            subnet_id                      = try(var.cloud_provider_config.global.subnet_id, null)
+            vpc                            = try(var.cloud_provider_config.global.vpc, null)
+            zone                           = try(var.cloud_provider_config.global.zone, null)
+          }
+          service_override {
+            key            = try(var.cloud_provider_config.key, null)
+            service        = try(var.cloud_provider_config.service, null)
+            region         = try(var.cloud_provider_config.region, null)
+            signing_method = try(var.cloud_provider_config.signing_method, null)
+            signing_name   = try(var.cloud_provider_config.signing_name, null)
+            signing_region = try(var.cloud_provider_config.signing_region, null)
+            url            = try(var.cloud_provider_config.url, null)
+          }
+        }
+      }
+
+      custom_cloud_provider = local.use_known_provider == false ? var.cloud_provider_name : null
+    }
   }
+
   ### Nodes Reserved for Rancher ###
   dynamic "nodes" {
     for_each = toset(local.rancher_reserved_node_ids)
     content {
-      hostname_override = "${var.hostname_override_prefix}-RKE1-HA${index(local.rancher_reserved_node_ids, nodes.key)}"
-      address           = local.rancher_node_public_ips[index(local.rancher_reserved_node_ids, nodes.key)]
-      internal_address  = local.rancher_node_private_ips[index(local.rancher_reserved_node_ids, nodes.key)]
-      user              = "ubuntu"
-      role              = ["controlplane", "worker", "etcd"]
+      # hostname_override = "${var.hostname_override_prefix}-RKE1-HA${index(local.rancher_reserved_node_ids, nodes.key)}"
+      address          = local.rancher_node_public_ips[index(local.rancher_reserved_node_ids, nodes.key)]
+      internal_address = local.rancher_node_private_ips[index(local.rancher_reserved_node_ids, nodes.key)]
+      user             = var.user
+      role             = ["controlplane", "worker", "etcd"]
     }
   }
   ### Node Reserved for Monitoring ###
   dynamic "nodes" {
-    for_each = var.dedicated_monitoring_node ? toset([1]) : toset([]) # used to enable dynamic creation for dedicated monitoring node
+    for_each = var.dedicated_monitoring_node ? [1] : [] # used to enable dynamic creation for dedicated monitoring node
     content {
-      hostname_override = "${var.hostname_override_prefix}-RKE1-Monitoring"
-      address           = local.monitoring_node_public_ip
-      internal_address  = local.monitoring_node_private_ip
-      user              = "ubuntu"
+      # hostname_override = "${var.hostname_override_prefix}-RKE1-Monitoring"
+      address          = local.monitoring_node_public_ip
+      internal_address = local.monitoring_node_private_ip
+      user             = var.user
       # if we have an invalid # of etcd nodes then add the etcd role to the dedicated monitoring node
       role = contains(local.allowed_etcd_nodes, length(local.rancher_reserved_node_ids)) ? ["worker"] : ["worker", "etcd"]
       taints {
@@ -69,7 +102,7 @@ resource "rke_cluster" "local" {
   ignore_docker_version = false
   # Set kubernetes version to install: https://rancher.com/docs/rke/latest/en/upgrades/#listing-supported-kubernetes-versions
   # Check with -> rke config --list-version --all
-  kubernetes_version = length(var.install_k8s_version) > 0 ? var.install_k8s_version : null
+  kubernetes_version = try(var.install_k8s_version, null)
   # Etcd snapshots
   services {
     etcd {

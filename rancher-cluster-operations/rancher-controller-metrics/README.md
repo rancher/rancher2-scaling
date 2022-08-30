@@ -1,6 +1,6 @@
-# rancher-controller-metrics  
+# rancher-controller-metrics
 
-This module should only be applied against Rancher clusters on version `2.5.x` with `rancher-monitoring` installed and the `CATTLE_PROMETHEUS_METRICS` environment variable set to true.  
+This module should only be applied against Rancher clusters on version `2.5.x` with `rancher-monitoring` installed and the `CATTLE_PROMETHEUS_METRICS` environment variable set to true.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -32,7 +32,6 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_rancher_token"></a> [rancher\_token](#input\_rancher\_token) | Rancher2 API token for authentication | `string` | `null` | no |
-| <a name="input_rancher_token_id"></a> [rancher\_token\_id](#input\_rancher\_token\_id) | Rancher2 API token's ID for authentication | `string` | `null` | no |
 | <a name="input_rancher_version"></a> [rancher\_version](#input\_rancher\_version) | The Rancher Server's version | `string` | `"null"` | no |
 
 ## Outputs
