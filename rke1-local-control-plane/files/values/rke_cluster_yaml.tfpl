@@ -1,0 +1,38 @@
+nodes:
+%{ for i in range(length(addresses)) ~}
+- address: ${addresses[i]}
+  internal_address: ${private_addresses[i]}
+  role:
+  - controlplane
+  - worker
+  - etcd
+  user: ubuntu
+%{ endfor ~}
+%{ if dedicated_monitoring ~}
+- address: ${monitor_address}
+  internal_address: ${monitor_private_address}
+  role:
+  - worker
+  user: ubuntu
+  labels:
+    monitoring: "yes"
+  taints:
+  - key: monitoring
+    value: "yes"
+    effect: NoSchedule
+%{ endif ~}
+services:
+  etcd:
+    snapshot: true
+    retention: 24h
+    creation: 6h
+  kube-api:
+    secrets_encryption_config:
+      enabled: ${enable_secrets_encryption}
+    audit_log:
+      enabled: ${enable_audit_log}
+ssh_key_path: ${ssh_key_path}
+ssh_agent_auth: false
+ignore_docker_version: false
+kubernetes_version: ${kubernetes_version}
+cluster_name: local
