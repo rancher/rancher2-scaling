@@ -32,14 +32,18 @@ locals {
   server_node_count           = var.server_node_count
   agent_node_count            = var.agent_node_count
   ssh_keys                    = var.ssh_keys
-  deploy_rds                  = var.k3s_datastore_endpoint != "sqlite" ? 1 : 0
+  deploy_rds                  = var.db_engine != "sqlite" ? 1 : 0
   db_instance_type            = var.db_instance_type
   db_user                     = var.db_user
   db_pass                     = var.db_pass
   db_name                     = var.db_name != null ? var.db_name : var.name
-  db_node_count               = var.k3s_datastore_endpoint != "sqlite" ? var.db_node_count : 0
+  db_node_count               = var.db_engine != "sqlite" ? var.db_node_count : 0
+  db_engine_mysql_options     = ["mariadb", "mysql", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-web"]
+  db_engine_postgres_options  = ["postgres"]
+  k3s_datastore_protocol      = contains(local.db_engine_mysql_options, var.db_engine) ? "mysql" : contains(local.db_engine_postgres_options, var.db_engine) ? "postgres" : "https"
   k3s_datastore_cafile        = var.k3s_datastore_cafile
-  k3s_datastore_endpoint      = var.k3s_datastore_endpoint != "sqlite" ? "mysql://${local.db_user}:${local.db_pass}@tcp(${var.k3s_datastore_endpoint})/${var.db_name}" : ""
+  k3s_datastore_host_protocol = local.k3s_datastore_protocol == "mysql" ? "@tcp(${var.k3s_datastore_endpoint})" : "@${var.k3s_datastore_endpoint}"
+  k3s_datastore_endpoint      = var.db_engine != "sqlite" ? "${local.k3s_datastore_protocol}://${local.db_user}:${local.db_pass}${local.k3s_datastore_host_protocol}/${var.db_name}" : ""
   k3s_disable_agent           = var.k3s_disable_agent ? "--disable-agent" : ""
   k3s_tls_san                 = var.k3s_tls_san != null ? var.k3s_tls_san : "--tls-san ${aws_route53_record.rancher[0].fqdn}"
   k3s_deploy_traefik          = var.k3s_deploy_traefik ? "" : "--disable=traefik"

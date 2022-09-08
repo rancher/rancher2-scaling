@@ -36,5 +36,4 @@ spec:
       metrics:
         enabled: false
 EOF
-kubectl apply -f /var/lib/rancher/k3s/server/manifests/ingress.yaml
 %{ endif }
