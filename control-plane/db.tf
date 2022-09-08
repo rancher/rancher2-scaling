@@ -25,7 +25,7 @@ module "db" {
   # All available versions: http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.VersionMgmt
   engine               = var.db_engine
   engine_version       = var.db_engine_version
-  major_engine_version = var.db_engine_version
+  major_engine_version = split(".", var.db_engine_version)[0]
 
   instance_class      = var.db_instance_class
   allocated_storage   = var.db_allocated_storage
