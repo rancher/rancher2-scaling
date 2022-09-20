@@ -12,7 +12,7 @@ output "rancher_url" {
 }
 
 output "rancher_token" {
-  value     = nonsensitive(local.rancher_token)
+  value     = try(nonsensitive(local.rancher_token), "")
   sensitive = false
 }
 

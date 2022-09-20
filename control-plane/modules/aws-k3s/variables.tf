@@ -182,6 +182,12 @@ variable "db_instance_type" {
   default = "db.r5.xlarge"
 }
 
+variable "db_engine" {
+  type        = string
+  default     = "sqlite"
+  description = "Engine used to create the database in RDS"
+}
+
 variable "db_name" {
   default     = "rancher"
   type        = string

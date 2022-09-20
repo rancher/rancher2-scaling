@@ -39,8 +39,8 @@ locals {
   install_common     = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2") && (var.install_rancher || var.install_certmanager)
   install_monitoring = local.install_common && var.install_monitoring && var.install_rancher
   kubeconfig_content = var.k8s_distribution == "k3s" ? module.k3s[0].kube_config : var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
-  rancher_url        = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? module.install_common[0].rancher_url : ""
-  rancher_token      = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_token : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? module.install_common[0].rancher_token : ""
+  rancher_url        = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? try(module.install_common[0].rancher_url, "") : ""
+  rancher_token      = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_token : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? try(module.install_common[0].rancher_token, "") : ""
 }
 
 resource "random_password" "rancher_password" {
@@ -65,6 +65,7 @@ module "k3s" {
   db_pass                     = module.db[0].db_instance_password
   db_port                     = var.db_port
   db_name                     = var.db_name
+  db_engine                   = var.db_engine
   db_security_group           = aws_security_group.database[0].id
   k3s_datastore_endpoint      = module.db[0].db_instance_endpoint
   k3s_storage_engine          = var.db_engine
@@ -190,16 +191,15 @@ module "install_common" {
   rancher_version     = var.rancher_version
   certmanager_version = var.certmanager_version
 
-  helm_rancher_chart_values_path = "${path.module}/files/values/rancher_chart_values.tftpl"
-  letsencrypt_email              = var.letsencrypt_email
-  rancher_image                  = var.rancher_image
-  rancher_image_tag              = var.rancher_image_tag
-  rancher_password               = var.rancher_password
-  use_new_bootstrap              = local.use_new_bootstrap
-  rancher_node_count             = var.rancher_node_count
-  byo_certs_bucket_path          = var.byo_certs_bucket_path
-  private_ca_file                = var.private_ca_file
-  cattle_prometheus_metrics      = var.cattle_prometheus_metrics
+  letsencrypt_email         = var.letsencrypt_email
+  rancher_image             = var.rancher_image
+  rancher_image_tag         = var.rancher_image_tag
+  rancher_password          = var.rancher_password
+  use_new_bootstrap         = local.use_new_bootstrap
+  rancher_node_count        = var.rancher_node_count
+  byo_certs_bucket_path     = var.byo_certs_bucket_path
+  private_ca_file           = var.private_ca_file
+  cattle_prometheus_metrics = var.cattle_prometheus_metrics
 
   depends_on = [
     module.generate_kube_config

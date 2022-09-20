@@ -23,7 +23,7 @@ sleep $sleep_time
 until (curl -sfL https://get.k3s.io |  sh -); do
   echo 'k3s did not install correctly'
   systemctl status k3s.service
-  journalctl -xe --no-pager
+  journalctl -xe --no-pager -u k3s.service
   k3s-uninstall.sh
   sleep 2
 done
