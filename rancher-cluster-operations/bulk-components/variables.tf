@@ -1,9 +1,3 @@
-variable "random_prefix" {
-  type        = string
-  default     = "rancher"
-  description = "Prefix to be used with random name generation"
-}
-
 variable "num_tokens" {
   type    = number
   default = 0
@@ -12,6 +6,12 @@ variable "num_tokens" {
 variable "num_secrets" {
   type    = number
   default = 0
+}
+
+variable "use_v2" {
+  type = bool
+  default = false
+  description = "Flag to determine whether or not to use the v2 version of a given resource"
 }
 
 variable "rancher_api_url" {
@@ -30,24 +30,24 @@ variable "cluster_name" {
   description = "Name of rancher2_cluster to operate on. Not used for the creation of clusters"
 }
 
-variable "project_name" {
+variable "project" {
   type        = string
   default     = "Default"
   description = "Name of rancher2_project to operate on. Not used for the creation of projects"
 }
 
-variable "namespace_name" {
+variable "namespace" {
   type        = string
   default     = "default"
-  description = "Name of rancher2_project to operate on. Not used for the creation of namespaces"
+  description = "Name of rancher2_namespace to operate on. Not used for the creation of namespaces"
 }
 
 variable "secret_data" {
-  type = map(any)
+  type = any
   default = {
     bulk_secret = "True"
   }
-  description = "Map of key-values to store in each Secret"
+  description = "Map of key-values or file to store in each Secret"
 }
 
 variable "num_aws_credentials" {
@@ -89,15 +89,9 @@ variable "num_projects" {
   default = 0
 }
 
-variable "num_users" {
+variable "num_namespaces" {
   type    = number
   default = 0
-}
-
-variable "user_password" {
-  type        = string
-  description = "Password to use for created users"
-  sensitive   = true
 }
 
 variable "output_stdout" {

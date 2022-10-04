@@ -9,6 +9,8 @@ ingress:
     source: letsEncrypt
 letsEncrypt:
   email: ${letsencrypt_email}
+  ingress:
+    class: ${ingress_class}
 %{ endif ~}
 %{ if private_ca ~}
 privateCA: ${private_ca_file}
