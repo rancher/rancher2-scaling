@@ -35,6 +35,16 @@ variable "helm_rancher_chart_values_path" {
 
 }
 
+variable "ingress_class" {
+  type        = string
+  default     = "nginx"
+  description = "Which Rancher-supported ingress to use"
+  validation {
+    condition     = contains(["nginx", "traefik"], var.ingress_class)
+    error_message = "The selected ingress class must be one of: [\"nginx\", \"traefik\"]."
+  }
+}
+
 variable "letsencrypt_email" {
   default     = null
   type        = string

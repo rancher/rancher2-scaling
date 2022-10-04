@@ -61,6 +61,7 @@ resource "helm_release" "rancher" {
   wait_for_jobs    = true
   values = [
     templatefile(try(length(var.helm_rancher_chart_values_path) > 0 ? "${var.helm_rancher_chart_values_path}" : null, abspath("${path.module}/files/rancher_chart_values.tftpl")), {
+      ingress_class             = var.ingress_class
       letsencrypt_email         = var.letsencrypt_email
       rancher_image             = var.rancher_image
       rancher_image_tag         = var.rancher_image_tag
