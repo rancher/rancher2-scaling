@@ -56,7 +56,7 @@ locals {
   rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
   rancher_sg                  = var.install_rancher ? [aws_security_group.ingress_egress[0].id, aws_security_group.rancher[0].id] : []
-  use_new_monitoring_crd_url  = length(regexall("2.6", local.rancher_chart_tag)) > 0 ? true : false
+  use_new_monitoring_crd_url  = length(regexall("([2-9]|\\d{2,})+\\.([6-9]|\\d{2,})+\\.*([0-9]|\\d{2,})*", local.rancher_chart_tag)) > 0 ? true : false
   letsencrypt_email           = var.letsencrypt_email
   byo_certs_bucket_path       = var.byo_certs_bucket_path
   s3_instance_profile         = var.s3_instance_profile
