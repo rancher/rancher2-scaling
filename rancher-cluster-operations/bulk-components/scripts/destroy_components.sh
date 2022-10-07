@@ -2,7 +2,7 @@
 IFS=$'\n'
 
 terraform workspace select default
-workspace_prefix="workspace"
+workspace_prefix="bulk"
 workspaces=$(terraform workspace list | grep "workspace" | sed 's/*/ /' | sort -r )
 
 for workspace in ${workspaces}; do
@@ -18,4 +18,5 @@ for workspace in ${workspaces}; do
 
 done
 
+rm -rf terraform.tfstate.d/*
 terraform workspace select default

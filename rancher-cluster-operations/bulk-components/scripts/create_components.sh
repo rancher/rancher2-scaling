@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 iterations=${1:-1}
-workspace_prefix="workspace"
+workspace_prefix="bulk"
 
 echo "checking if workspaces exist"
 # This will not fix a broken terraform run, if the workspace already exists it will
@@ -14,7 +14,7 @@ for iter in $(seq -f "%05g" 1 ${iterations}); do
     echo "provisioning ${iter} sets of clusters";
     terraform workspace new "${workspace}" || terraform workspace select "${workspace}";
     terraform apply -auto-approve;
-    sleep 300;
+    sleep 10;
   elif [ "${iter}" -eq "${iterations}" ]
   then
     echo "${workspace} already exists!";

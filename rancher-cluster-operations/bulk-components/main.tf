@@ -66,7 +66,7 @@ locals {
   }]
   all_aws_credentials    = [for cred in module.aws_cloud_credentials[*].cloud_cred : cred]
   all_linode_credentials = [for cred in module.linode_cloud_credentials[*].cloud_cred : cred]
-  all_projects           = [for project in rancher2_project.this[0][*] : project]
+  all_projects           = [for project in rancher2_project.this[*] : project]
 }
 
 data "rancher2_cluster" "this" {
