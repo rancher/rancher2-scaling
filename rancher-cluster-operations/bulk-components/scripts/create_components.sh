@@ -3,7 +3,7 @@
 iterations=${1:-1}
 var_file="${2:-terraform.tfvars}"
 workspace_prefix="${3:-bulk}"
-# tf_args=${@:4}
+timeout=${4:-30}
 
 echo "VAR FILE: ${var_file}"
 # echo "TF ARGS: ${tf_args}"
@@ -17,8 +17,8 @@ for iter in $(seq -f "%05g" 1 ${iterations}); do
     # Workspace doesn't exist yet
     echo "provisioning ${iter} sets of clusters";
     terraform workspace new "${workspace}" || terraform workspace select "${workspace}";
-    terraform apply -auto-approve -var-file="${var_file}" "${@:4}" -parallelism=10;
-    sleep 30;
+    terraform apply -auto-approve -var-file="${var_file}" "${@:5}" -parallelism=10;
+    sleep ${timeout};
   elif [ "${iter}" -eq "${iterations}" ]
   then
     echo "${workspace} already exists!";

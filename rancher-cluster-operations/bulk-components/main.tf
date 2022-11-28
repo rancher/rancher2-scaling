@@ -3,7 +3,6 @@ terraform {
   required_providers {
     rancher2 = {
       source = "rancher/rancher2"
-      # version="1.21.0"
     }
     local = {
       source = "hashicorp/local"
@@ -69,7 +68,19 @@ locals {
   all_aws_credentials    = [for cred in module.aws_cloud_credentials[*].cloud_cred : cred]
   all_linode_credentials = [for cred in module.linode_cloud_credentials[*].cloud_cred : cred]
   all_projects           = [for project in rancher2_project.this[*] : project]
-  all_users              = (var.user_cluster_binding || var.user_project_binding || var.user_global_binding) ? length(var.users) > 0 ? { for user in var.users : user.name => user } : var.num_users > 0 ? { for user in rancher2_user.this[*] : user.name => user } : {} : {}
+
+  user_name_ref_pattern = length(var.user_name_ref_pattern) > 0 ? var.user_name_ref_pattern : local.user_name_prefix
+  generated_users = var.create_new_users ? {} : {
+    for i in range(var.num_users) : "${local.user_name_ref_pattern}-${i}" => {
+      name     = "${local.user_name_ref_pattern}-${i}"
+      username = "${local.user_name_ref_pattern}-${i}"
+    }
+  }
+  existing_users = length(var.users) > 0 ? { for user in var.users : user.name => user } : {}
+  created_users  = var.create_new_users && var.num_users > 0 ? { for user in rancher2_user.this[*] : user.name => user } : {}
+
+  all_users   = (var.user_cluster_binding || var.user_project_binding || var.user_global_binding) ? merge(local.created_users, local.generated_users, local.existing_users) : {}
+  found_users   = data.rancher2_user.this
 }
 
 data "rancher2_cluster" "this" {
@@ -163,7 +174,7 @@ resource "rancher2_namespace" "this" {
 
 # Create new users
 resource "rancher2_user" "this" {
-  count    = var.num_users
+  count    = var.create_new_users ? var.num_users : 0
   name     = "${local.user_name_prefix}-${count.index}"
   username = "${local.user_name_prefix}-${count.index}"
   password = var.user_password
@@ -180,13 +191,13 @@ data "rancher2_user" "this" {
 }
 
 resource "random_id" "this" {
-  count = var.user_global_binding || var.user_cluster_binding || var.user_project_binding ?  1 : 0
-  byte_length = 8
+  count       = var.user_global_binding || var.user_cluster_binding || var.user_project_binding ? 1 : 0
+  byte_length = 2
 }
 
 resource "rancher2_global_role" "this" {
   count            = var.user_global_binding ? 1 : 0
-  name             = "${local.global_role_name_prefix}-${random_id.this[0]}"
+  name             = "${local.global_role_name_prefix}-${random_id.this[0].dec}"
   new_user_default = true
   description      = "Terraform global role scale test"
 
@@ -199,15 +210,15 @@ resource "rancher2_global_role" "this" {
 
 # Create a new rancher2 global_role_binding for each user
 resource "rancher2_global_role_binding" "this" {
-  for_each       = var.user_global_binding ? local.all_users : {}
-  name           = "${local.global_role_binding_name_prefix}-${each.value.name}-${random_id.this[0]}"
+  for_each       = var.user_global_binding ? local.found_users : {}
+  name           = "${each.value.name}-${random_id.this[0].dec}"
   global_role_id = rancher2_global_role.this[0].id
   user_id        = each.value.id
 }
 
 resource "rancher2_role_template" "cluster" {
   count        = var.user_cluster_binding ? 1 : 0
-  name         = "${local.role_template_name_prefix}-cluster-${random_id.this[0]}"
+  name         = "${local.role_template_name_prefix}-cluster-${random_id.this[0].dec}"
   context      = "cluster"
   default_role = true
   description  = "Terraform role template scale test"
@@ -219,8 +230,8 @@ resource "rancher2_role_template" "cluster" {
 }
 
 resource "rancher2_cluster_role_template_binding" "this" {
-  for_each         = var.user_cluster_binding ? local.all_users : {}
-  name             = "${local.cluster_role_template_binding_name_prefix}-${each.value.name}-${random_id.this[0]}"
+  for_each         = var.user_cluster_binding ? local.found_users : {}
+  name             = "${each.value.name}-${random_id.this[0].dec}"
   cluster_id       = data.rancher2_cluster.this.id
   role_template_id = rancher2_role_template.cluster[0].id
   user_id          = each.value.id
@@ -228,13 +239,13 @@ resource "rancher2_cluster_role_template_binding" "this" {
 
 resource "rancher2_project" "user_roles" {
   count      = var.user_project_binding ? 1 : 0
-  name       = "${local.project_name_prefix}-user-roles-${random_id.this[0]}"
+  name       = "${local.project_name_prefix}-user-roles-${random_id.this[0].dec}"
   cluster_id = data.rancher2_cluster.this.id
 }
 
 resource "rancher2_role_template" "project" {
   count        = var.user_project_binding ? 1 : 0
-  name         = "${local.role_template_name_prefix}-project-${random_id.this[0]}"
+  name         = "${local.role_template_name_prefix}-project-${random_id.this[0].dec}"
   context      = "project"
   default_role = true
   description  = "Terraform role template scale test"
@@ -246,8 +257,8 @@ resource "rancher2_role_template" "project" {
 }
 
 resource "rancher2_project_role_template_binding" "this" {
-  for_each         = var.user_project_binding ? local.all_users : {}
-  name             = "${local.project_role_template_binding_name_prefix}-${each.value.name}-${random_id.this[0]}"
+  for_each         = var.user_project_binding ? local.found_users : {}
+  name             = "${each.value.name}-${random_id.this[0].dec}"
   project_id       = rancher2_project.user_roles[0].id
   role_template_id = rancher2_role_template.project[0].id
   user_id          = each.value.id

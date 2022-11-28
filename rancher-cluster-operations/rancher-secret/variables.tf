@@ -65,5 +65,5 @@ variable "type" {
 
 variable "data" {
   type        = map(any)
-  description = "(required if create_new = true) Map of data to include in each Secret. Data values for rancher2_secret will be base64encoded as required, therefore do not pass in encoded data"
+  description = "(required if create_new = true) Map of data to include in each Secret (values can be file paths). Data values for rancher2_secret will be base64encoded as required, therefore do not pass in encoded data"
 }
