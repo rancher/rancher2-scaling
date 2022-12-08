@@ -2,6 +2,8 @@
 
 This component module can be used to create or retrieve `rancher2_secret` or `rancher2_secret_v2` resources.
 
+Caveat: Data cannot be larger than 4MB, see the following https://support.hashicorp.com/hc/en-us/articles/4803097239955-gRPC-message-larger-than-max-error
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
