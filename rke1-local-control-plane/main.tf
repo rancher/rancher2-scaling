@@ -90,6 +90,7 @@ resource "local_file" "cluster_yml" {
     enable_audit_log          = var.enable_audit_log,
     ssh_key_path              = var.ssh_key_path,
     kubernetes_version        = var.install_k8s_version
+    enable_cri_dockerd        = var.enable_cri_dockerd
   })
 
   depends_on = [
