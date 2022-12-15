@@ -21,6 +21,13 @@ variable "rancher_version" {
   description = "Version of Rancher to install - Do not include the v prefix."
 }
 
+variable "enable_cri_dockerd" {
+  type = bool
+  default = true
+  description = "(Optional) Boolean that determines if CRI dockerd is enabled for the kubelet (required for k8s >= v1.24.x)"
+}
+
+
 variable "rancher_loglevel" {
   type        = string
   description = "A string specifying the loglevel to set on the rancher pods. One of: info, debug or trace. https://rancher.com/docs/rancher/v2.x/en/troubleshooting/logging/"

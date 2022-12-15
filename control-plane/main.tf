@@ -128,6 +128,7 @@ module "rke1" {
   hostname_override_prefix  = local.name
   ssh_key_path              = var.ssh_key_path
   install_k8s_version       = var.install_k8s_version
+  enable_cri_dockerd        = var.enable_cri_dockerd
   s3_instance_profile       = var.s3_instance_profile
   dedicated_monitoring_node = var.install_monitoring ? true : false
   nodes_ids                 = module.aws_infra[0].nodes_ids

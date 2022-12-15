@@ -16,6 +16,12 @@ variable "install_rancher" {
   description = "Boolean that defines whether or not to install Rancher"
 }
 
+variable "enable_cri_dockerd" {
+  type = bool
+  default = true
+  description = "(Optional) Boolean that determines if CRI dockerd is enabled for the kubelet (required for k8s >= v1.24.x)"
+}
+
 variable "rancher_version" {
   type        = string
   description = "Version of Rancher to install - Do not include the v prefix."
