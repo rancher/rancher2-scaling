@@ -14,11 +14,11 @@ As such, do not use this part of the module's functionality if you plan on shari
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.6.0 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.2.3 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.54.0 |
+| <a name="provider_local"></a> [local](#provider\_local) | 2.3.0 |
 | <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.21.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.1.2 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.1 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.4 |
 
 ## Modules
 
@@ -49,6 +49,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_agent_env_vars"></a> [agent\_env\_vars](#input\_agent\_env\_vars) | A list of maps representing Rancher agent environment variables: https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#agent_env_vars | `list(map(string))` | `null` | no |
 | <a name="input_aws_access_key"></a> [aws\_access\_key](#input\_aws\_access\_key) | n/a | `string` | `null` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `"us-west-1"` | no |
 | <a name="input_aws_secret_key"></a> [aws\_secret\_key](#input\_aws\_secret\_key) | n/a | `string` | `null` | no |
@@ -63,7 +64,7 @@ No modules.
 | <a name="input_name_suffix"></a> [name\_suffix](#input\_name\_suffix) | (Optional) suffix to append to your cloud credential, node template and node pool names | `string` | `""` | no |
 | <a name="input_rancher_api_url"></a> [rancher\_api\_url](#input\_rancher\_api\_url) | api url for rancher server | `string` | n/a | yes |
 | <a name="input_rancher_token_key"></a> [rancher\_token\_key](#input\_rancher\_token\_key) | rancher server API token | `string` | n/a | yes |
-| <a name="input_roles_per_pool"></a> [roles\_per\_pool](#input\_roles\_per\_pool) | A list of maps where each element contains keys that define the roles and quantity for a given node pool.<br>  Example: [<br>    {<br>      "quantity" = 3<br>      "etd" = true<br>      "control-plane" = true<br>      "worker" = true<br>    }<br>  ] | `list(map(string))` | n/a | yes |
+| <a name="input_roles_per_pool"></a> [roles\_per\_pool](#input\_roles\_per\_pool) | A list of maps where each element contains keys that define the roles and quantity for a given node pool.<br>  Example: [<br>    {<br>      quantity = 3<br>      etcd = true<br>      control-plane = true<br>      worker = true<br>    }<br>  ] | <pre>list(object({<br>    quantity      = number<br>    etcd          = optional(bool)<br>    control-plane = optional(bool)<br>    worker        = optional(bool)<br>  }))</pre> | <pre>[<br>  {<br>    "control-plane": true,<br>    "etcd": true,<br>    "quantity": 1,<br>    "worker": true<br>  }<br>]</pre> | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | A list of security group names (EC2-Classic) or IDs (default VPC) to associate with | `list(any)` | `[]` | no |
 | <a name="input_server_instance_type"></a> [server\_instance\_type](#input\_server\_instance\_type) | Instance type to use for rke2 server | `string` | n/a | yes |
 | <a name="input_ssh_key_path"></a> [ssh\_key\_path](#input\_ssh\_key\_path) | Path to the private SSH key file to be used for accessing the cluster node(s) | `string` | `null` | no |

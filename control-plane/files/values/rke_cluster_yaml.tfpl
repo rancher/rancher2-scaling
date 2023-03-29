@@ -1,0 +1,39 @@
+nodes:
+%{ for node in server_nodes ~}
+- address: $public_address
+  internal_address: $private_address
+  role:
+  %{ if dedicated_monitoring ~}
+  - worker
+  %{ else }
+  - controlplane
+  - worker
+  - etcd
+  %{ endif }
+  user: ubuntu
+  labels: $node.labels
+  taints: $node.taints
+%{ endfor ~}
+services:
+  etcd:
+    snapshot: true
+    retention: 24h
+    creation: 6h
+    backup_config:
+      enabled: true
+      interval_hours: 12
+      retention: 6
+      timeout: 300
+  kube-api:
+    pod_security_policy: false
+    always_pull_images: false
+    secrets_encryption_config:
+      enabled: $enable_secrets_encryption
+    audit_log: $enable_audit_log
+ssh_key_path: $ssh_key_path
+ssh_agent_auth: false
+ignore_docker_version: false
+kubernetes_version: $kubernetes_version
+cluster_name: local
+cloud_provider:
+  name: aws

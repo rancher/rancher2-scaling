@@ -11,7 +11,7 @@ variable "user_password" {
 }
 
 variable "create_new_users" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -25,7 +25,7 @@ variable "users" {
 }
 
 variable "user_name_ref_pattern" {
-  type = string
+  type    = string
   default = ""
 }
 

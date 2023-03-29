@@ -1,0 +1,50 @@
+- address: 13.52.211.31
+  port: ""
+  internal_address: 172.31.9.163
+  role:
+  - controlplane
+  - worker
+  - etcd
+  hostname_override: ""
+  user: ubuntu
+  docker_socket: ""
+  ssh_key: ""
+  ssh_key_path: ""
+  ssh_cert: ""
+  ssh_cert_path: ""
+  labels: {}
+  taints: []
+- address: 18.144.12.56
+  port: ""
+  internal_address: 172.31.28.37
+  role:
+  - controlplane
+  - worker
+  - etcd
+  hostname_override: ""
+  user: ubuntu
+  docker_socket: ""
+  ssh_key: ""
+  ssh_key_path: ""
+  ssh_cert: ""
+  ssh_cert_path: ""
+  labels: {}
+  taints: []
+- address: 3.101.150.120
+  port: ""
+  internal_address: 172.31.2.204
+  role:
+  - worker
+  hostname_override: ""
+  user: ubuntu
+  docker_socket: ""
+  ssh_key: ""
+  ssh_key_path: ""
+  ssh_cert: ""
+  ssh_cert_path: ""
+  labels:
+    monitoring: "yes"
+  taints:
+  - key: monitoring
+    value: "yes"
+    effect: NoSchedule

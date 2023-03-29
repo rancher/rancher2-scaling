@@ -11,7 +11,7 @@ data "aws_subnets" "available" {
 }
 
 data "aws_route53_zone" "dns_zone" {
-  count = local.use_route53
+  count = local.use_route53 ? 1 : 0
   name  = local.r53_domain
 }
 
@@ -112,7 +112,9 @@ data "cloudinit_config" "k3s_server" {
       private_ca                 = length(local.private_ca_file) > 0 ? true : false,
       private_ca_file            = local.private_ca_file,
       tls_cert_file              = local.tls_cert_file,
-      tls_key_file               = local.tls_key_file
+      tls_key_file               = local.tls_key_file,
+      rancher_env_vars           = var.rancher_env_vars,
+      disable_psps               = local.disable_psps
       }
     )
   }

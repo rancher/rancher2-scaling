@@ -7,11 +7,22 @@ terraform {
   }
 }
 
+locals {
+  default_values = abspath("${path.module}/files/rancher_monitoring_chart_values.yaml")
+  values         = try(length(var.values) > 0 ? var.values : local.default_values, local.default_values)
+}
+
 resource "rancher2_catalog" "charts_custom" {
   count  = var.use_v2 ? 0 : 1
   name   = "rancher-charts-custom"
   url    = var.charts_repo
   branch = var.charts_branch
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 }
 
 resource "rancher2_app" "rancher_monitoring" {
@@ -22,7 +33,13 @@ resource "rancher2_app" "rancher_monitoring" {
   template_name    = "rancher-monitoring"
   template_version = var.chart_version
   target_namespace = "cattle-monitoring-system"
-  values_yaml      = base64encode(file(var.values))
+  values_yaml      = base64encode(file(local.values))
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 
   depends_on = [
     rancher2_catalog.charts_custom
@@ -36,6 +53,12 @@ resource "rancher2_catalog_v2" "charts_custom" {
   name       = "rancher-charts-custom"
   git_repo   = var.charts_repo
   git_branch = var.charts_branch
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 
   provisioner "local-exec" {
     command = <<-EOT
@@ -53,7 +76,13 @@ resource "rancher2_app_v2" "rancher_monitoring" {
   repo_name     = "rancher-charts-custom"
   chart_name    = "rancher-monitoring"
   chart_version = var.chart_version
-  values        = file(var.values)
+  values        = file(local.values)
+
+  timeouts {
+    create = try(var.timeouts.create, null)
+    update = try(var.timeouts.update, null)
+    delete = try(var.timeouts.delete, null)
+  }
 
   depends_on = [
     rancher2_catalog_v2.charts_custom

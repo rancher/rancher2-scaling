@@ -13,7 +13,7 @@ data "aws_subnets" "available" {
 }
 
 data "aws_route53_zone" "dns_zone" {
-  count = local.use_route53
+  count = local.use_route53 ? 1 : 0
   name  = local.r53_domain
 }
 
@@ -42,7 +42,7 @@ data "aws_ami" "ubuntu" {
   }
 }
 
-data "cloudinit_config" "rke1_server" {
+data "cloudinit_config" "server" {
   gzip          = false
   base64_encode = true
 
@@ -79,6 +79,14 @@ data "cloudinit_config" "rke1_server" {
     )
     merge_type = "list(append)+dict(recurse_array)+str()"
   }
+  dynamic "part" {
+    for_each = var.user_data_parts
+    content {
+      filename     = part.value.filename
+      content_type = part.value.content_type
+      content      = part.value.content
+    }
+  }
 }
 
 data "aws_instances" "nodes" {
@@ -87,6 +95,11 @@ data "aws_instances" "nodes" {
     Owner = var.user
   }
   depends_on = [
-    aws_autoscaling_group.rke1_server
+    aws_autoscaling_group.server
   ]
+}
+
+data "aws_security_group" "extras" {
+  count = length(var.extra_security_groups)
+  name  = var.extra_security_groups[count.index]
 }

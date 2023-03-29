@@ -4,10 +4,10 @@ variable "create_credential" {
   description = "Boolean used to determine whether or not to create a credential or use a pre-existing one. Useful for automation"
 }
 
-variable "existing_cloud_cred" {
+variable "cloud_cred_name" {
   type        = string
   default     = ""
-  description = "(Optional) Name of an existing cloud credential to use. Only use this if create_credential is false."
+  description = "(Optional) Name of cloud credential to use."
 }
 
 variable "name_suffix" {
@@ -29,28 +29,39 @@ variable "cluster_labels" {
 }
 
 variable "roles_per_pool" {
-  type        = list(map(string))
+  type = list(object({
+    quantity      = number
+    etcd          = optional(bool)
+    control-plane = optional(bool)
+    worker        = optional(bool)
+  }))
+  default = [{
+    quantity      = 1
+    control-plane = true
+    etcd          = true
+    worker        = true
+  }]
   description = <<EOF
   A list of maps where each element contains keys that define the roles and quantity for a given node pool.
   Example: [
     {
-      "quantity" = 3
-      "etd" = true
-      "control-plane" = true
-      "worker" = true
+      quantity = 3
+      etcd = true
+      control-plane = true
+      worker = true
     }
   ]
   EOF
   validation {
-    condition     = contains([1, 3, 5], sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["etcd"] == "true", false)]))
+    condition     = contains([1, 3, 5], sum([for i, pool in var.roles_per_pool : pool.quantity if try(pool.etcd == true, false)]))
     error_message = "The number of etcd nodes per cluster must be one of [1, 3, 5]."
   }
   validation {
-    condition     = sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["control-plane"] == "true", false)]) >= 1
+    condition     = sum([for i, pool in var.roles_per_pool : pool.quantity if try(pool.control-plane == true, false)]) >= 1
     error_message = "The number of control-plane nodes per cluster must be >= 1."
   }
   validation {
-    condition     = sum([for i, pool in var.roles_per_pool : try(tonumber(pool["quantity"]), 1) if try(pool["worker"] == "true", false)]) >= 1
+    condition     = sum([for i, pool in var.roles_per_pool : pool.quantity if try(pool.worker == true, false)]) >= 1
     error_message = "The number of worker nodes per cluster must be >= 1."
   }
 }
@@ -83,6 +94,26 @@ variable "security_groups" {
   description = "A list of security group names (EC2-Classic) or IDs (default VPC) to associate with"
 }
 
+variable "agent_env_vars" {
+  type        = list(map(string))
+  default     = null
+  description = "A list of maps representing Rancher agent environment variables: https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#agent_env_vars"
+  validation {
+    condition     = var.agent_env_vars == null ? true : length(var.agent_env_vars) == 0 ? true : sum([for var in var.agent_env_vars : 1 if lookup(var, "name", "false") != "false"]) == length(var.agent_env_vars)
+    error_message = "Each env var map must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+  validation {
+    condition     = var.agent_env_vars == null ? true : length(var.agent_env_vars) == 0 ? true : sum([for var in var.agent_env_vars : 1 if lookup(var, "value", "false") != "false"]) == length(var.agent_env_vars)
+    error_message = "Each env var map must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+}
+
+variable "create_keypair" {
+  type = bool
+  default = false
+  description = "Boolean used to determine whether or not to create a keypair or use a pre-existing one. Useful for easing the process of ssh-ing into clusters"
+}
+
 variable "keypair_name" {
   type        = string
   default     = null
@@ -93,6 +124,12 @@ variable "ssh_key_path" {
   default     = null
   type        = string
   description = "Path to the private SSH key file to be used for accessing the cluster node(s)"
+}
+
+variable "public_key_path" {
+  default     = null
+  type        = string
+  description = "This variable can only be set if var.ssh_key_path is set. Path to the public SSH key file to be used for creating the AWS keypair for accessing the cluster node(s)"
 }
 
 variable "server_instance_type" {

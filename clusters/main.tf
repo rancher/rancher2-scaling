@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.13"
+  required_version = ">= 1.0"
   required_providers {
     rancher2 = {
       source = "rancher/rancher2"
@@ -74,8 +74,8 @@ resource "aws_instance" "k3s-server" {
   }
 
   root_block_device {
-    volume_size = "32"
-    volume_type = "gp2"
+    volume_size = var.volume_size
+    volume_type = var.volume_type
   }
 
   depends_on = [rancher2_cluster.k3s]

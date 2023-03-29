@@ -57,6 +57,11 @@ locals {
   node_pool_name           = substr("${local.rancher_subdomain}-nt${local.name_suffix}", 0, local.name_max_length)
   cluster_name             = length(var.cluster_name) > 0 ? var.cluster_name : "${substr("${local.rancher_subdomain}-${local.name_suffix}", 0, local.name_max_length)}"
   node_pool_count          = length(var.roles_per_pool)
+  kube_api = var.kube_api_debugging ? {
+    extra_args = {
+      v = "3"
+    }
+  } : null
 }
 
 module "cloud_credential" {
@@ -91,6 +96,7 @@ module "node_template" {
     volume_type          = var.volume_type
     iam_instance_profile = var.iam_instance_profile
   }
+  engine_fields = var.node_template_engine_fields
 }
 
 resource "rancher2_node_pool" "np" {
@@ -103,6 +109,7 @@ resource "rancher2_node_pool" "np" {
   control_plane    = try(tobool(var.roles_per_pool[count.index]["control-plane"]), false)
   etcd             = try(tobool(var.roles_per_pool[count.index]["etcd"]), false)
   worker           = try(tobool(var.roles_per_pool[count.index]["worker"]), false)
+  delete_not_ready_after_secs = 0
 }
 
 module "cluster_v1" {
@@ -115,20 +122,48 @@ module "cluster_v1" {
   cloud_provider   = "aws"
   network_config = {
     plugin = "canal"
-    mtu    = null
   }
   upgrade_strategy = {
     drain = false
   }
+  kube_api           = local.kube_api
+  agent_env_vars     = var.agent_env_vars
+  enable_cri_dockerd = var.enable_cri_dockerd
 
   depends_on = [
     module.node_template
   ]
 }
 
+resource "rancher2_cluster_sync" "this" {
+  count         = var.wait_for_active ? 1 : 0
+  cluster_id    = module.cluster_v1.id
+  node_pool_ids = rancher2_node_pool.np[*].id
+}
+
 resource "local_file" "kube_config" {
-  content  = nonsensitive(module.cluster_v1.kube_config)
+  content  = var.wait_for_active ? nonsensitive(rancher2_cluster_sync.this[0].kube_config) : module.cluster_v1.kube_config
   filename = "${path.module}/files/kube_config/${terraform.workspace}_kube_config"
+}
+
+module "rancher_monitoring" {
+  count  = var.install_monitoring && var.wait_for_active ? 1 : 0
+  source = "../../rancher-cluster-operations/charts/rancher-monitoring"
+  providers = {
+    rancher2 = rancher2
+  }
+
+  use_v2        = true
+  rancher_url   = var.rancher_api_url
+  rancher_token = var.rancher_token_key
+  charts_branch = var.rancher_charts_branch
+  chart_version = var.monitoring_version
+  cluster_id    = module.cluster_v1.id
+  project_id    = module.cluster_v1.default_project_id
+
+  depends_on = [
+    local_file.kube_config
+  ]
 }
 
 output "create_node_reqs" {
@@ -145,6 +180,10 @@ output "nt_name" {
 
 output "cluster_name" {
   value = local.cluster_name
+}
+
+output "cluster_id" {
+  value = module.cluster_v1.id
 }
 
 output "kube_config" {

@@ -86,10 +86,16 @@ variable "private_subnets" {
   description = "List of private subnet ids."
 }
 
-variable "extra_server_security_groups" {
+variable "create_rancher_security_group" {
+  type        = bool
+  default     = true
+  description = "Boolean flag defining if the included rancher server-specific security group should be created"
+}
+
+variable "extra_security_groups" {
   default     = []
   type        = list(any)
-  description = "Additional security groups to attach to rke1 server instances"
+  description = "List of IDs for additional security groups to attach to rke1 server instances"
 }
 
 variable "aws_azs" {
@@ -107,7 +113,13 @@ variable "private_subnets_cidr_blocks" {
 variable "s3_instance_profile" {
   default     = ""
   type        = string
-  description = "Optional: String that defines the name of the IAM Instance Profile that grants S3 access to the EC2 instances. Required if 'byo_certs_bucket_path' is set"
+  description = "Optional: String that defines the name of the IAM Instance Profile that grants S3 access to the EC2 instances"
+}
+
+variable "create_internal_nlb" {
+  default     = true
+  type        = bool
+  description = "Boolean that defines whether or not to create an internal load balancer"
 }
 
 variable "create_external_nlb" {
@@ -124,4 +136,15 @@ variable "use_route53" {
 
 variable "user" {
   type = string
+}
+
+variable "user_data_parts" {
+  default = []
+  type = list(object({
+    filename     = string
+    content_type = string
+    content      = string
+    })
+  )
+  description = "A list of maps defining parts of a multi-part `cloudinit_config` resource. Each `part` should be a valid user_data file that can be run at boot"
 }

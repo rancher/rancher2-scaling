@@ -38,6 +38,11 @@ locals {
   upgrade_strategy = {
     drain = false
   }
+  kube_api = var.kube_api_debugging ? {
+    extra_args = {
+      v = "3"
+    }
+  } : null
 }
 
 module "cloud_credential" {
@@ -63,18 +68,21 @@ module "node_template" {
     region           = var.region
     authorized_users = var.authorized_users
   }
+  engine_fields = var.node_template_engine_fields
 }
 
 resource "rancher2_node_pool" "np" {
-  count            = local.node_pool_count
-  cluster_id       = module.cluster_v1.id
-  name             = "${local.node_pool_name}-${count.index}"
-  hostname_prefix  = "${local.node_pool_name}-pool${count.index}-node"
-  node_template_id = module.node_template.id
-  quantity         = try(tonumber(var.roles_per_pool[count.index]["quantity"]), false)
-  control_plane    = try(tobool(var.roles_per_pool[count.index]["control-plane"]), false)
-  etcd             = try(tobool(var.roles_per_pool[count.index]["etcd"]), false)
-  worker           = try(tobool(var.roles_per_pool[count.index]["worker"]), false)
+  count      = local.node_pool_count
+  cluster_id = module.cluster_v1.id
+  # cluster_id                  = rancher2_cluster.this.id
+  name                        = "${local.node_pool_name}-${count.index}"
+  hostname_prefix             = "${local.node_pool_name}-pool${count.index}-node"
+  node_template_id            = module.node_template.id
+  quantity                    = try(tonumber(var.roles_per_pool[count.index]["quantity"]), false)
+  control_plane               = try(tobool(var.roles_per_pool[count.index]["control-plane"]), false)
+  etcd                        = try(tobool(var.roles_per_pool[count.index]["etcd"]), false)
+  worker                      = try(tobool(var.roles_per_pool[count.index]["worker"]), false)
+  delete_not_ready_after_secs = 60
 }
 
 module "cluster_v1" {
@@ -87,14 +95,27 @@ module "cluster_v1" {
   network_config   = local.network_config
   upgrade_strategy = local.upgrade_strategy
 
+  kube_api           = local.kube_api
+  agent_env_vars     = var.agent_env_vars
+  enable_cri_dockerd = var.enable_cri_dockerd
+
   depends_on = [
     module.node_template
   ]
 }
 
+resource "rancher2_cluster_sync" "this" {
+  count      = var.wait_for_active ? 1 : 0
+  cluster_id = module.cluster_v1.id
+  # cluster_id    = rancher2_cluster.this.id
+  node_pool_ids = rancher2_node_pool.np[*].id
+}
+
 resource "local_file" "kube_config" {
-  content  = nonsensitive(module.cluster_v1.kube_config)
+  content = var.wait_for_active ? nonsensitive(rancher2_cluster_sync.this[0].kube_config) : module.cluster_v1.kube_config
+  # content  = var.wait_for_active ? nonsensitive(rancher2_cluster_sync.this[0].kube_config) : rancher2_cluster.this.kube_config
   filename = "${path.module}/files/kube_config/${terraform.workspace}_kube_config"
+  file_permission = "0700"
 }
 
 output "create_node_reqs" {
@@ -113,6 +134,11 @@ output "cluster_name" {
   value = local.cluster_name
 }
 
-# output "kube_config" {
-#   value = nonsensitive(module.cluster_v1.kube_config)
-# }
+output "cluster_id" {
+  value = module.cluster_v1.id
+  # value = rancher2_cluster.this.id
+}
+
+output "kube_config" {
+  value = nonsensitive(module.cluster_v1.kube_config)
+}

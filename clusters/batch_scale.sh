@@ -41,7 +41,7 @@ function get_monitor_node() {
 
 function batch_scale() {
     counter=1
-    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / (BATCH_NUM_NODES * 10)))
+    NUM_BATCHES=$((TARGET_NUM_DOWNSTREAMS / (BATCH_NUM_NODES)))
     HALF_COMPLETE=$(((NUM_BATCHES + 1)/2)) # rounded up
     while [ "${counter}" -le $NUM_BATCHES ]; do
         BATCH_SET_LIMIT=$((counter * BATCH_NUM_NODES))

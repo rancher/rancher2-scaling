@@ -60,5 +60,6 @@ data "rancher2_cloud_credential" "this" {
 }
 
 data "aws_key_pair" "this" {
-  key_name = local.use_existing_keypair ? var.keypair_name : aws_key_pair.this[0].key_name
+  count    = local.keypair_name_valid ? 1 : 0
+  key_name = var.create_keypair ? aws_key_pair.this[0].key_name : local.keypair_name
 }

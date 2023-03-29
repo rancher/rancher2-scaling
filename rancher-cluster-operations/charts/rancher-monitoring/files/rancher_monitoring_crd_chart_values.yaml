@@ -1,0 +1,6 @@
+global:
+  cattle:
+    clusterId: local
+    clusterName: local
+    systemDefaultRegistry: ''
+  systemDefaultRegistry: ''

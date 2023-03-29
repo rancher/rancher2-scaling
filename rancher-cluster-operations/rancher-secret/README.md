@@ -37,7 +37,7 @@ No modules.
 | <a name="input_annotations"></a> [annotations](#input\_annotations) | (optional) A map of annotations to add to the Secret | `map(string)` | `null` | no |
 | <a name="input_cluster_id"></a> [cluster\_id](#input\_cluster\_id) | (rancher2\_secret\_v2 only) ID of the cluster where the Secret should be created | `string` | `"local"` | no |
 | <a name="input_create_new"></a> [create\_new](#input\_create\_new) | (required) Flag defining if a new Secret should be created on each tf apply. Useful for scripting purposes | `bool` | n/a | yes |
-| <a name="input_data"></a> [data](#input\_data) | (required if create\_new = true) Map of data to include in each Secret. Data values for rancher2\_secret will be base64encoded as required, therefore do not pass in encoded data | `map(any)` | n/a | yes |
+| <a name="input_data"></a> [data](#input\_data) | (required if create\_new = true) Map of data to include in each Secret (values can be file paths). Data values for rancher2\_secret will be base64encoded as required, therefore do not pass in encoded data | `map(any)` | n/a | yes |
 | <a name="input_description"></a> [description](#input\_description) | (rancher2\_secret only) Description for the Secret | `string` | `null` | no |
 | <a name="input_immutable"></a> [immutable](#input\_immutable) | (optional) If set to true, any Secret update will remove and recreate the Secret. This is a beta field enabled by k8s ImmutableEphemeralVolumes feature gate | `string` | `false` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | (optional) A map of labels to add to the Secret | `map(string)` | `null` | no |

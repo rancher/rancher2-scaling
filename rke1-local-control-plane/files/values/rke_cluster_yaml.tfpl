@@ -6,14 +6,14 @@ nodes:
   - controlplane
   - worker
   - etcd
-  user: ubuntu
+  user: ${user}
 %{ endfor ~}
 %{ if dedicated_monitoring ~}
 - address: ${monitor_address}
   internal_address: ${monitor_private_address}
   role:
   - worker
-  user: ubuntu
+  user: ${user}
   labels:
     monitoring: "yes"
   taints:
@@ -31,8 +31,21 @@ services:
       enabled: ${enable_secrets_encryption}
     audit_log:
       enabled: ${enable_audit_log}
+ingress:
+  provider: nginx
+  options:
+    use-forwarded-headers: "true"
 ssh_key_path: ${ssh_key_path}
 ssh_agent_auth: false
 ignore_docker_version: false
+%{ if length(kubernetes_version) > 0 ~}
 kubernetes_version: ${kubernetes_version}
+%{ endif ~}
+enable_cri_dockerd: ${enable_cri_dockerd}
 cluster_name: local
+%{ if length(keys(system_images)) > 0 ~}
+system_images:
+%{ for key, value in system_images ~}
+  ${key}: ${value}
+%{ endfor ~}
+%{ endif ~}
