@@ -1,0 +1,53 @@
+nodes:
+- address: 13.52.74.158
+  internal_address: 172.31.6.95
+  role:
+  - controlplane
+  - worker
+  - etcd
+  user: ubuntu
+- address: 54.67.91.39
+  internal_address: 172.31.15.218
+  role:
+  - controlplane
+  - worker
+  - etcd
+  user: ubuntu
+- address: 18.144.55.161
+  internal_address: 172.31.27.5
+  role:
+  - controlplane
+  - worker
+  - etcd
+  user: ubuntu
+- address: 54.219.63.78
+  internal_address: 172.31.29.232
+  role:
+  - worker
+  user: ubuntu
+  labels:
+    monitoring: "yes"
+  taints:
+  - key: monitoring
+    value: "yes"
+    effect: NoSchedule
+services:
+  etcd:
+    snapshot: true
+    retention: 24h
+    creation: 6h
+  kube-api:
+    secrets_encryption_config:
+      enabled: false
+    audit_log:
+      enabled: false
+ingress:
+  provider: nginx
+  options:
+    use-forwarded-headers: "true"
+ssh_key_path: /home/ivln/workspace/work/RancherVCS/ival-pc-temp.pem
+ssh_agent_auth: false
+ignore_docker_version: false
+kubernetes_version: v1.24.10-rancher4-1
+enable_cri_dockerd: true
+cluster_name: local

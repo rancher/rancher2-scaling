@@ -80,7 +80,7 @@ locals {
   created_users  = var.create_new_users && var.num_users > 0 ? { for user in rancher2_user.this[*] : user.name => user } : {}
 
   all_users   = (var.user_cluster_binding || var.user_project_binding || var.user_global_binding) ? merge(local.created_users, local.generated_users, local.existing_users) : {}
-  found_users   = data.rancher2_user.this
+  found_users = data.rancher2_user.this
 }
 
 data "rancher2_cluster" "this" {

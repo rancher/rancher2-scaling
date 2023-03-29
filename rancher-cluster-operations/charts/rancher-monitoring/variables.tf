@@ -49,3 +49,13 @@ variable "cluster_id" {
 variable "project_id" {
   type = string
 }
+
+variable "timeouts" {
+  default = null
+  type = object({
+    create = optional(string, "10m")
+    update = optional(string, "10m")
+    delete = optional(string, "10m")
+  })
+  description = "A map of string representing the timeouts for each resource operation: ['create', 'update', 'delete']."
+}

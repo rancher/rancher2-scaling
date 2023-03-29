@@ -9,12 +9,16 @@ ingress:
     source: letsEncrypt
 letsEncrypt:
   email: ${letsencrypt_email}
+  ingress:
+    class: ${ingress_class}
 %{ endif ~}
 %{ if private_ca ~}
-privateCA: ${private_ca}
+privateCA: ${private_ca_file}
 %{ endif ~}
 rancherImage: ${rancher_image}
+%{ if rancher_image_tag != null }
 rancherImageTag: ${rancher_image_tag}
+%{ endif ~}
 replicas: ${rancher_node_count}
 %{ if use_new_bootstrap ~}
 bootstrapPassword: ${rancher_password}
@@ -22,3 +26,6 @@ bootstrapPassword: ${rancher_password}
 extraEnv:
 - name: CATTLE_PROMETHEUS_METRICS
   value: '${cattle_prometheus_metrics}'
+%{ if length(rancher_env_vars) > 0 ~}
+${yamlencode(rancher_env_vars)}
+%{ endif ~}

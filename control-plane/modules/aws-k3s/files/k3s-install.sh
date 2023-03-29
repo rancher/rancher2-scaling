@@ -16,7 +16,7 @@ export K3S_URL='https://${k3s_url}:6443'
 %{~ endif ~}
 
 %{ if sleep_at_startup }
-sleep_time=$(((RANDOM % 10) + 5))
+sleep_time=$(((RANDOM % 10) + 25))
 sleep $sleep_time
 %{ endif ~}
 

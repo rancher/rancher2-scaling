@@ -6,6 +6,7 @@ variable "cluster_name" {
 
 variable "cluster_count" {
   type        = number
+  default     = 1
   description = "Number of clusters to provision"
 }
 
@@ -23,6 +24,18 @@ variable "security_groups" {
 variable "server_instance_type" {
   type        = string
   description = "Instance type to use for k3s server"
+}
+
+variable "volume_size" {
+  type        = string
+  default     = "32"
+  description = "Size of the storage volume to use in GB"
+}
+
+variable "volume_type" {
+  type        = string
+  default     = "gp2"
+  description = "Type of storage volume to use"
 }
 
 variable "k3s_server_args" {

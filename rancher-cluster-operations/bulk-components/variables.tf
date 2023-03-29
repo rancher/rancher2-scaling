@@ -9,8 +9,8 @@ variable "num_secrets" {
 }
 
 variable "use_v2" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Flag to determine whether or not to use the v2 version of a given resource"
 }
 

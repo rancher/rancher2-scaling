@@ -31,6 +31,7 @@ resource "rancher2_cluster" "this" {
       addons_include        = var.addons_include
       addons                = var.addons
       addon_job_timeout     = 60
+      enable_cri_dockerd    = var.enable_cri_dockerd
 
       dynamic "cloud_provider" {
         for_each = var.cloud_provider != null ? [1] : []
@@ -189,8 +190,24 @@ output "id" {
   value = rancher2_cluster.this.id
 }
 
+output "name" {
+  value = var.name
+}
+
+output "default_project_id" {
+  value = rancher2_cluster.this.default_project_id
+}
+
 output "cluster_registration_token" {
   value = rancher2_cluster.this.cluster_registration_token
+}
+
+output "registration_command" {
+  value = rancher2_cluster.this.cluster_registration_token[0].command
+}
+
+output "insecure_registration_command" {
+  value = rancher2_cluster.this.cluster_registration_token[0].insecure_command
 }
 
 output "driver" {

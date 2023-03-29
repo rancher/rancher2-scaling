@@ -26,3 +26,6 @@ bootstrapPassword: ${rancher_password}
 extraEnv:
 - name: CATTLE_PROMETHEUS_METRICS
   value: '${cattle_prometheus_metrics}'
+%{ if length(rancher_env_vars) > 0 ~}
+${yamlencode(rancher_env_vars)}
+%{ endif ~}

@@ -13,11 +13,11 @@ This module supports creating a k3s cluster with a postgres backend in AWS. It a
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | n/a |
-| <a name="provider_null"></a> [null](#provider\_null) | n/a |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.34.0 |
+| <a name="provider_cloudinit"></a> [cloudinit](#provider\_cloudinit) | 2.2.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.24.1 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.4.3 |
 
 ## Modules
 
@@ -85,6 +85,7 @@ No modules.
 | <a name="input_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#input\_cattle\_prometheus\_metrics) | Boolean variable that defines whether or not to enable the CATTLE\_PROMETHEUS\_METRICS env var for Rancher | `bool` | `true` | no |
 | <a name="input_certmanager_version"></a> [certmanager\_version](#input\_certmanager\_version) | Version of cert-manager to install | `string` | `"1.5.2"` | no |
 | <a name="input_create_agent_nlb"></a> [create\_agent\_nlb](#input\_create\_agent\_nlb) | Boolean that defines whether or not to create an external load balancer | `bool` | `true` | no |
+| <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | Engine used to create the database in RDS | `string` | `"sqlite"` | no |
 | <a name="input_db_instance_type"></a> [db\_instance\_type](#input\_db\_instance\_type) | n/a | `string` | `"db.r5.xlarge"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name of database to create in RDS | `string` | `"rancher"` | no |
 | <a name="input_db_node_count"></a> [db\_node\_count](#input\_db\_node\_count) | Number of RDS database instances to launch | `number` | `1` | no |
@@ -118,6 +119,7 @@ No modules.
 | <a name="input_r53_domain"></a> [r53\_domain](#input\_r53\_domain) | DNS domain for Route53 zone (defaults to domain if unset) | `string` | `""` | no |
 | <a name="input_rancher_chart"></a> [rancher\_chart](#input\_rancher\_chart) | Helm chart to use for Rancher install | `string` | `"rancher-stable/rancher"` | no |
 | <a name="input_rancher_chart_tag"></a> [rancher\_chart\_tag](#input\_rancher\_chart\_tag) | The github tag for the desired Rancher chart version | `string` | `"release-v2.5"` | no |
+| <a name="input_rancher_env_vars"></a> [rancher\_env\_vars](#input\_rancher\_env\_vars) | A list of maps representing Rancher environment variables | `list(map(string))` | `[]` | no |
 | <a name="input_rancher_image"></a> [rancher\_image](#input\_rancher\_image) | n/a | `string` | `"rancher/rancher"` | no |
 | <a name="input_rancher_image_tag"></a> [rancher\_image\_tag](#input\_rancher\_image\_tag) | n/a | `string` | `"master-head"` | no |
 | <a name="input_rancher_password"></a> [rancher\_password](#input\_rancher\_password) | Password to set for admin user after bootstrap of Rancher Server | `string` | `""` | no |

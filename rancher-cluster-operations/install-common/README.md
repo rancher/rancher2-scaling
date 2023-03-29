@@ -11,9 +11,9 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.5.1 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.23.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
 
 ## Modules
 
@@ -40,11 +40,13 @@ No modules.
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | `null` | no |
 | <a name="input_helm_rancher_chart_values_path"></a> [helm\_rancher\_chart\_values\_path](#input\_helm\_rancher\_chart\_values\_path) | Local path to the templated values.yaml to be used for the Rancher Server Helm install | `string` | `null` | no |
 | <a name="input_helm_rancher_repo"></a> [helm\_rancher\_repo](#input\_helm\_rancher\_repo) | The repo URL to use for Rancher Server charts | `string` | `"https://releases.rancher.com/server-charts/latest"` | no |
+| <a name="input_ingress_class"></a> [ingress\_class](#input\_ingress\_class) | Which Rancher-supported ingress to use | `string` | `"nginx"` | no |
 | <a name="input_install_certmanager"></a> [install\_certmanager](#input\_install\_certmanager) | Boolean that defines whether or not to install Cert-Manager | `bool` | `true` | no |
 | <a name="input_install_rancher"></a> [install\_rancher](#input\_install\_rancher) | Boolean that defines whether or not to install Rancher | `bool` | `true` | no |
 | <a name="input_kube_config_path"></a> [kube\_config\_path](#input\_kube\_config\_path) | Path to kubeconfig file on local machine | `string` | `null` | no |
 | <a name="input_letsencrypt_email"></a> [letsencrypt\_email](#input\_letsencrypt\_email) | LetsEncrypt email address to use | `string` | `null` | no |
 | <a name="input_private_ca_file"></a> [private\_ca\_file](#input\_private\_ca\_file) | Optional: String that defines the name of the private CA .pem file in the specified S3 bucket's cert tarball | `string` | `""` | no |
+| <a name="input_rancher_env_vars"></a> [rancher\_env\_vars](#input\_rancher\_env\_vars) | A list of maps representing Rancher environment variables | `list(map(string))` | `[]` | no |
 | <a name="input_rancher_image"></a> [rancher\_image](#input\_rancher\_image) | n/a | `string` | `"rancher/rancher"` | no |
 | <a name="input_rancher_image_tag"></a> [rancher\_image\_tag](#input\_rancher\_image\_tag) | Rancher image tag to install, this can differ from rancher\_version which is the chart being used to install Rancher | `string` | `null` | no |
 | <a name="input_rancher_node_count"></a> [rancher\_node\_count](#input\_rancher\_node\_count) | n/a | `number` | `1` | no |

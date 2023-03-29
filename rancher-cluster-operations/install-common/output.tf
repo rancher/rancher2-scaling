@@ -10,3 +10,11 @@ output "rancher_token" {
 output "use_new_bootstrap" {
   value = var.use_new_bootstrap
 }
+
+# output "rancher_manifest" {
+#   value = try(helm_release.rancher[0].manifest, "")
+# }
+
+# output "cert_manager_manifest" {
+#   value = try(helm_release.cert_manager[0].manifest, "")
+# }

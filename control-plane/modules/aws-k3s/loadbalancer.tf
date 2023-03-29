@@ -1,21 +1,22 @@
 ### used in order to keep the k3s.yaml (kubeconfig) secured behind
 ### this private NLB so that it is only accessible from within the cluster itself
-# resource "aws_lb" "server_lb" {
-#   name               = "${local.name}-server-int"
-#   internal           = true
-#   load_balancer_type = "network"
-#   subnets            = local.private_subnets
-#   tags = {
-#     "kubernetes.io/cluster/${local.name}" = ""
-#     "rancher.user"                        = var.user
-#   }
+resource "aws_lb" "server_lb" {
+  count              = local.create_internal_nlb
+  name               = "${local.name}-server-int"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = local.private_subnets
+  tags = {
+    "kubernetes.io/cluster/${local.name}" = ""
+    "rancher.user"                        = var.user
+  }
 
-# }
+}
 
 ### previously set to private NLB in order to secure access to the k8s api
 ### so that it was only accessible from within the cluster itself
 resource "aws_lb_listener" "server_port_6443" {
-  load_balancer_arn = aws_lb.server-public-lb.arn
+  load_balancer_arn = aws_lb.server-public-lb[0].arn
   port              = "6443"
   protocol          = "TCP"
 
@@ -126,6 +127,7 @@ resource "aws_lb_target_group" "agent-80" {
 }
 
 resource "aws_lb" "server-public-lb" {
+  count              = local.create_public_nlb
   name               = local.name
   internal           = false
   load_balancer_type = "network"
@@ -196,7 +198,7 @@ resource "aws_lb_target_group" "server-80" {
 }
 
 resource "aws_lb_listener" "server-port_443" {
-  load_balancer_arn = aws_lb.server-public-lb.arn
+  load_balancer_arn = aws_lb.server-public-lb[0].arn
   port              = "443"
   protocol          = "TCP"
 
@@ -207,7 +209,7 @@ resource "aws_lb_listener" "server-port_443" {
 }
 
 resource "aws_lb_listener" "server-port_80" {
-  load_balancer_arn = aws_lb.server-public-lb.arn
+  load_balancer_arn = aws_lb.server-public-lb[0].arn
   port              = "80"
   protocol          = "TCP"
 

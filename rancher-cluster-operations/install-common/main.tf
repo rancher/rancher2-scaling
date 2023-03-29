@@ -20,6 +20,7 @@ resource "helm_release" "cert_manager" {
   version          = var.certmanager_version
   namespace        = "cert-manager"
   create_namespace = true
+  wait             = true
   wait_for_jobs    = true
   timeout          = 600
   set {
@@ -58,6 +59,7 @@ resource "helm_release" "rancher" {
   devel            = true
   namespace        = "cattle-system"
   create_namespace = true
+  wait             = true
   wait_for_jobs    = true
   values = [
     templatefile(try(length(var.helm_rancher_chart_values_path) > 0 ? "${var.helm_rancher_chart_values_path}" : null, abspath("${path.module}/files/rancher_chart_values.tftpl")), {
@@ -74,9 +76,18 @@ resource "helm_release" "rancher" {
       private_ca                = length(var.private_ca_file) > 0 ? true : false
       private_ca_file           = var.private_ca_file
       cattle_prometheus_metrics = var.cattle_prometheus_metrics
+      rancher_env_vars          = length(var.rancher_env_vars) > 0 ? var.rancher_env_vars : []
       }
     )
   ]
+  dynamic "set" {
+    for_each = length(var.rancher_additional_values) > 0 ? var.rancher_additional_values : []
+    iterator = val
+    content {
+      name  = val.value.name
+      value = val.value.value
+    }
+  }
   depends_on = [
     null_resource.wait_for_cert_manager
   ]

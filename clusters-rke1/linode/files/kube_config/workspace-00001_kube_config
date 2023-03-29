@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Config
+clusters:
+- name: "ival-cowbird-k3s-workspace-00001"
+  cluster:
+    server: "https://ival-cowbird-k3s.qa.rancher.space/k8s/clusters/c-7mtbx"
+
+users:
+- name: "ival-cowbird-k3s-workspace-00001"
+  user:
+    token: "kubeconfig-user-lt4bjf8m44:wxn8qvtrf6s548vx5mc7m8nmpqthdrkfffltrxmjgvsq92v5gd7fmh"
+
+
+contexts:
+- name: "ival-cowbird-k3s-workspace-00001"
+  context:
+    user: "ival-cowbird-k3s-workspace-00001"
+    cluster: "ival-cowbird-k3s-workspace-00001"
+
+current-context: "ival-cowbird-k3s-workspace-00001"
