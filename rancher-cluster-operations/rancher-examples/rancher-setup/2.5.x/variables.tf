@@ -4,6 +4,12 @@ variable "rancher_api_url" {
   description = "API url for Rancher server"
 }
 
+variable "rancher_token" {
+  type     = string
+  nullable = true
+  default  = null
+}
+
 variable "rancher_version" {
   type        = string
   default     = "2.5.14"

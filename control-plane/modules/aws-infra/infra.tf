@@ -46,148 +46,23 @@ resource "aws_security_group_rule" "ingress_egress_all" {
   security_group_id = aws_security_group.ingress.id
 }
 
-resource "aws_security_group" "self" {
-  name   = "${local.name}-self"
-  vpc_id = data.aws_vpc.default.id
-  tags = {
-    for tag in local.custom_tags : "${tag.key}" => "${tag.value}"
-  }
-}
-
-# resource "aws_security_group_rule" "self_self" {
-#   type              = "ingress"
-#   from_port         = 0
-#   to_port           = 0
-#   protocol          = "-1"
-#   self              = true
-#   security_group_id = aws_security_group.self.id
-# }
-
-resource "aws_security_group_rule" "self_rke1_server" {
-  type              = "ingress"
-  from_port         = 6443
-  to_port           = 6443
-  protocol          = "TCP"
-  cidr_blocks       = local.private_subnets_cidr_blocks
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_dockerd_tls" {
-  type              = "ingress"
-  from_port         = 2376
-  to_port           = 2376
-  protocol          = "TCP"
-  cidr_blocks       = local.private_subnets_cidr_blocks
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_etcd_comms" {
-  type              = "ingress"
-  from_port         = 2379
-  to_port           = 2380
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_vxlan" {
-  type              = "ingress"
-  from_port         = 8472
-  to_port           = 8472
-  protocol          = "UDP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_vxlan_liveness_readiness" {
-  type              = "ingress"
-  from_port         = 9099
-  to_port           = 9099
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_prom_metrics_linux" {
-  type              = "ingress"
-  from_port         = 9100
-  to_port           = 9100
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_prom_metrics_windows" {
-  type              = "ingress"
-  from_port         = 9796
-  to_port           = 9796
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_kubelet" {
-  type              = "ingress"
-  from_port         = 10250
-  to_port           = 10250
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_ingress_liveness_readiness" {
-  type              = "ingress"
-  from_port         = 10254
-  to_port           = 10254
-  protocol          = "TCP"
-  self              = true
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "self_nodeport_range" {
-  type              = "ingress"
-  from_port         = 30000
-  to_port           = 32767
-  protocol          = "TCP"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "rke1_server_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.self.id
-}
-
-resource "aws_security_group_rule" "ssh_rke1_server" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "TCP"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.self.id
-}
-
 #############################
 ### Create Nodes
 #############################
 
-data "aws_iam_instance_profile" "rancher_s3_access" {
+data "aws_iam_instance_profile" "this" {
   count = length(local.s3_instance_profile) > 0 ? 1 : 0
   name  = local.s3_instance_profile
 }
 
-resource "aws_launch_template" "rke1_server" {
+resource "aws_launch_template" "server" {
   name_prefix   = local.name
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
-  user_data     = data.cloudinit_config.rke1_server.rendered
+  user_data     = data.cloudinit_config.server.rendered
 
   iam_instance_profile {
-    arn = length(local.s3_instance_profile) > 0 ? data.aws_iam_instance_profile.rancher_s3_access[0].arn : null
+    arn = length(local.s3_instance_profile) > 0 ? data.aws_iam_instance_profile.this[0].arn : null
   }
 
   block_device_mappings {
@@ -202,7 +77,7 @@ resource "aws_launch_template" "rke1_server" {
 
   network_interfaces {
     delete_on_termination = true
-    security_groups       = concat([aws_security_group.ingress.id, aws_security_group.self.id], var.extra_server_security_groups)
+    security_groups       = compact(concat([aws_security_group.ingress.id], var.create_rancher_security_group ? [aws_security_group.rancher_server[0].id] : [""], data.aws_security_group.extras[*].id))
   }
 
   lifecycle {
@@ -210,22 +85,22 @@ resource "aws_launch_template" "rke1_server" {
   }
 }
 
-resource "aws_autoscaling_group" "rke1_server" {
+resource "aws_autoscaling_group" "server" {
   name_prefix         = local.name
   desired_capacity    = local.server_node_count
   max_size            = local.server_node_count
   min_size            = local.server_node_count
   vpc_zone_identifier = local.private_subnets
 
-  target_group_arns = [
-    aws_lb_target_group.server-6443.arn,
-    aws_lb_target_group.server-80.arn,
-    aws_lb_target_group.server-443.arn
-  ]
+  target_group_arns = try([
+    aws_lb_target_group.server-6443[0].arn,
+    aws_lb_target_group.server-80[0].arn,
+    aws_lb_target_group.server-443[0].arn
+  ], [])
 
   launch_template {
-    id      = aws_launch_template.rke1_server.id
-    version = aws_launch_template.rke1_server.latest_version
+    id      = aws_launch_template.server.id
+    version = aws_launch_template.server.latest_version
   }
 
   lifecycle {
@@ -245,20 +120,20 @@ resource "aws_autoscaling_group" "rke1_server" {
 #############################
 ### Create Public Rancher DNS
 #############################
-resource "aws_route53_record" "rancher" {
-  count   = local.use_route53
+resource "aws_route53_record" "public" {
+  count   = local.use_route53 && local.create_public_nlb == 1 ? 1 : 0
   zone_id = data.aws_route53_zone.dns_zone.0.zone_id
   name    = "${local.subdomain}.${local.domain}"
   type    = "CNAME"
   ttl     = 30
-  records = [aws_lb.server-public-lb.dns_name]
+  records = [aws_lb.server-public-lb[0].dns_name]
 }
 
-resource "aws_route53_record" "rke1" {
-  count   = local.use_route53
+resource "aws_route53_record" "internal" {
+  count   = local.use_route53 && local.create_internal_nlb == 1 ? 1 : 0
   zone_id = data.aws_route53_zone.dns_zone.0.zone_id
   name    = "${local.subdomain}-int.${local.domain}"
   type    = "CNAME"
   ttl     = 30
-  records = [aws_lb.server_lb.dns_name]
+  records = [aws_lb.server_lb[0].dns_name]
 }

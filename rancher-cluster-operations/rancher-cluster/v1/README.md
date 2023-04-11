@@ -34,9 +34,10 @@ No modules.
 | <a name="input_cloud_config"></a> [cloud\_config](#input\_cloud\_config) | (Optional/Computed) The desired cloud provider-specific options for RKE services (object with optional attributes for those defined here https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#cloud_provider) | `any` | `null` | no |
 | <a name="input_cloud_provider"></a> [cloud\_provider](#input\_cloud\_provider) | A case-sensitive string equal to one of the following: ["aws", "azure", "openstack", "vsphere", "custom"]. | `string` | `null` | no |
 | <a name="input_description"></a> [description](#input\_description) | (optional) describe your variable | `string` | `null` | no |
+| <a name="input_enable_cri_dockerd"></a> [enable\_cri\_dockerd](#input\_enable\_cri\_dockerd) | (Optional) Enable/disable using cri-dockerd | `bool` | `false` | no |
 | <a name="input_etcd"></a> [etcd](#input\_etcd) | (Optional/Computed) Etcd options for RKE services (object with optional attributes for those defined here https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#etcd) | `any` | `null` | no |
 | <a name="input_k8s_distribution"></a> [k8s\_distribution](#input\_k8s\_distribution) | The K8s distribution to use for setting up the cluster. One of k3s, rke1, or rke2. | `string` | `null` | no |
-| <a name="input_k8s_version"></a> [k8s\_version](#input\_k8s\_version) | Version of k8s to use for downstream cluster (RKE1 version string) | `string` | `"v1.22.9-rancher1-1"` | no |
+| <a name="input_k8s_version"></a> [k8s\_version](#input\_k8s\_version) | Version of k8s to use for downstream cluster (RKE1 version string) | `string` | `null` | no |
 | <a name="input_kube_api"></a> [kube\_api](#input\_kube\_api) | (Optional/Computed) Kube API options for RKE services (object with optional attributes for those defined here https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#kube_api) | `any` | `null` | no |
 | <a name="input_kube_controller"></a> [kube\_controller](#input\_kube\_controller) | (Optional/Computed) Kube Controller options for RKE services (object with optional attributes for those defined here https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#kube_controller) | `any` | `null` | no |
 | <a name="input_kubelet"></a> [kubelet](#input\_kubelet) | (Optional/Computed) Kubelet options for RKE services (object with optional attributes for those defined here https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#kubelet) | `any` | `null` | no |
@@ -53,7 +54,11 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_cluster_registration_token"></a> [cluster\_registration\_token](#output\_cluster\_registration\_token) | n/a |
+| <a name="output_default_project_id"></a> [default\_project\_id](#output\_default\_project\_id) | n/a |
 | <a name="output_driver"></a> [driver](#output\_driver) | n/a |
 | <a name="output_id"></a> [id](#output\_id) | n/a |
+| <a name="output_insecure_registration_command"></a> [insecure\_registration\_command](#output\_insecure\_registration\_command) | n/a |
 | <a name="output_kube_config"></a> [kube\_config](#output\_kube\_config) | n/a |
+| <a name="output_name"></a> [name](#output\_name) | n/a |
+| <a name="output_registration_command"></a> [registration\_command](#output\_registration\_command) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

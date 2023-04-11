@@ -8,7 +8,7 @@ output "rancher_url" {
 }
 
 output "rancher_token" {
-  value     = nonsensitive(local.rancher_token)
+  value     = try(nonsensitive(local.rancher_token), "")
   sensitive = false
 }
 
@@ -61,17 +61,24 @@ output "name" {
 }
 
 output "nodes_ids" {
-  value = module.aws_infra.nodes_ids
+  # value = module.aws_infra[0].nodes_ids
+  value = local.nodes_info[*].id
 }
 
 output "nodes_public_ips" {
-  value = module.aws_infra.nodes_public_ips
+  # value = module.aws_infra[0].nodes_public_ips
+  value = local.nodes_info[*].public_address
 }
 
 output "nodes_private_ips" {
-  value = module.aws_infra.nodes_private_ips
+  # value = module.aws_infra[0].nodes_private_ips
+  value = local.nodes_info[*].private_address
 }
 
 output "nodes_info" {
   value = local.nodes_info
+}
+
+output "rancher2_settings" {
+  value = data.rancher2_setting.this.*
 }

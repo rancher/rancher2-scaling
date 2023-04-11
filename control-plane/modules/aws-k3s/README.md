@@ -34,6 +34,7 @@ No modules.
 | [aws_launch_template.k3s_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_lb.agent_lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb.server-public-lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
+| [aws_lb.server_lb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb) | resource |
 | [aws_lb_listener.port_443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_listener.port_80](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_listener.server-port_443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
@@ -44,6 +45,7 @@ No modules.
 | [aws_lb_target_group.server-443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group.server-6443](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_lb_target_group.server-80](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
+| [aws_route53_record.k3s](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_route53_record.rancher](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_security_group.ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.ingress_egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
@@ -85,6 +87,9 @@ No modules.
 | <a name="input_cattle_prometheus_metrics"></a> [cattle\_prometheus\_metrics](#input\_cattle\_prometheus\_metrics) | Boolean variable that defines whether or not to enable the CATTLE\_PROMETHEUS\_METRICS env var for Rancher | `bool` | `true` | no |
 | <a name="input_certmanager_version"></a> [certmanager\_version](#input\_certmanager\_version) | Version of cert-manager to install | `string` | `"1.5.2"` | no |
 | <a name="input_create_agent_nlb"></a> [create\_agent\_nlb](#input\_create\_agent\_nlb) | Boolean that defines whether or not to create an external load balancer | `bool` | `true` | no |
+| <a name="input_create_internal_nlb"></a> [create\_internal\_nlb](#input\_create\_internal\_nlb) | Boolean that defines whether or not to create an internal load balancer which the k3s.yaml inaccessible outside of the cluster | `bool` | `false` | no |
+| <a name="input_create_public_nlb"></a> [create\_public\_nlb](#input\_create\_public\_nlb) | Boolean that defines whether or not to create an external public load balancer | `bool` | `true` | no |
+| <a name="input_db_engine"></a> [db\_engine](#input\_db\_engine) | Engine used to create the database in RDS | `string` | `"sqlite"` | no |
 | <a name="input_db_instance_type"></a> [db\_instance\_type](#input\_db\_instance\_type) | n/a | `string` | `"db.r5.xlarge"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name of database to create in RDS | `string` | `"rancher"` | no |
 | <a name="input_db_node_count"></a> [db\_node\_count](#input\_db\_node\_count) | Number of RDS database instances to launch | `number` | `1` | no |
@@ -95,7 +100,7 @@ No modules.
 | <a name="input_domain"></a> [domain](#input\_domain) | n/a | `string` | `""` | no |
 | <a name="input_extra_agent_security_groups"></a> [extra\_agent\_security\_groups](#input\_extra\_agent\_security\_groups) | Additional security groups to attach to k3s agent instances | `list(any)` | `[]` | no |
 | <a name="input_extra_server_security_groups"></a> [extra\_server\_security\_groups](#input\_extra\_server\_security\_groups) | Additional security groups to attach to k3s server instances | `list(any)` | `[]` | no |
-| <a name="input_ingress_nginx_version"></a> [ingress\_nginx\_version](#input\_ingress\_nginx\_version) | Version string of ingress-nginx K8s chart to deploy | `string` | `"v4.0.19"` | no |
+| <a name="input_ingress_nginx_version"></a> [ingress\_nginx\_version](#input\_ingress\_nginx\_version) | Version string of ingress-nginx K8s chart to deploy | `string` | `"v4.3.0"` | no |
 | <a name="input_install_certmanager"></a> [install\_certmanager](#input\_install\_certmanager) | Boolean that defines whether or not to install Cert-Manager | `bool` | `true` | no |
 | <a name="input_install_k3s_version"></a> [install\_k3s\_version](#input\_install\_k3s\_version) | Version of K3S to install | `string` | `"1.0.0"` | no |
 | <a name="input_install_nginx_ingress"></a> [install\_nginx\_ingress](#input\_install\_nginx\_ingress) | Boolean that defines whether or not to install nginx-ingress | `bool` | `true` | no |
@@ -118,6 +123,7 @@ No modules.
 | <a name="input_r53_domain"></a> [r53\_domain](#input\_r53\_domain) | DNS domain for Route53 zone (defaults to domain if unset) | `string` | `""` | no |
 | <a name="input_rancher_chart"></a> [rancher\_chart](#input\_rancher\_chart) | Helm chart to use for Rancher install | `string` | `"rancher-stable/rancher"` | no |
 | <a name="input_rancher_chart_tag"></a> [rancher\_chart\_tag](#input\_rancher\_chart\_tag) | The github tag for the desired Rancher chart version | `string` | `"release-v2.5"` | no |
+| <a name="input_rancher_env_vars"></a> [rancher\_env\_vars](#input\_rancher\_env\_vars) | A list of objects representing Rancher environment variables | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | `[]` | no |
 | <a name="input_rancher_image"></a> [rancher\_image](#input\_rancher\_image) | n/a | `string` | `"rancher/rancher"` | no |
 | <a name="input_rancher_image_tag"></a> [rancher\_image\_tag](#input\_rancher\_image\_tag) | n/a | `string` | `"master-head"` | no |
 | <a name="input_rancher_password"></a> [rancher\_password](#input\_rancher\_password) | Password to set for admin user after bootstrap of Rancher Server | `string` | `""` | no |
