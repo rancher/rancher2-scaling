@@ -9,3 +9,9 @@ variable "rancher_version" {
   type        = string
   description = "The Rancher Server's version"
 }
+
+variable "kube_config_path" {
+  type        = string
+  default     = null
+  description = "Path to kubeconfig file on local machine"
+}

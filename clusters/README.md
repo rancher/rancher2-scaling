@@ -26,15 +26,15 @@ To cleanup, there is a `destroy_clusters.sh` however this will also delete all t
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.22.0 |
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.24.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.54.0 |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.25.0 |
 
 ## Modules
 
@@ -54,7 +54,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | n/a | `string` | `"us-west-1"` | no |
-| <a name="input_cluster_count"></a> [cluster\_count](#input\_cluster\_count) | Number of clusters to provision | `number` | n/a | yes |
+| <a name="input_cluster_count"></a> [cluster\_count](#input\_cluster\_count) | Number of clusters to provision | `number` | `1` | no |
 | <a name="input_cluster_labels"></a> [cluster\_labels](#input\_cluster\_labels) | Labels to add to each provisioned cluster | `map(any)` | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Unique identifier used in resource names and tags | `string` | `"load-testing"` | no |
 | <a name="input_insecure_flag"></a> [insecure\_flag](#input\_insecure\_flag) | Flag used to determine if Rancher is using self-signed invalid certs (using a private CA) | `bool` | `false` | no |
@@ -67,6 +67,8 @@ No modules.
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | A list of security group names (EC2-Classic) or IDs (default VPC) to associate with | `list(any)` | `[]` | no |
 | <a name="input_server_instance_type"></a> [server\_instance\_type](#input\_server\_instance\_type) | Instance type to use for k3s server | `string` | n/a | yes |
 | <a name="input_ssh_keys"></a> [ssh\_keys](#input\_ssh\_keys) | SSH keys to inject into the EC2 instances | `list(any)` | `[]` | no |
+| <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of the storage volume to use in GB | `string` | `"32"` | no |
+| <a name="input_volume_type"></a> [volume\_type](#input\_volume\_type) | Type of storage volume to use | `string` | `"gp2"` | no |
 
 ## Outputs
 

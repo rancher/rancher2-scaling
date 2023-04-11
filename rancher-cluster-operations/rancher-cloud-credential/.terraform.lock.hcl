@@ -2,9 +2,9 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.terraform.io/rancher/rancher2" {
-  version     = "1.23.0"
-  constraints = ">= 1.10.0"
+  version = "1.23.0"
   hashes = [
+    "h1:iRezZScEh4Mfw6qtPttz/lNgm8iXSB+oxDGM4uyfDSM=",
     "h1:lvFnC2QkVzXIalOFB2Za5n+bpqlgOMhJ2tzy0ErM9jk=",
     "zh:3089d8a8288e433762b02ce08b65c12a2a440e60fc1a70fd897f07cc8970f11d",
     "zh:3328fedb5c2b8c0ad7b88ffce09583509aad5b58ce1adec7c73d1154652e91ea",

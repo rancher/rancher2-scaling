@@ -4,6 +4,8 @@ script_dir=$(dirname "$0")
 KUBE_CONFIG=${1}
 BATCH_NUM_NODES=${2:-5}
 TARGET_NUM_DOWNSTREAMS=${3:-150}
+WORKSPACE_PREFIX=${4:-workspace}
+VAR_FILE=${5:-terraform.tfvars}
 
 echo "BATCH_NUM_NODES: ${BATCH_NUM_NODES} TARGET_NUM_DOWNSTREAMS: ${TARGET_NUM_DOWNSTREAMS}"
 
@@ -47,7 +49,7 @@ function batch_scale() {
     while [ "${counter}" -le $NUM_BATCHES ]; do
         BATCH_SET_LIMIT=$((counter * BATCH_NUM_NODES))
         echo "Provisioning Cluster Sets: ${BATCH_SET_LIMIT}"
-        "${script_dir}/provision_clusters.sh" ${BATCH_SET_LIMIT}
+        "${script_dir}/provision_clusters.sh" ${BATCH_SET_LIMIT} "${WORKSPACE_PREFIX}" "${VAR_FILE}"
         retVal=$?
         if [[ $retVal -eq 1 ]]; then
             echo "Errored, skipping sleep"

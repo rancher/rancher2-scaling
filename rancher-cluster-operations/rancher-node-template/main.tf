@@ -9,10 +9,29 @@ terraform {
 }
 
 resource "rancher2_node_template" "this" {
-  count               = var.create_new ? 1 : 0
-  name                = var.name
-  cloud_credential_id = var.cloud_cred_id
-  engine_install_url  = "https://releases.rancher.com/install-docker/${var.install_docker_version}.sh"
+  count                    = var.create_new ? 1 : 0
+  name                     = var.name
+  cloud_credential_id      = var.cloud_cred_id
+  engine_env               = try(var.engine_fields.engine_env, null)
+  engine_insecure_registry = try(var.engine_fields.engine_insecure_registry, null)
+  engine_install_url       = try(var.engine_fields.engine_install_url == null && length(var.install_docker_version) > 0 ? "https://releases.rancher.com/install-docker/${var.install_docker_version}.sh" : var.engine_fields.engine_install_url, null)
+  engine_label             = try(var.engine_fields.engine_label, null)
+  engine_opt               = try(var.engine_fields.engine_opt, null)
+  engine_registry_mirror   = try(var.engine_fields.engine_registry_mirror, null)
+  engine_storage_driver    = try(var.engine_fields.engine_storage_driver, null)
+  dynamic "node_taints" {
+    for_each = try(var.node_taints, [])
+    iterator = taint
+    content {
+      key        = try(taint.value.key, null)
+      value      = try(taint.value.value, null)
+      effect     = try(taint.value.effect, null)
+      time_added = try(taint.value.time_added, null)
+    }
+  }
+  use_internal_ip_address = try(var.use_internal_ip_address, null)
+  annotations             = try(var.annotations, null)
+  labels                  = try(var.labels, null)
 
   dynamic "amazonec2_config" {
     for_each = var.cloud_provider == "aws" ? [1] : []

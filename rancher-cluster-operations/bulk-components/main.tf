@@ -11,13 +11,10 @@ terraform {
       source = "hashicorp/random"
     }
   }
-  backend "local" {
-    path = "rancher.tfstate"
-  }
 }
 
 locals {
-  name_prefix                               = "${terraform.workspace}-bulk"
+  name_prefix                               = length(var.name_prefix) > 0 ? var.name_prefix : "${terraform.workspace}-bulk"
   secret_name_prefix                        = "${local.name_prefix}-secret"
   aws_cloud_cred_name_prefix                = "${local.name_prefix}-aws-cloud-cred"
   linode_cloud_cred_name_prefix             = "${local.name_prefix}-linode-cloud-cred"
@@ -76,11 +73,11 @@ locals {
       username = "${local.user_name_ref_pattern}-${i}"
     }
   }
-  existing_users = length(var.users) > 0 ? { for user in var.users : user.name => user } : {}
-  created_users  = var.create_new_users && var.num_users > 0 ? { for user in rancher2_user.this[*] : user.name => user } : {}
+  existing_users = length(var.users) > 0 ? { for i, user in var.users : i => user } : {}
+  created_users  = var.create_new_users && var.num_users > 0 ? { for i, user in rancher2_user.this[*] : i => user } : {}
 
   all_users   = (var.user_cluster_binding || var.user_project_binding || var.user_global_binding) ? merge(local.created_users, local.generated_users, local.existing_users) : {}
-  found_users   = data.rancher2_user.this
+  found_users = data.rancher2_user.this
 }
 
 data "rancher2_cluster" "this" {
@@ -170,7 +167,6 @@ resource "rancher2_namespace" "this" {
 }
 
 # TODO: Add `rancher2_user`, `rancher2_global_role `, `rancher2_global_role_binding` and/or `rancher2_role_template`, and `rancher2_project_role_template_binding` creation
-# TODO: Create module for setting up "baseline" downstream clusters
 
 # Create new users
 resource "rancher2_user" "this" {
