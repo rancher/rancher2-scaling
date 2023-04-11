@@ -21,6 +21,7 @@ terraform {
 locals {
   name                        = var.name
   install_k3s_version         = var.install_k3s_version
+  disable_psps                = length(regexall("^([1-9]|\\d{2,})\\.([2-9][5-9])\\.([0-9]|\\d{2,})", local.install_k3s_version)) > 0
   k3s_cluster_secret          = var.k3s_cluster_secret != null ? var.k3s_cluster_secret : random_password.k3s_cluster_secret.result
   server_instance_type        = var.server_instance_type
   agent_instance_type         = var.agent_instance_type
@@ -73,8 +74,10 @@ locals {
   install_rancher             = var.install_rancher
   install_nginx_ingress       = var.install_nginx_ingress
   create_agent_nlb            = var.create_agent_nlb ? 1 : 0
+  create_internal_nlb         = var.create_internal_nlb ? 1 : 0
+  create_public_nlb           = var.create_public_nlb ? 1 : 0
   registration_command        = var.registration_command
-  use_route53                 = var.use_route53 ? 1 : 0
+  use_route53                 = var.use_route53
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
   tags = {
     "rancher.user" = var.user,

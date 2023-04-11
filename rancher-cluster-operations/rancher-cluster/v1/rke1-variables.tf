@@ -2,6 +2,10 @@ variable "cloud_provider" {
   type        = string
   default     = null
   description = "A case-sensitive string equal to one of the following: [\"aws\", \"azure\", \"openstack\", \"vsphere\", \"custom\"]."
+  validation {
+    condition     = try(length(var.cloud_provider) > 0 ? contains(["aws", "azure", "openstack", "vsphere"], var.cloud_provider) : true, var.cloud_provider == null)
+    error_message = "Please pass in a case-sensitive string equal to one of the following: [\"aws\", \"azure\", \"openstack\", \"vsphere\"]."
+  }
 }
 
 variable "cloud_config" {
@@ -20,6 +24,12 @@ variable "addons_include" {
   type        = list(string)
   default     = null
   description = "(Optional) Addons yaml manifests to deploy on RKE cluster (list). Default: null https://registry.terraform.io/providers/rancher/rancher2/latest/docs/resources/cluster#addons_include"
+}
+
+variable "enable_cri_dockerd" {
+  type        = bool
+  default     = false
+  description = "(Optional) Enable/disable using cri-dockerd"
 }
 
 variable "kube_api" {

@@ -2,49 +2,49 @@ alertmanager:
   enabled: false
 grafana:
   nodeSelector:
-    monitoring: 'yes'
+    monitoring: "yes"
   tolerations:
-  - key: monitoring
-    operator: Exists
-    effect: NoSchedule
+    - key: monitoring
+      operator: Exists
+      effect: NoSchedule
 prometheus:
   prometheusSpec:
     evaluationInterval: 1m
     nodeSelector:
-      monitoring: 'yes'
+      monitoring: "yes"
     resources:
       limits:
         memory: 5000Mi
     retentionSize: 50GiB
     scrapeInterval: 1m
     tolerations:
+      - key: monitoring
+        operator: Exists
+        effect: NoSchedule
+prometheus-adapter:
+  nodeSelector:
+    monitoring: "yes"
+  tolerations:
     - key: monitoring
       operator: Exists
       effect: NoSchedule
-prometheus-adapter:
-  nodeSelector:
-    monitoring: 'yes'
-  tolerations:
-  - key: monitoring
-    operator: Exists
-    effect: NoSchedule
 kube-state-metrics:
   nodeSelector:
-    monitoring: 'yes'
+    monitoring: "yes"
   tolerations:
-  - key: monitoring
-    operator: Exists
-    effect: NoSchedule
+    - key: monitoring
+      operator: Exists
+      effect: NoSchedule
 prometheusOperator:
   nodeSelector:
-    monitoring: 'yes'
+    monitoring: "yes"
   tolerations:
-  - key: monitoring
-    operator: Exists
-    effect: NoSchedule
+    - key: monitoring
+      operator: Exists
+      effect: NoSchedule
 global:
   cattle:
     clusterId: local
     clusterName: local
-    systemDefaultRegistry: ''
-  systemDefaultRegistry: ''
+    systemDefaultRegistry: ""
+  systemDefaultRegistry: ""

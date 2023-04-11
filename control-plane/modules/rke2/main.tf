@@ -66,7 +66,7 @@ module "aws_infra_rke2" {
 
 ## Provision Auto Scaling Group of agent to auto-join cluster with taints and labels for monitoring only
 module "rke2_monitor_pool" {
-  count = var.setup_monitoring_agent ? 1 : 0
+  count  = var.setup_monitoring_agent ? 1 : 0
   source = "git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool?ref=update-to-upstream"
 
   name                     = "monitoring"

@@ -22,7 +22,7 @@ rm -rf /var/lib/containerd
 
 curl https://releases.rancher.com/install-docker/${install_docker_version}.sh | sh && usermod -aG docker ubuntu
 
-until [ "$(pgrep -f --count dockerd)" = "1" ]; do
+until [ "$(pgrep -f --count dockerd)" -ge 1 ]; do
   sleep 2
 done
 # if [ -x "$(command -v docker)" ]; then

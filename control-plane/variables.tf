@@ -22,8 +22,8 @@ variable "rancher_version" {
 }
 
 variable "enable_cri_dockerd" {
-  type = bool
-  default = true
+  type        = bool
+  default     = true
   description = "(Optional) Boolean that determines if CRI dockerd is enabled for the kubelet (required for k8s >= v1.24.x)"
 }
 
@@ -32,6 +32,46 @@ variable "rancher_loglevel" {
   type        = string
   description = "A string specifying the loglevel to set on the rancher pods. One of: info, debug or trace. https://rancher.com/docs/rancher/v2.x/en/troubleshooting/logging/"
   default     = "info"
+}
+
+variable "rancher_env_vars" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
+  description = "A list of objects representing Rancher environment variables"
+  validation {
+    condition     = length(var.rancher_env_vars) == 0 ? true : sum([for var in var.rancher_env_vars : 1 if length(lookup(var, "name", "")) > 0]) == length(var.rancher_env_vars)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+  validation {
+    condition     = length(var.rancher_env_vars) == 0 ? true : sum([for var in var.rancher_env_vars : 1 if length(lookup(var, "value", "")) > 0]) == length(var.rancher_env_vars)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+}
+
+variable "rancher_additional_values" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
+  description = "A list of objects representing override values for the Rancher helm chart, see https://helm.sh/docs/chart_best_practices/values/#consider-how-users-will-use-your-values"
+  validation {
+    condition     = length(var.rancher_additional_values) == 0 ? true : sum([for var in var.rancher_additional_values : 1 if length(lookup(var, "name", "")) > 0]) == length(var.rancher_additional_values)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+  validation {
+    condition     = length(var.rancher_additional_values) == 0 ? true : sum([for var in var.rancher_additional_values : 1 if length(lookup(var, "value", "")) > 0]) == length(var.rancher_additional_values)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+}
+
+variable "rancher_values_yaml" {
+  type        = string
+  default     = ""
+  description = "Absolute filepath to the desired values.yaml for the Rancher helm chart. Defaults to a yaml template stored in the install_common module"
 }
 
 variable "cattle_prometheus_metrics" {

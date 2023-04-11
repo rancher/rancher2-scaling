@@ -21,7 +21,12 @@ variable "cloud_provider" {
 }
 
 variable "credential_config" {
-  type        = any
+  type = object({
+    access_key = optional(string)
+    secret_key = optional(string)
+    region     = optional(string)
+    token      = optional(string)
+  })
   description = "An object containing your cloud provider's specific rancher2_cloud_credential config fields in order to dynamically map to them"
   nullable    = false
   sensitive   = true

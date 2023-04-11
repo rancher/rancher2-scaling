@@ -1,12 +1,10 @@
 provider "aws" {
-  region  = local.aws_region
+  region  = var.infra_provider == "aws" ? local.region : ""
   profile = "rancher-eng"
 }
 
-provider "aws" {
-  region  = local.aws_region
-  profile = "rancher-eng"
-  alias   = "r53"
+provider "linode" {
+  token = var.linode_token
 }
 
 provider "rancher2" {

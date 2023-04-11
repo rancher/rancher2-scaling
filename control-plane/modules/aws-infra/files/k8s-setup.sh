@@ -33,6 +33,6 @@ sysctl --system
 echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config
 systemctl restart ssh
 
-until [ "$(pgrep -f --count ssh)" = "3" ]; do
+until [ "$(pgrep -f --count ssh)" -ge 3 ]; do
   sleep 2
 done

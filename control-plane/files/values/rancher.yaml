@@ -1,0 +1,12 @@
+hostname: ${rancher_hostname}
+ingress:
+  tls:
+    source: secret
+    secretName: tls-rancher-ingress
+rancherImage: ${rancher_image}
+rancherImageTag: ${rancher_image_tag}
+replicas: ${rancher_node_count}
+bootstrapPassword: ${rancher_password}
+extraEnv:
+- name: CATTLE_PROMETHEUS_METRICS
+  value: '${cattle_prometheus_metrics}'
