@@ -35,7 +35,7 @@ variable "name" {
 
 variable "namespace" {
   type        = string
-  default     = "default"
+  default     = null
   description = "(optional) The namespace or namespace_id to create the Secret in"
 }
 

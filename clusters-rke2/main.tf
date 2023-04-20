@@ -2,8 +2,8 @@ terraform {
   required_version = ">= 0.13"
   required_providers {
     rancher2 = {
-      source  = "rancher/rancher2"
-      version = "1.21.0"
+      source = "rancher/rancher2"
+      # version = "1.21.0"
     }
     aws = {
       source = "hashicorp/aws"
@@ -19,7 +19,6 @@ terraform {
 
 terraform {
   backend "local" {
-    path = "rancher.tfstate"
   }
 }
 
@@ -47,10 +46,15 @@ locals {
   subnet_ids_list          = tolist(data.aws_subnets.available.ids)
   subnet_ids_random_index  = random_id.index.dec % length(local.subnet_ids_list)
   instance_subnet_id       = local.subnet_ids_list[local.subnet_ids_random_index]
-  use_existing_keypair     = try(var.keypair_name != null && length(var.keypair_name) > 0, false)
-  use_existing_private_key = try(var.ssh_key_path != null && length(var.ssh_key_path) > 0, false)
+  keypair_name_valid       = try(var.keypair_name != null && length(var.keypair_name) > 0, false)
+  ssh_key_path_valid       = try(var.ssh_key_path != null && length(var.ssh_key_path) > 0, false)
+  create_private_key       = !local.ssh_key_path_valid && var.create_keypair ? true : false
   rancher_subdomain        = split(".", split("//", "${var.rancher_api_url}")[1])[0]
-  cloud_cred_name          = length(var.existing_cloud_cred) > 0 ? var.existing_cloud_cred : "${local.rancher_subdomain}-aws-cloud-cred"
+  keypair_name             = var.create_keypair ? local.keypair_name_valid ? var.keypair_name : "${local.rancher_subdomain}-aws-keypair" : null
+  public_key_path_valid    = try(var.public_key_path != null && length(var.public_key_path) > 0, false)
+  public_key               = var.create_keypair ? local.public_key_path_valid ? file(var.public_key_path) : trimspace(tls_private_key.node_key[0].public_key_openssh) : null
+  ssh_key_contents         = var.create_keypair ? local.ssh_key_path_valid ? file(var.ssh_key_path) : trimspace(tls_private_key.node_key[0].private_key_openssh) : null
+  cloud_cred_name          = length(var.cloud_cred_name) > 0 ? var.cloud_cred_name : "${local.rancher_subdomain}-aws-cloud-cred"
   security_groups          = [for group in data.aws_security_group.selected : group.name]
   name_max_length          = 60
   name_suffix              = length(var.name_suffix) > 0 ? var.name_suffix : "${terraform.workspace}"
@@ -70,18 +74,18 @@ resource "rancher2_cloud_credential" "shared_cred" {
 }
 
 resource "tls_private_key" "node_key" {
-  count     = local.use_existing_private_key ? 0 : 1
+  count     = local.create_private_key ? 1 : 0
   algorithm = "RSA"
 }
 
 resource "aws_key_pair" "this" {
-  count      = local.use_existing_keypair ? 0 : 1
-  key_name   = var.keypair_name
-  public_key = trimspace(tls_private_key.node_key[0].public_key_openssh)
+  count      = var.create_keypair ? 1 : 0
+  key_name   = local.keypair_name
+  public_key = local.public_key
 }
 
 resource "rancher2_machine_config_v2" "aws" {
-  generate_name = "${local.machine_pool_name}-np"
+  generate_name = local.machine_pool_name
   amazonec2_config {
     ami                  = data.aws_ami.ubuntu.id
     region               = var.aws_region
@@ -91,9 +95,9 @@ resource "rancher2_machine_config_v2" "aws" {
     zone                 = local.selected_az_suffix
     iam_instance_profile = var.iam_instance_profile
     instance_type        = var.server_instance_type
-    keypair_name         = data.aws_key_pair.this.key_name
+    keypair_name         = local.keypair_name
     ssh_user             = "ubuntu"
-    ssh_key_contents     = local.use_existing_private_key ? file(var.ssh_key_path) : trimspace(tls_private_key.node_key[0].private_key_openssh)
+    ssh_key_contents     = local.ssh_key_contents
     tags                 = "RancherScaling,${var.cluster_name},Owner,${var.cluster_name}"
     volume_type          = var.volume_type
     root_size            = var.volume_size
@@ -123,6 +127,10 @@ resource "rancher2_cluster_v2" "rke2" {
         }
       }
     }
+  }
+
+  timeouts {
+    create = "15m"
   }
 
   depends_on = [

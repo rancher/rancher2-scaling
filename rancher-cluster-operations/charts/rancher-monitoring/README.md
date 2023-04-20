@@ -11,7 +11,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | n/a |
+| <a name="provider_rancher2"></a> [rancher2](#provider\_rancher2) | 1.25.0 |
 
 ## Modules
 
@@ -37,6 +37,7 @@ No modules.
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | n/a | `string` | n/a | yes |
 | <a name="input_rancher_token"></a> [rancher\_token](#input\_rancher\_token) | Rancher2 API token for authentication | `string` | `null` | no |
 | <a name="input_rancher_url"></a> [rancher\_url](#input\_rancher\_url) | The Rancher Server's URL | `string` | `null` | no |
+| <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | A map of string representing the timeouts for each resource operation: ['create', 'update', 'delete']. | <pre>object({<br>    create = optional(string, "10m")<br>    update = optional(string, "10m")<br>    delete = optional(string, "10m")<br>  })</pre> | `null` | no |
 | <a name="input_use_v2"></a> [use\_v2](#input\_use\_v2) | Boolean to determine which version of rancher\_catalog and rancher\_app to use | `bool` | `true` | no |
 | <a name="input_values"></a> [values](#input\_values) | Values file content for rancher-monitoring | `string` | `null` | no |
 

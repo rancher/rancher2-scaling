@@ -2,12 +2,12 @@
 IFS=$'\n'
 
 terraform workspace select default
-workspace_prefix="workspace"
-workspaces=$(terraform workspace list | grep "workspace" | sed 's/*/ /' | sort -r )
+workspace_prefix="${1:-workspace}"
+workspaces=$(terraform workspace list | grep "${workspace_prefix}" | sed 's/*/ /' | sort -r )
 
 for workspace in ${workspaces}; do
-	workspace="$(echo -e ${workspace} | tr -d '[:space:]')"
-	if [ ${workspace} == "default" ]; then
+	workspace="$(echo -e "${workspace}" | tr -d '[:space:]')"
+	if [ "${workspace}" == "default" ]; then
 		continue
 	fi
   echo "destroying workspace: ${workspace}"

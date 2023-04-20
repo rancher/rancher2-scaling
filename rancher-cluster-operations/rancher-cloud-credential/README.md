@@ -33,7 +33,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_cloud_provider"></a> [cloud\_provider](#input\_cloud\_provider) | A string defining which cloud provider to dynamically create a rancher2\_cloud\_credential for | `string` | n/a | yes |
 | <a name="input_create_new"></a> [create\_new](#input\_create\_new) | Flag defining if a new rancher2\_cloud\_credential should be created on each tf apply. Useful for scripting purposes | `bool` | `true` | no |
-| <a name="input_credential_config"></a> [credential\_config](#input\_credential\_config) | An object containing your cloud provider's specific rancher2\_cloud\_credential config fields in order to dynamically map to them | `any` | n/a | yes |
+| <a name="input_credential_config"></a> [credential\_config](#input\_credential\_config) | An object containing your cloud provider's specific rancher2\_cloud\_credential config fields in order to dynamically map to them | <pre>object({<br>    access_key = optional(string)<br>    secret_key = optional(string)<br>    region     = optional(string)<br>    token      = optional(string)<br>  })</pre> | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Display name of the rancher2\_cloud\_credential | `string` | n/a | yes |
 
 ## Outputs

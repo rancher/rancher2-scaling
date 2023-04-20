@@ -1,0 +1,25 @@
+{{- $mySharedUuid := uuidv4 -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crashing-test-pod-{{ $mySharedUuid }}
+spec:
+  selector:
+    matchLabels:
+      app: crashing-test-pod-{{ $mySharedUuid }}
+  template:
+    metadata:
+      labels:
+        app: crashing-test-pod-{{ $mySharedUuid }}
+    spec:
+      containers:
+        - command:
+            - bash
+            - -c
+            - "echo test; sleep 30; exit 1;"
+          image: ubuntu
+          name: crashing-test-container-{{ $mySharedUuid }}
+      securityContext:
+        runAsUser: 2000
+        runAsGroup: 3000
