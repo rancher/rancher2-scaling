@@ -19,7 +19,13 @@ variable "cloud_provider_name" {
 variable "cloud_provider_config" {
   type        = map(any)
   default     = null
-  description = "A map containing the values for a custom cloud provider configuration. https://registry.terraform.io/providers/rancher/rke/latest/docs/resources/cluster#cloud_provider"
+  description = "A map containing the values for a known cloud provider's configuration. https://registry.terraform.io/providers/rancher/rke/latest/docs/resources/cluster#cloud_provider"
+}
+
+variable "custom_cloud_provider_config" {
+  type        = string
+  default     = null
+  description = "A multiline string for configuring a custom cloud provider. https://registry.terraform.io/providers/rancher/rke/latest/docs/resources/cluster#custom_cloud_provider"
 }
 
 variable "hostname_override_prefix" {
@@ -70,5 +76,11 @@ variable "ssh_key_path" {
 variable "secrets_encryption" {
   type        = bool
   default     = false
-  description = "(Optional) Boolean that determines if secrets-encryption should be enabled for rke2"
+  description = "(Optional) Boolean that determines if secrets-encryption should be enabled for rke1"
+}
+
+variable "enable_cri_dockerd" {
+  type        = bool
+  default     = true
+  description = "(Optional) Boolean that determines if CRI dockerd is enabled for the kubelet (required for k8s >= v1.24.x)"
 }

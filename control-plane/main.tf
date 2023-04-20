@@ -36,11 +36,12 @@ locals {
   identifier         = random_pet.identifier.id
   domain             = var.domain
   use_new_bootstrap  = length(regexall("^([2-9]|\\d{2,})\\.([6-9]|\\d{2,})\\.([0-9]|\\d{2,})", var.rancher_version)) > 0
-  install_common     = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2") && (var.install_rancher || var.install_certmanager)
+  is_rke             = (var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2")
+  install_common     = local.is_rke && (var.install_rancher || var.install_certmanager)
   install_monitoring = local.install_common && var.install_monitoring && var.install_rancher
   kubeconfig_content = var.k8s_distribution == "k3s" ? module.k3s[0].kube_config : var.k8s_distribution == "rke1" ? module.rke1[0].kube_config : var.k8s_distribution == "rke2" ? module.rke2[0].kube_config : null
-  rancher_url        = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_url : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? try(module.install_common[0].rancher_url, "") : ""
-  rancher_token      = var.k8s_distribution == "k3s" ? module.k3s[0].rancher_token : var.k8s_distribution == "rke1" || var.k8s_distribution == "rke2" ? try(module.install_common[0].rancher_token, "") : ""
+  rancher_url        = var.k8s_distribution == "k3s" ? try(module.k3s[0].rancher_url, "") : local.is_rke ? try(module.install_common[0].rancher_url, "") : ""
+  rancher_token      = var.k8s_distribution == "k3s" ? try(module.k3s[0].rancher_token, "") : local.is_rke ? try(module.install_common[0].rancher_token, "") : ""
 }
 
 resource "random_password" "rancher_password" {
@@ -74,6 +75,7 @@ module "k3s" {
   rancher_password            = var.rancher_password != null ? var.rancher_password : random_password.rancher_password.result
   rancher_image               = var.rancher_image
   rancher_image_tag           = var.rancher_image_tag
+  rancher_env_vars            = var.rancher_env_vars
   server_instance_type        = var.rancher_instance_type
   agent_instance_type         = var.rancher_instance_type
   server_node_count           = var.rancher_node_count
@@ -85,6 +87,7 @@ module "k3s" {
   install_k3s_version         = var.install_k3s_version
   rancher_version             = var.rancher_version
   use_new_bootstrap           = local.use_new_bootstrap
+  aws_region                  = local.aws_region
   monitoring_version          = var.monitoring_version
   domain                      = local.domain
   r53_domain                  = var.r53_domain
@@ -183,7 +186,8 @@ module "install_common" {
     rancher2 = rancher2.bootstrap
   }
 
-  kube_config_path = module.generate_kube_config.kubeconfig_path
+  kube_config_path               = module.generate_kube_config.kubeconfig_path
+  helm_rancher_chart_values_path = length(var.rancher_values_yaml) > 0 ? var.rancher_values_yaml : null
 
   subdomain           = local.name
   domain              = local.domain
@@ -201,6 +205,8 @@ module "install_common" {
   byo_certs_bucket_path     = var.byo_certs_bucket_path
   private_ca_file           = var.private_ca_file
   cattle_prometheus_metrics = var.cattle_prometheus_metrics
+  rancher_env_vars          = var.rancher_env_vars
+  rancher_additional_values = var.rancher_additional_values
 
   depends_on = [
     module.generate_kube_config

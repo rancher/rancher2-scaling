@@ -1,6 +1,6 @@
 /*
   The k3s agents per node and ec2_instances_per_cluster are used together to determine total number of nodes
-*/ 
+*/
 
 variable "k3s_agents_per_node" {
   type        = number

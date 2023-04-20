@@ -13,7 +13,7 @@ done
 %{ endif ~}
 
 %{ if install_rancher ~}
-cat <<EOF > /var/lib/rancher/k3s/server/manifests/rancher.yaml
+cat <<EOF >/var/lib/rancher/k3s/server/manifests/rancher.yaml
 ---
 apiVersion: v1
 kind: Namespace
@@ -53,15 +53,29 @@ spec:
     extraEnv:
     - name: CATTLE_PROMETHEUS_METRICS
       value: '${cattle_prometheus_metrics}'
+%{ for env_var in rancher_env_vars ~}
+    - name: ${env_var["name"]}
+      value: '${env_var["value"]}'
+%{ endfor ~}
+%{ if disable_psps ~}
+    global:
+      cattle:
+        psp:
+          enabled: false
+%{ endif ~}
 EOF
 %{ endif }
 
 %{ if !install_certmanager && install_byo_certs ~}
 mkdir /certs/
 cd certs/
-apt-get update && apt-get install awscli --yes && aws --region "${s3_bucket_region}" s3 cp s3://"${byo_certs_bucket_path}" /certs/certs.tar.gz
+apt-get update \
+ && apt-get install atool --yes \
+ && apt-get install awscli --yes \
+ && aws --region "${s3_bucket_region}" s3 cp s3://"${byo_certs_bucket_path}" /certs/temp_cert
 
-tar -xf certs.tar.gz --strip-components 1
+# tar -xf certs.tar.gz --strip-components 1
+atool -X ./ temp_cert # NOTE: the given archive must contain a certs/ directory in which all cert files are stored for this to work
 mv "/certs/${tls_cert_file}" /certs/tls.crt
 mv "/certs/${tls_key_file}" /certs/tls.key
 
@@ -84,7 +98,7 @@ find . -type f ! -name "*.key" ! -name "*.crt" ! -name "cacerts.pem" -exec rm {}
 %{ endif ~}
 
 %{ if install_monitoring ~}
-cat <<EOF > /var/lib/rancher/k3s/server/manifests/monitoring.yaml
+cat <<EOF >/var/lib/rancher/k3s/server/manifests/monitoring.yaml
 ---
 apiVersion: v1
 kind: Namespace

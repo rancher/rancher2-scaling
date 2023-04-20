@@ -63,7 +63,7 @@ resource "rke_cluster" "local" {
         }
       }
 
-      custom_cloud_provider = local.use_known_provider == false ? var.cloud_provider_name : null
+      custom_cloud_provider = local.use_known_provider == false ? var.custom_cloud_provider_config : null
     }
   }
 
@@ -100,6 +100,7 @@ resource "rke_cluster" "local" {
   }
   ssh_key_path          = var.ssh_key_path
   ignore_docker_version = false
+  enable_cri_dockerd    = var.enable_cri_dockerd
   # Set kubernetes version to install: https://rancher.com/docs/rke/latest/en/upgrades/#listing-supported-kubernetes-versions
   # Check with -> rke config --list-version --all
   kubernetes_version = try(var.install_k8s_version, null)

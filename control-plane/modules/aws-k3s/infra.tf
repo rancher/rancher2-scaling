@@ -95,7 +95,7 @@ data "aws_iam_instance_profile" "rancher_s3_access" {
 
 resource "aws_launch_template" "k3s_server" {
   count         = local.server_node_count > 1 ? 2 : 1
-  name          = count.index == 0 ? "${local.name}-leader" : "${local.name}-server"
+  name_prefix   = count.index == 0 ? "${local.name}-leader" : "${local.name}-server"
   image_id      = local.server_image_id
   instance_type = local.server_instance_type
   user_data     = count.index == 0 ? data.cloudinit_config.k3s_server[0].rendered : data.cloudinit_config.k3s_server[1].rendered
@@ -126,7 +126,7 @@ resource "aws_launch_template" "k3s_server" {
 
 resource "aws_launch_template" "k3s_agent" {
   count         = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
-  name          = "${local.name}-agent"
+  name_prefix   = "${local.name}-agent"
   image_id      = local.agent_image_id
   instance_type = local.agent_instance_type
   user_data     = data.cloudinit_config.k3s_agent[0].rendered
@@ -164,6 +164,9 @@ resource "aws_autoscaling_group" "k3s_leader" {
   min_size            = 1
   vpc_zone_identifier = local.private_subnets
 
+  health_check_type         = "EC2"
+  wait_for_capacity_timeout = "10m"
+
   target_group_arns = [
     aws_lb_target_group.server-6443.arn,
     aws_lb_target_group.server-80.arn,
@@ -193,11 +196,16 @@ resource "aws_autoscaling_group" "k3s_leader" {
 }
 
 resource "aws_autoscaling_group" "k3s_server" {
-  name                = "${local.name}-server"
+  # Force a redeployment when launch configuration changes
+  count               = local.server_node_count > 1 ? 1 : 0
+  name                = aws_launch_template.k3s_server[1].name
   desired_capacity    = local.server_node_count - 1
   max_size            = local.server_node_count - 1
   min_size            = local.server_node_count - 1
   vpc_zone_identifier = local.private_subnets
+
+  health_check_type         = "EC2"
+  wait_for_capacity_timeout = "10m"
 
   target_group_arns = [
     aws_lb_target_group.server-6443.arn,
@@ -232,12 +240,16 @@ resource "aws_autoscaling_group" "k3s_server" {
 }
 
 resource "aws_autoscaling_group" "k3s_agent" {
-  count               = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
-  name                = "${local.name}-agent"
+  count = local.agent_node_count > 0 && var.create_agent_nlb ? 1 : 0
+  # Force a redeployment when launch configuration changes.
+  name                = aws_launch_template.k3s_agent[0].name
   desired_capacity    = local.agent_node_count
   max_size            = local.agent_node_count
   min_size            = local.agent_node_count
   vpc_zone_identifier = local.private_subnets
+
+  health_check_type         = "EC2"
+  wait_for_capacity_timeout = "10m"
 
   target_group_arns = [
     aws_lb_target_group.agent-80[0].arn,
@@ -274,21 +286,21 @@ resource "aws_autoscaling_group" "k3s_agent" {
 ### Create Public Rancher DNS
 #############################
 resource "aws_route53_record" "rancher" {
-  count   = local.use_route53
+  count   = local.use_route53 && local.create_public_nlb == 1 ? 1 : 0
   zone_id = data.aws_route53_zone.dns_zone[0].zone_id
   name    = "${local.subdomain}.${local.domain}"
   type    = "CNAME"
   ttl     = 30
-  records = [aws_lb.server-public-lb.dns_name]
+  records = [aws_lb.server-public-lb[0].dns_name]
 }
 
-### commenting this out since we currently have no practical need to rely on multiple
-### private + public LBs for cluster access
-# resource "aws_route53_record" "k3s" {
-#   count   = local.use_route53
-#   zone_id = data.aws_route53_zone.dns_zone[0].zone_id
-#   name    = "${local.subdomain}-int.${local.domain}"
-#   type    = "CNAME"
-#   ttl     = 30
-#   records = [aws_lb.server_lb.dns_name]
-# }
+### We currently have no practical need to rely on multiple private + public LBs for cluster access
+### So by default this will not be created without explicitly setting var.create_internal_nlb to true
+resource "aws_route53_record" "k3s" {
+  count   = local.use_route53 && local.create_internal_nlb == 1 ? 1 : 0
+  zone_id = data.aws_route53_zone.dns_zone[0].zone_id
+  name    = "${local.subdomain}-int.${local.domain}"
+  type    = "CNAME"
+  ttl     = 30
+  records = [aws_lb.server_lb[0].dns_name]
+}

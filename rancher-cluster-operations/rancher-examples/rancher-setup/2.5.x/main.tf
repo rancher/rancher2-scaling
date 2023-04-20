@@ -1,13 +1,11 @@
-### install common components for Rancher local clusters (cert-manager + Rancher)
+## install common components for Rancher local clusters (cert-manager + Rancher)
 module "install_common" {
   source = "../../../install-common"
   providers = {
     rancher2 = rancher2.bootstrap
   }
 
-
-  kube_config_path = var.kube_config_path
-
+  kube_config_path    = var.kube_config_path
   subdomain           = local.rancher_subdomain
   domain              = local.rancher_domain
   install_certmanager = true
@@ -33,7 +31,7 @@ data "rancher2_cluster" "local" {
   ]
 }
 
-### Create custom Rancher Catalog and install rancher-monitoring for Rancher 2.5.x
+## Create custom Rancher Catalog and install rancher-monitoring for Rancher 2.5.x
 module "rancher_monitoring" {
   source = "../../../charts/rancher-monitoring"
   providers = {
@@ -53,7 +51,7 @@ module "rancher_monitoring" {
 ### Setup and install the custom controller metrics dashboards for rancher-monitoring
 module "controller_metrics" {
   source          = "../../../rancher-controller-metrics"
-  rancher_token   = module.install_common.rancher_token
+  rancher_token   = var.rancher_token
   rancher_version = var.rancher_version
 
   depends_on = [

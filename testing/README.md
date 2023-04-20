@@ -37,6 +37,6 @@
 ### they will be given default values.
 
 RANCHER_SCALING_PULSE: time to wait between each iteration
-RANCHER_SCALING_JITTER: random number within this range will be added to every "pulse" 
+RANCHER_SCALING_JITTER: random number within this range will be added to every "pulse"
 RANCHER_SCALING_ITERATIONS: number of times to run full suite of metrics
 RANCHER_SCALING_SAVE: amount of time to wait in between saving results to csv

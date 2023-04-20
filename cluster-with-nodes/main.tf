@@ -5,15 +5,15 @@ terraform {
 }
 
 locals {
-  name                 = "load-testing"
+  name                  = "load-testing"
   instances_per_cluster = var.ec2_instances_per_cluster
-  cluster_instance     = terraform.workspace
-  k3s_token            = var.k3s_token
-  install_k3s_version  = "docker.io/rancher/k3s:v1.17.2-k3s1"
+  cluster_instance      = terraform.workspace
+  k3s_token             = var.k3s_token
+  install_k3s_version   = "docker.io/rancher/k3s:v1.17.2-k3s1"
 }
 
 provider "aws" {
-  region  = "us-west-2"
+  region = "us-west-2"
   //profile = "rancher-eng"
 }
 
@@ -45,7 +45,7 @@ resource "aws_spot_instance_request" "k3s-server" {
   )
 
   tags = {
-    Name = "${local.name}-server-${local.cluster_instance}"
+    Name           = "${local.name}-server-${local.cluster_instance}"
     RancherScaling = "true"
   }
 
@@ -57,16 +57,16 @@ resource "aws_spot_instance_request" "k3s-server" {
 }
 
 module "downstream-k3s-nodes" {
-  source = "./modules/downstream-k3s-nodes"
-  k3s_agents_per_node = var.k3s_agents_per_node
-  instances = var.ec2_instances_per_cluster
+  source               = "./modules/downstream-k3s-nodes"
+  k3s_agents_per_node  = var.k3s_agents_per_node
+  instances            = var.ec2_instances_per_cluster
   worker_instance_type = var.worker_instance_type
 
-  ami_id = data.aws_ami.ubuntu.id
-  spot_price = var.worker_instance_max_price
-  prefix = local.name
-  k3s_token = local.k3s_token
-  k3s_endpoint = "https://${aws_spot_instance_request.k3s-server.private_ip}:6443"
+  ami_id              = data.aws_ami.ubuntu.id
+  spot_price          = var.worker_instance_max_price
+  prefix              = local.name
+  k3s_token           = local.k3s_token
+  k3s_endpoint        = "https://${aws_spot_instance_request.k3s-server.private_ip}:6443"
   install_k3s_version = local.install_k3s_version
-  consul_store = aws_spot_instance_request.k3s-server.private_ip
+  consul_store        = aws_spot_instance_request.k3s-server.private_ip
 }

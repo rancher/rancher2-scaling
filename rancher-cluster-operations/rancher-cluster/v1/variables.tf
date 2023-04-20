@@ -10,7 +10,7 @@ variable "k8s_distribution" {
 
 variable "k8s_version" {
   type        = string
-  default     = "v1.22.9-rancher1-1"
+  default     = null
   description = "Version of k8s to use for downstream cluster (RKE1 version string)"
 }
 
@@ -26,6 +26,12 @@ variable "description" {
   description = "(optional) describe your variable"
 }
 
+variable "annotations" {
+  type        = map(any)
+  default     = null
+  description = "Optional annotations for the Cluster"
+}
+
 variable "labels" {
   type        = map(any)
   default     = {}
@@ -36,12 +42,6 @@ variable "agent_env_vars" {
   type        = list(map(string))
   default     = null
   description = "List of maps for optional Agent Env Vars for Rancher agent. Just for Rancher v2.5.6 and above"
-}
-
-variable "annotations" {
-  type        = map(any)
-  default     = null
-  description = "Optional annotations for the Cluster"
 }
 
 variable "sensitive_output" {

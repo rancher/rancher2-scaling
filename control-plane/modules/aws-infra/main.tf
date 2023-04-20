@@ -1,11 +1,6 @@
 terraform {
+  required_version = ">= 0.15"
   required_providers {
-    rancher2 = {
-      source = "rancher/rancher2"
-    }
-    rke = {
-      source = "rancher/rke"
-    }
     aws = {
       source = "hashicorp/aws"
     }
@@ -36,8 +31,10 @@ locals {
   domain                      = var.domain
   r53_domain                  = length(var.r53_domain) > 0 ? var.r53_domain : local.domain
   private_subnets_cidr_blocks = length(var.private_subnets_cidr_blocks) > 0 ? var.private_subnets_cidr_blocks : ["0.0.0.0/0"]
+  create_internal_nlb         = var.create_internal_nlb ? 1 : 0
   create_external_nlb         = var.create_external_nlb ? 1 : 0
-  use_route53                 = var.use_route53 ? 1 : 0
+  create_public_nlb           = local.create_internal_nlb == 1 || local.create_external_nlb == 1 ? 1 : 0
+  use_route53                 = var.use_route53
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
   # Handle case where target group/load balancer name exceeds 32 character limit without creating illegal names
   internal_lb_name       = "${substr(local.name, 0, 27)}-int"
@@ -90,6 +87,6 @@ resource "null_resource" "wait_for_bootstrap" {
   }
 
   depends_on = [
-    aws_autoscaling_group.rke1_server
+    aws_autoscaling_group.server
   ]
 }
