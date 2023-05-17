@@ -10,7 +10,7 @@ resource "rancher2_machine_config_v2" "this" {
     zone                 = local.selected_az_suffix
     iam_instance_profile = var.iam_instance_profile
     instance_type        = var.server_instance_type
-    tags                 = "RancherScaling,${local.rancher_subdomain},Owner,${local.rancher_subdomain}"
+    tags                 = "RancherScaling:${local.rancher_subdomain},Owner:${local.rancher_subdomain}"
     volume_type          = var.volume_type
     root_size            = var.volume_size
   }

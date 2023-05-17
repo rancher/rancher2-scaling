@@ -22,7 +22,7 @@ module "node_template" {
     root_size            = var.volume_size
     volume_type          = var.volume_type
     iam_instance_profile = var.iam_instance_profile
-    tags                 = "RancherScaling,${local.rancher_subdomain},Owner,${local.rancher_subdomain}"
+    tags                 = "RancherScaling:${local.rancher_subdomain},Owner:${local.rancher_subdomain}"
   }
   engine_fields = var.node_template_engine_fields
 }

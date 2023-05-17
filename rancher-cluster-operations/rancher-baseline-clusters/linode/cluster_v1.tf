@@ -14,7 +14,7 @@ module "node_template" {
     instance_type    = var.server_instance_type
     region           = var.region
     authorized_users = var.authorized_users
-    tags             = "RancherScaling,${local.rancher_subdomain},Owner,${local.rancher_subdomain}"
+    tags             = "RancherScaling:${local.rancher_subdomain},Owner:${local.rancher_subdomain}"
   }
   engine_fields = var.node_template_engine_fields
 }
