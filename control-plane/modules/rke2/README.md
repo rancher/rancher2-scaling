@@ -19,8 +19,8 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | replace-template-provider |
-| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | replace-template-provider |
+| <a name="module_aws_infra_rke2"></a> [aws\_infra\_rke2](#module\_aws\_infra\_rke2) | git::https://github.com/git-ival/rke2-aws-tf.git// | update-to-upstream |
+| <a name="module_rke2_monitor_pool"></a> [rke2\_monitor\_pool](#module\_rke2\_monitor\_pool) | git::https://github.com/git-ival/rke2-aws-tf.git//modules/agent-nodepool | update-to-upstream |
 
 ## Resources
 

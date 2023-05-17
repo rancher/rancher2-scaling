@@ -4,20 +4,20 @@ output "rancher_admin_password" {
 }
 
 output "rancher_url" {
-  value = rancher2_bootstrap.admin[0].url
+  value = try(rancher2_bootstrap.admin[0].url, "N/A")
 }
 
 output "rancher_token_id" {
-  value = rancher2_bootstrap.admin[0].token_id
+  value = try(rancher2_bootstrap.admin[0].token_id, "N/A")
 }
 
 output "rancher_token" {
-  value     = rancher2_bootstrap.admin[0].token
+  value     = try(rancher2_bootstrap.admin[0].token, "N/A")
   sensitive = false
 }
 
 output "kube_config" {
-  value     = data.rancher2_cluster.local[0].kube_config
+  value     = try(data.rancher2_cluster.local[0].kube_config, "N/A")
   sensitive = true
 }
 

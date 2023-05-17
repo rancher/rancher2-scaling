@@ -1,0 +1,29 @@
+
+{{- $mySharedUuid := uuidv4 -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mytestcontainer-{{ $mySharedUuid }}
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+  labels:
+    workload.user.cattle.io/workloadselector: mytestcontainer-{{ $mySharedUuid }}
+spec:
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: mytestcontainer-{{ $mySharedUuid }}
+  template:
+    metadata:
+      labels:
+        workload.user.cattle.io/workloadselector: mytestcontainer-{{ $mySharedUuid }}
+    spec:
+      containers:
+        - imagePullPolicy: IfNotPresent
+          name: mytestcontainer-{{ $mySharedUuid }}-0
+          image: ranchertest/mytestcontainer
+      affinity:
+      imagePullSecrets:
+      restartPolicy: Always
+      volumes:
+  replicas: 1

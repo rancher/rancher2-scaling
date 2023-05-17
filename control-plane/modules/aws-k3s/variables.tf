@@ -50,6 +50,23 @@ variable "rancher_chart_tag" {
   description = "The github tag for the desired Rancher chart version"
 }
 
+variable "rancher_env_vars" {
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default     = []
+  description = "A list of objects representing Rancher environment variables"
+  validation {
+    condition     = length(var.rancher_env_vars) == 0 ? true : sum([for var in var.rancher_env_vars : 1 if length(lookup(var, "name", "")) > 0]) == length(var.rancher_env_vars)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+  validation {
+    condition     = length(var.rancher_env_vars) == 0 ? true : sum([for var in var.rancher_env_vars : 1 if length(lookup(var, "value", "")) > 0]) == length(var.rancher_env_vars)
+    error_message = "Each env var object must contain key-value pairs for the \"name\" and \"value\" keys."
+  }
+}
+
 variable "name" {
   type        = string
   default     = "rancher-demo"
@@ -182,6 +199,12 @@ variable "db_instance_type" {
   default = "db.r5.xlarge"
 }
 
+variable "db_engine" {
+  type        = string
+  default     = "sqlite"
+  description = "Engine used to create the database in RDS"
+}
+
 variable "db_name" {
   default     = "rancher"
   type        = string
@@ -233,7 +256,7 @@ variable "install_nginx_ingress" {
 }
 
 variable "ingress_nginx_version" {
-  default     = "v4.0.19"
+  default     = "v4.3.0"
   type        = string
   description = "Version string of ingress-nginx K8s chart to deploy"
 }
@@ -284,6 +307,18 @@ variable "create_agent_nlb" {
   default     = true
   type        = bool
   description = "Boolean that defines whether or not to create an external load balancer"
+}
+
+variable "create_internal_nlb" {
+  default     = false
+  type        = bool
+  description = "Boolean that defines whether or not to create an internal load balancer which the k3s.yaml inaccessible outside of the cluster"
+}
+
+variable "create_public_nlb" {
+  default     = true
+  type        = bool
+  description = "Boolean that defines whether or not to create an external public load balancer"
 }
 
 variable "k3s_datastore_cafile" {

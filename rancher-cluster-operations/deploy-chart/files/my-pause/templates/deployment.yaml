@@ -1,0 +1,29 @@
+
+{{- $mySharedUuid := uuidv4 -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-pause-{{ $mySharedUuid }}
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+  labels:
+    workload.user.cattle.io/workloadselector: my-pause-{{ $mySharedUuid }}
+spec:
+  selector:
+    matchLabels:
+      app: my-pause-{{ $mySharedUuid }}
+  template:
+    metadata:
+      labels:
+        app: my-pause-{{ $mySharedUuid }}
+    spec:
+      containers:
+        - image: kubernetes/pause:latest
+          imagePullPolicy: Always
+          name: my-pause-{{ $mySharedUuid }}-0
+      affinity:
+      imagePullSecrets:
+      restartPolicy: Always
+      volumes:
+  replicas: 1

@@ -27,9 +27,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_identifier_prefix"></a> [identifier\_prefix](#input\_identifier\_prefix) | n/a | `any` | n/a | yes |
-| <a name="input_kubeconfig_content"></a> [kubeconfig\_content](#input\_kubeconfig\_content) | n/a | `any` | n/a | yes |
-| <a name="input_kubeconfig_dir"></a> [kubeconfig\_dir](#input\_kubeconfig\_dir) | n/a | `any` | n/a | yes |
+| <a name="input_identifier_prefix"></a> [identifier\_prefix](#input\_identifier\_prefix) | n/a | `string` | n/a | yes |
+| <a name="input_kubeconfig_content"></a> [kubeconfig\_content](#input\_kubeconfig\_content) | n/a | `string` | n/a | yes |
+| <a name="input_kubeconfig_dir"></a> [kubeconfig\_dir](#input\_kubeconfig\_dir) | n/a | `string` | n/a | yes |
 
 ## Outputs
 

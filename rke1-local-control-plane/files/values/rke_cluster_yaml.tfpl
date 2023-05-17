@@ -1,0 +1,51 @@
+nodes:
+%{ for i in range(length(addresses)) ~}
+- address: ${addresses[i]}
+  internal_address: ${private_addresses[i]}
+  role:
+  - controlplane
+  - worker
+  - etcd
+  user: ${user}
+%{ endfor ~}
+%{ if dedicated_monitoring ~}
+- address: ${monitor_address}
+  internal_address: ${monitor_private_address}
+  role:
+  - worker
+  user: ${user}
+  labels:
+    monitoring: "yes"
+  taints:
+  - key: monitoring
+    value: "yes"
+    effect: NoSchedule
+%{ endif ~}
+services:
+  etcd:
+    snapshot: true
+    retention: 24h
+    creation: 6h
+  kube-api:
+    secrets_encryption_config:
+      enabled: ${enable_secrets_encryption}
+    audit_log:
+      enabled: ${enable_audit_log}
+ingress:
+  provider: nginx
+  options:
+    use-forwarded-headers: "true"
+ssh_key_path: ${ssh_key_path}
+ssh_agent_auth: false
+ignore_docker_version: false
+%{ if length(kubernetes_version) > 0 ~}
+kubernetes_version: ${kubernetes_version}
+%{ endif ~}
+enable_cri_dockerd: ${enable_cri_dockerd}
+cluster_name: local
+%{ if length(keys(system_images)) > 0 ~}
+system_images:
+%{ for key, value in system_images ~}
+  ${key}: ${value}
+%{ endfor ~}
+%{ endif ~}

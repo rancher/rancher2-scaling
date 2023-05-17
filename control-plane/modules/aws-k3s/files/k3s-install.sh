@@ -16,14 +16,14 @@ export K3S_URL='https://${k3s_url}:6443'
 %{~ endif ~}
 
 %{ if sleep_at_startup }
-sleep_time=$(((RANDOM % 10) + 5))
+sleep_time=$(((RANDOM % 10) + 25))
 sleep $sleep_time
 %{ endif ~}
 
 until (curl -sfL https://get.k3s.io |  sh -); do
   echo 'k3s did not install correctly'
   systemctl status k3s.service
-  journalctl -xe --no-pager
+  journalctl -xe --no-pager -u k3s.service
   k3s-uninstall.sh
   sleep 2
 done

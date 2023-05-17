@@ -20,3 +20,6 @@ kube-config.yaml
 *.vscode
 *infracost*
 *pre-commit*
+*.tfrc
+**/kube_config/*
+**/kubeconfig/*

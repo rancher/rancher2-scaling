@@ -55,6 +55,11 @@ data "aws_iam_instance_profile" "rancher_iam_full_access" {
   name = var.iam_instance_profile
 }
 
-data "rancher2_cloud_credential" "existing_cred" {
+data "rancher2_cloud_credential" "this" {
   name = var.create_credential ? rancher2_cloud_credential.shared_cred[0].name : local.cloud_cred_name
+}
+
+data "aws_key_pair" "this" {
+  count    = local.keypair_name_valid ? 1 : 0
+  key_name = var.create_keypair ? aws_key_pair.this[0].key_name : local.keypair_name
 }

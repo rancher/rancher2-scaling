@@ -1,0 +1,11 @@
+prometheus:
+  prometheusSpec:
+    evaluationInterval: 1m
+    retentionSize: 50GiB
+    scrapeInterval: 1m
+global:
+  cattle:
+    clusterId: local
+    clusterName: local
+    systemDefaultRegistry: ""
+  systemDefaultRegistry: ""

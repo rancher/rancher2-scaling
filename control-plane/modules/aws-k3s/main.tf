@@ -21,6 +21,7 @@ terraform {
 locals {
   name                        = var.name
   install_k3s_version         = var.install_k3s_version
+  disable_psps                = length(regexall("^([1-9]|\\d{2,})\\.([2-9][5-9])\\.([0-9]|\\d{2,})", local.install_k3s_version)) > 0
   k3s_cluster_secret          = var.k3s_cluster_secret != null ? var.k3s_cluster_secret : random_password.k3s_cluster_secret.result
   server_instance_type        = var.server_instance_type
   agent_instance_type         = var.agent_instance_type
@@ -32,14 +33,18 @@ locals {
   server_node_count           = var.server_node_count
   agent_node_count            = var.agent_node_count
   ssh_keys                    = var.ssh_keys
-  deploy_rds                  = var.k3s_datastore_endpoint != "sqlite" ? 1 : 0
+  deploy_rds                  = var.db_engine != "sqlite" ? 1 : 0
   db_instance_type            = var.db_instance_type
   db_user                     = var.db_user
   db_pass                     = var.db_pass
   db_name                     = var.db_name != null ? var.db_name : var.name
-  db_node_count               = var.k3s_datastore_endpoint != "sqlite" ? var.db_node_count : 0
+  db_node_count               = var.db_engine != "sqlite" ? var.db_node_count : 0
+  db_engine_mysql_options     = ["mariadb", "mysql", "sqlserver-ee", "sqlserver-se", "sqlserver-ex", "sqlserver-web"]
+  db_engine_postgres_options  = ["postgres"]
+  k3s_datastore_protocol      = contains(local.db_engine_mysql_options, var.db_engine) ? "mysql" : contains(local.db_engine_postgres_options, var.db_engine) ? "postgres" : "https"
   k3s_datastore_cafile        = var.k3s_datastore_cafile
-  k3s_datastore_endpoint      = var.k3s_datastore_endpoint != "sqlite" ? "mysql://${local.db_user}:${local.db_pass}@tcp(${var.k3s_datastore_endpoint})/${var.db_name}" : ""
+  k3s_datastore_host_protocol = local.k3s_datastore_protocol == "mysql" ? "@tcp(${var.k3s_datastore_endpoint})" : "@${var.k3s_datastore_endpoint}"
+  k3s_datastore_endpoint      = var.db_engine != "sqlite" ? "${local.k3s_datastore_protocol}://${local.db_user}:${local.db_pass}${local.k3s_datastore_host_protocol}/${var.db_name}" : ""
   k3s_disable_agent           = var.k3s_disable_agent ? "--disable-agent" : ""
   k3s_tls_san                 = var.k3s_tls_san != null ? var.k3s_tls_san : "--tls-san ${aws_route53_record.rancher[0].fqdn}"
   k3s_deploy_traefik          = var.k3s_deploy_traefik ? "" : "--disable=traefik"
@@ -52,7 +57,7 @@ locals {
   rancher_chart_tag           = var.rancher_chart_tag
   rancher_version             = var.rancher_version
   rancher_sg                  = var.install_rancher ? [aws_security_group.ingress_egress[0].id, aws_security_group.rancher[0].id] : []
-  use_new_monitoring_crd_url  = length(regexall("2.6", local.rancher_chart_tag)) > 0 ? true : false
+  use_new_monitoring_crd_url  = length(regexall("([2-9]|\\d{2,})+\\.([6-9]|\\d{2,})+\\.*([0-9]|\\d{2,})*", local.rancher_chart_tag)) > 0 ? true : false
   letsencrypt_email           = var.letsencrypt_email
   byo_certs_bucket_path       = var.byo_certs_bucket_path
   s3_instance_profile         = var.s3_instance_profile
@@ -69,8 +74,10 @@ locals {
   install_rancher             = var.install_rancher
   install_nginx_ingress       = var.install_nginx_ingress
   create_agent_nlb            = var.create_agent_nlb ? 1 : 0
+  create_internal_nlb         = var.create_internal_nlb ? 1 : 0
+  create_public_nlb           = var.create_public_nlb ? 1 : 0
   registration_command        = var.registration_command
-  use_route53                 = var.use_route53 ? 1 : 0
+  use_route53                 = var.use_route53
   subdomain                   = var.subdomain != null ? var.subdomain : var.name
   tags = {
     "rancher.user" = var.user,
@@ -90,11 +97,11 @@ resource "null_resource" "wait_for_rancher" {
     command = <<EOF
 until echo "$${subject}" | grep -q "CN=${local.subdomain}.${local.domain}" || echo "$${subject}" | grep -q "CN=\*.${local.domain}" ; do
     sleep 5
-    subject=$(curl -vk -m 2 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
+    subject=$(curl -vk -m 20 "https://${local.subdomain}.${local.domain}/ping" 2>&1 | grep "subject:")
     echo "Subject: $${subject}"
 done
 while [ "$${resp}" != "pong" ]; do
-    resp=$(curl -sSk -m 2 "https://${local.subdomain}.${local.domain}/ping")
+    resp=$(curl -sSk -m 20 "https://${local.subdomain}.${local.domain}/ping")
     echo "Rancher Response: $${resp}"
     if [ "$${resp}" != "pong" ]; then
       sleep 10

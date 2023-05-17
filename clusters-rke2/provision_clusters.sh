@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
 cluster_instances=${1:-1}
-workspace_prefix="workspace"
+workspace_prefix=${2:-workspace}
+var_file=${3:-terraform.tfvars}
 
 echo "checking if workspaces exist"
 # This will not fix a broken terraform run, if the workspace already exists it will
@@ -16,9 +17,9 @@ for cluster_instance in $(seq -f "%05g" 1 ${cluster_instances}); do
     # only create cloud credential and node_template if they have not already been created (if first tf apply is successful then skip creation)
     if [ ! ${cluster_instance} = "00001" ] && terraform workspace list | grep -q "${workspace_prefix}-00001";
     then
-      terraform apply -auto-approve -var "create_credential=false"
+      terraform apply -auto-approve -var "create_credential=false" -var-file="${var_file}"
     else
-      terraform apply -auto-approve
+      terraform apply -auto-approve -var-file="${var_file}"
     fi
   elif [ "${cluster_instance}" -eq "${cluster_instances}" ]
   then
