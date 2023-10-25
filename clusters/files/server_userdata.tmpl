@@ -51,7 +51,7 @@ runcmd:
 # k3d v4.4.5 uses k3s v1.21.1+k3s1 by default to avoid https://k3d.io/faq/faq/#solved-nodes-fail-to-start-or-get-stuck-in-notready-state-with-log-nf_conntrack_max-permission-denied
 - wget https://github.com/rancher/k3d/releases/download/${k3d_version}/k3d-linux-amd64 -O /usr/local/bin/k3d
 - chmod +x /usr/local/bin/k3d
-- curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+- curl -LO https://dl.k8s.io/release/`curl -sL https://dl.k8s.io/release/stable.txt`/bin/linux/amd64/kubectl
 - chmod +x ./kubectl
 - mv ./kubectl /usr/local/bin/kubectl
 - sleep 5
